@@ -6,10 +6,21 @@ import { Profile } from './pages/Profile/Profile';
 import { Doctors } from './pages/Doctors/Doctors';
 import { Services } from './pages/Services/Services';
 
+import Login from './pages/Login';
+import ProtectedRoute from './components/ProtectedRoute';
+
 const router = createBrowserRouter([
     {
+        path: '/login',
+        element: <Login />,
+    },
+    {
         path: '/',
-        element: <MainLayout />,
+        element: (
+            <ProtectedRoute>
+                <MainLayout />
+            </ProtectedRoute>
+        ),
         children: [
             {
                 index: true,
