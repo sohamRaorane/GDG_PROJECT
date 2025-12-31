@@ -5,10 +5,18 @@ import Appointments from "./pages/Appointments";
 import Reports from "./pages/Reports";
 import UserManagement from "./pages/UserManagement";
 
+import Login from "./pages/Login";
+import ProtectedRoute from "./components/ProtectedRoute";
+
 const AppRoutes = () => {
     return (
         <Routes>
-            <Route path="/" element={<DashboardLayout />}>
+            <Route path="/login" element={<Login />} />
+            <Route path="/" element={
+                <ProtectedRoute>
+                    <DashboardLayout />
+                </ProtectedRoute>
+            }>
                 <Route index element={<DashboardHome />} />
                 <Route path="appointments" element={<Appointments />} />
                 <Route path="reports" element={<Reports />} />
