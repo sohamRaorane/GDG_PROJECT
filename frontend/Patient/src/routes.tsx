@@ -9,10 +9,26 @@ import { Services } from './pages/Services/Services';
 import Login from './pages/Login';
 import ProtectedRoute from './components/ProtectedRoute';
 
+import Signup from './pages/Signup';
+import ForgotPassword from './pages/ForgotPassword';
+import VerifyEmail from './pages/VerifyEmail';
+
 const router = createBrowserRouter([
     {
         path: '/login',
         element: <Login />,
+    },
+    {
+        path: '/signup',
+        element: <Signup />,
+    },
+    {
+        path: '/forgot-password',
+        element: <ForgotPassword />,
+    },
+    {
+        path: '/verify-email',
+        element: <VerifyEmail />,
     },
     {
         path: '/',

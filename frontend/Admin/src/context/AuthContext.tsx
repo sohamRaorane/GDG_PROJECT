@@ -8,9 +8,12 @@ import {
     GoogleAuthProvider
 } from 'firebase/auth';
 import { auth } from '../firebase';
+import { getUserProfile } from '../services/db';
+import type { UserProfile } from '../types/db';
 
 interface AuthContextType {
     currentUser: User | null;
+    userProfile: UserProfile | null;
     loading: boolean;
     login: (email: string, password: string) => Promise<void>;
     logout: () => Promise<void>;
@@ -33,11 +36,22 @@ interface AuthProviderProps {
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const [currentUser, setCurrentUser] = useState<User | null>(null);
+    const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        const unsubscribe = onAuthStateChanged(auth, (user) => {
+        const unsubscribe = onAuthStateChanged(auth, async (user) => {
             setCurrentUser(user);
+            if (user) {
+                try {
+                    const profile = await getUserProfile(user.uid);
+                    setUserProfile(profile);
+                } catch (error) {
+                    console.error("Error fetching user profile:", error);
+                }
+            } else {
+                setUserProfile(null);
+            }
             setLoading(false);
         });
 
@@ -56,6 +70,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const logout = async () => {
         try {
             await signOut(auth);
+            setUserProfile(null);
         } catch (error) {
             console.error("Logout failed", error);
             throw error;
@@ -74,6 +89,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
     const value = {
         currentUser,
+        userProfile,
         loading,
         login,
         logout,
