@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Plus, Link as LinkIcon, Eye, Trash2, Edit2, Clock, Users, DollarSign } from "lucide-react";
 import Button from "../components/ui/Button";
 import Card from "../components/ui/Card";
@@ -6,9 +6,12 @@ import Modal from "../components/ui/Modal";
 import ScheduleManager from "../components/appointments/ScheduleManager";
 import IntakeFormBuilder from "../components/appointments/IntakeFormBuilder";
 import CalendarView from "../components/appointments/CalendarView";
+import { getAllServices, createService, getAllAppointments, updateAppointmentStatus, updateService, deleteService, type Service } from "../services/db";
+import type { Appointment } from "../types/db";
+import { Timestamp } from "firebase/firestore";
 
 interface AppointmentType {
-    id: number;
+    id: string | number;
     name: string;
     duration: number; // minutes
     type: "User" | "Resource";
@@ -19,10 +22,10 @@ interface AppointmentType {
 const Appointments = () => {
     const [activeTab, setActiveTab] = useState<"services" | "availability" | "calendar" | "settings">("services");
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [appointmentTypes, setAppointmentTypes] = useState<AppointmentType[]>([
-        { id: 1, name: "General Consultation", duration: 30, type: "User", price: 50, status: "Published" },
-        { id: 2, name: "Ayurvedic Massage", duration: 60, type: "Resource", price: 120, status: "Unpublished" },
-    ]);
+    const [appointmentTypes, setAppointmentTypes] = useState<AppointmentType[]>([]);
+    const [loadingServices, setLoadingServices] = useState(false);
+    const [appointments, setAppointments] = useState<Appointment[]>([]);
+    const [loadingAppointments, setLoadingAppointments] = useState(false);
 
     const [newType, setNewType] = useState<Partial<AppointmentType>>({
         name: "",
@@ -36,18 +39,41 @@ const Appointments = () => {
         if (!newType.name) return;
         const type: AppointmentType = {
             id: Date.now(),
-            name: newType.name,
+            name: newType.name as string,
             duration: newType.duration || 30,
             type: newType.type || "User",
             price: newType.price || 0,
             status: newType.status || "Unpublished",
         };
-        setAppointmentTypes([...appointmentTypes, type]);
+
+        // persist to Firestore as a Service
+        (async () => {
+            try {
+                const svc: Omit<Service, 'id'> = {
+                    name: type.name,
+                    description: type.name,
+                    durationMinutes: type.duration,
+                    price: type.price,
+                    currency: "USD",
+                    isActive: type.status === "Published",
+                    providerId: "admin",
+                    workingHours: [],
+                    bookingRules: { maxAdvanceBookingDays: 30, minAdvanceBookingHours: 2, requiresManualConfirmation: false },
+                    createdAt: Timestamp.now(),
+                    updatedAt: Timestamp.now(),
+                };
+                const id = await createService(svc);
+                setAppointmentTypes((prev) => [...prev, { ...type, id }]);
+            } catch (err) {
+                console.error("Failed to create service", err);
+            }
+        })();
+
         setIsModalOpen(false);
         setNewType({ name: "", duration: 30, type: "User", price: 0, status: "Unpublished" });
     };
 
-    const AppointmentTypeCard = ({ type }: { type: AppointmentType }) => (
+    const AppointmentTypeCard = ({ type, onToggle, onDelete }: { type: AppointmentType; onToggle?: () => void; onDelete?: () => void }) => (
         <Card className="hover:shadow-md transition-shadow">
             <div className="flex justify-between items-start mb-4">
                 <div>
@@ -60,8 +86,8 @@ const Appointments = () => {
                 <div className="flex gap-2">
                     <button className="text-slate-400 hover:text-medical-blue" title="Share Link"><LinkIcon className="h-4 w-4" /></button>
                     <button className="text-slate-400 hover:text-medical-blue" title="Preview"><Eye className="h-4 w-4" /></button>
-                    <button className="text-slate-400 hover:text-medical-blue"><Edit2 className="h-4 w-4" /></button>
-                    <button className="text-slate-400 hover:text-red-500"><Trash2 className="h-4 w-4" /></button>
+                    <button onClick={onToggle} className="text-slate-400 hover:text-medical-blue" title="Toggle Active"><Edit2 className="h-4 w-4" /></button>
+                    <button onClick={onDelete} className="text-slate-400 hover:text-red-500" title="Delete"><Trash2 className="h-4 w-4" /></button>
                 </div>
             </div>
 
@@ -81,6 +107,78 @@ const Appointments = () => {
             </div>
         </Card>
     );
+
+    useEffect(() => {
+        let mounted = true;
+        const load = async () => {
+            setLoadingServices(true);
+            try {
+                const services = await getAllServices();
+                if (!mounted) return;
+                const mapped: AppointmentType[] = services.map((s) => ({
+                    id: s.id,
+                    name: s.name,
+                    duration: s.durationMinutes,
+                    type: "User",
+                    price: s.price,
+                    status: s.isActive ? "Published" : "Unpublished",
+                }));
+                setAppointmentTypes(mapped);
+            } catch (err) {
+                console.error("Failed to load services", err);
+            } finally {
+                if (mounted) setLoadingServices(false);
+            }
+        };
+        load();
+        return () => { mounted = false };
+    }, []);
+
+    // load appointments for management list
+    useEffect(() => {
+        let mounted = true;
+        const load = async () => {
+            setLoadingAppointments(true);
+            try {
+                const appts = await getAllAppointments();
+                if (!mounted) return;
+                setAppointments(appts);
+            } catch (err) {
+                console.error("Failed to load appointments", err);
+            } finally {
+                if (mounted) setLoadingAppointments(false);
+            }
+        };
+        load();
+        return () => { mounted = false };
+    }, []);
+
+    const handleChangeAppointmentStatus = async (id: string, status: Appointment['status']) => {
+        try {
+            await updateAppointmentStatus(id, status);
+            setAppointments((prev) => prev.map(a => a.id === id ? { ...a, status } : a));
+        } catch (err) {
+            console.error('Failed to update appointment status', err);
+        }
+    };
+
+    const handleDeleteService = async (id: string) => {
+        try {
+            await deleteService(id);
+            setAppointmentTypes((prev) => prev.filter(p => String(p.id) !== String(id)));
+        } catch (err) {
+            console.error('Failed to delete service', err);
+        }
+    };
+
+    const handleToggleServiceActive = async (id: string, current: boolean) => {
+        try {
+            await updateService(id, { isActive: !current, updatedAt: Timestamp.now() });
+            setAppointmentTypes((prev) => prev.map(p => String(p.id) === String(id) ? { ...p, status: !current ? 'Published' : 'Unpublished' } : p));
+        } catch (err) {
+            console.error('Failed to update service', err);
+        }
+    };
 
     return (
         <div className="space-y-6">
@@ -121,14 +219,45 @@ const Appointments = () => {
                 {activeTab === "services" && (
                     <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                         {appointmentTypes.map((type) => (
-                            <AppointmentTypeCard key={type.id} type={type} />
+                            <AppointmentTypeCard key={type.id} type={type} onToggle={() => handleToggleServiceActive(String(type.id), type.status === 'Published')} onDelete={() => handleDeleteService(String(type.id))} />
                         ))}
                     </div>
                 )}
 
                 {activeTab === "availability" && <ScheduleManager />}
 
-                {activeTab === "calendar" && <CalendarView />}
+                {activeTab === "calendar" && (
+                    <div className="space-y-6">
+                        <CalendarView />
+                        <Card title="Appointments" description="Manage appointment statuses.">
+                            <div className="space-y-2">
+                                {loadingAppointments ? (
+                                    <div className="text-sm text-slate-400">Loading appointments...</div>
+                                ) : appointments.length === 0 ? (
+                                    <div className="text-sm text-slate-400">No appointments found.</div>
+                                ) : (
+                                    appointments.map((a) => (
+                                        <div key={a.id} className="flex items-center justify-between border-b border-slate-100 py-3">
+                                            <div>
+                                                <div className="font-medium text-dark-slate">{a.serviceName} — {a.customerName}</div>
+                                                <div className="text-xs text-slate-400">{a.startAt.toDate().toLocaleString()}</div>
+                                            </div>
+                                            <div className="flex items-center gap-2">
+                                                <select value={a.status} onChange={(e) => handleChangeAppointmentStatus(a.id, e.target.value as Appointment['status'])} className="rounded-lg border border-slate-300 px-2 py-1">
+                                                    <option value="pending">pending</option>
+                                                    <option value="confirmed">confirmed</option>
+                                                    <option value="cancelled">cancelled</option>
+                                                    <option value="completed">completed</option>
+                                                    <option value="no-show">no-show</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    ))
+                                )}
+                            </div>
+                        </Card>
+                    </div>
+                )}
 
                 {activeTab === "settings" && (
                     <div className="space-y-6">

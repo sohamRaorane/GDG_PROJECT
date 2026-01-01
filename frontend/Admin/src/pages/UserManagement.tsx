@@ -1,7 +1,10 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Button from "../components/ui/Button";
 import Card from "../components/ui/Card";
 import { Search, Filter, MoreVertical, CheckCircle, XCircle, Shield } from "lucide-react";
+import { getAllUsers } from "../services/db";
+
+type RoleLabel = "Admin" | "Provider" | "User";
 
 interface User {
     id: number;
@@ -13,13 +16,41 @@ interface User {
 }
 
 const UserManagement = () => {
-    const [users, setUsers] = useState<User[]>([
-        { id: 1, name: "Dr. Sarah Smith", email: "sarah@example.com", role: "Provider", status: "Active", lastActive: "2 mins ago" },
-        { id: 2, name: "John Doe", email: "john@example.com", role: "User", status: "Active", lastActive: "1 hour ago" },
-        { id: 3, name: "Mike Johnson", email: "mike@example.com", role: "User", status: "Inactive", lastActive: "2 days ago" },
-        { id: 4, name: "Alice Admin", email: "alice@example.com", role: "Admin", status: "Active", lastActive: "Just now" },
-        { id: 5, name: "Ayur Wellness Center", email: "wellness@example.com", role: "Provider", status: "Active", lastActive: "5 hours ago" },
-    ]);
+    const [users, setUsers] = useState<User[]>([]);
+    const [loading, setLoading] = useState(false);
+
+    // Map backend role to UI label
+    const mapRole = (role: string): RoleLabel => {
+        if (role === "admin") return "Admin";
+        if (role === "organiser") return "Provider";
+        return "User";
+    };
+
+    useEffect(() => {
+        let mounted = true;
+        const load = async () => {
+            setLoading(true);
+            try {
+                const profiles = await getAllUsers();
+                if (!mounted) return;
+                const mapped: User[] = profiles.map((p, idx) => ({
+                    id: idx + 1,
+                    name: p.displayName || p.email || "Unknown",
+                    email: p.email || "",
+                    role: mapRole(p.role || ""),
+                    status: "Active",
+                    lastActive: "just now",
+                }));
+                setUsers(mapped);
+            } catch (err) {
+                console.error("Failed to load users", err);
+            } finally {
+                if (mounted) setLoading(false);
+            }
+        };
+        load();
+        return () => { mounted = false };
+    }, []);
 
     const toggleStatus = (id: number) => {
         setUsers(users.map(u => u.id === id ? { ...u, status: u.status === "Active" ? "Inactive" : "Active" } : u));
