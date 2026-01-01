@@ -3,18 +3,27 @@ import {
     type User,
     onAuthStateChanged,
     signInWithEmailAndPassword,
+    createUserWithEmailAndPassword,
     signOut,
     signInWithPopup,
-    GoogleAuthProvider
+    GoogleAuthProvider,
+    sendPasswordResetEmail,
+    sendEmailVerification,
+    updateProfile
 } from 'firebase/auth';
+import { Timestamp } from 'firebase/firestore';
 import { auth } from '../firebase';
+import { createUserProfile } from '../services/db';
 
 interface AuthContextType {
     currentUser: User | null;
     loading: boolean;
     login: (email: string, password: string) => Promise<void>;
+    signup: (email: string, password: string, name: string) => Promise<void>;
     logout: () => Promise<void>;
     signInWithGoogle: () => Promise<void>;
+    resetPassword: (email: string) => Promise<void>;
+    sendVerificationEmail: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -44,6 +53,30 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         return unsubscribe;
     }, []);
 
+    const signup = async (email: string, password: string, name: string) => {
+        try {
+            const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+            await updateProfile(userCredential.user, {
+                displayName: name
+            });
+
+            // Create User Profile in Firestore
+            await createUserProfile({
+                uid: userCredential.user.uid,
+                email: email,
+                displayName: name,
+                role: 'customer',
+                createdAt: Timestamp.now(),
+                updatedAt: Timestamp.now()
+            });
+
+            await sendEmailVerification(userCredential.user);
+        } catch (error) {
+            console.error("Signup failed", error);
+            throw error;
+        }
+    };
+
     const login = async (email: string, password: string) => {
         try {
             await signInWithEmailAndPassword(auth, email, password);
@@ -72,12 +105,35 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         }
     };
 
+    const resetPassword = async (email: string) => {
+        try {
+            await sendPasswordResetEmail(auth, email);
+        } catch (error) {
+            console.error("Password reset failed", error);
+            throw error;
+        }
+    };
+
+    const sendVerificationEmail = async () => {
+        if (currentUser) {
+            try {
+                await sendEmailVerification(currentUser);
+            } catch (error) {
+                console.error("Email verification failed", error);
+                throw error;
+            }
+        }
+    };
+
     const value = {
         currentUser,
         loading,
         login,
+        signup,
         logout,
-        signInWithGoogle
+        signInWithGoogle,
+        resetPassword,
+        sendVerificationEmail
     };
 
     return (

@@ -1,20 +1,11 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Search, MapPin, Users, Info } from 'lucide-react';
 import { cn } from '../../../utils/cn';
+import { getAllServices, servicesCollection } from '../../../services/db';
+import type { Service } from '../../../types/db';
+import { doc, setDoc, Timestamp } from 'firebase/firestore';
 
-export interface Service {
-    id: string;
-    name: string;
-    type: 'Free' | 'Paid';
-    users: string[]; // e.g., "A1", "A2"
-    location: string;
-    resources: string[]; // e.g., "R1", "R2"
-    intro: string;
-    imageColor: string;
-    price: string;
-}
-
-const SERVICES: Service[] = [
+const DEFAULT_SERVICES: Partial<Service>[] = [
     {
         id: 'dental-care',
         name: 'Dental Care',
@@ -24,7 +15,14 @@ const SERVICES: Service[] = [
         resources: ['Chair 1', 'Chair 2'],
         intro: 'Comprehensive dental checkup and cleaning services.',
         imageColor: 'bg-orange-100',
-        price: '$50'
+        price: 50,
+        currency: 'USD',
+        description: 'Comprehensive dental checkup and cleaning services.',
+        durationMinutes: 60,
+        isActive: true,
+        providerId: 'admin_1',
+        workingHours: [],
+        bookingRules: { maxAdvanceBookingDays: 30, minAdvanceBookingHours: 24, requiresManualConfirmation: false }
     },
     {
         id: 'tennis-court',
@@ -35,7 +33,14 @@ const SERVICES: Service[] = [
         resources: ['Court A', 'Court B'],
         intro: 'Book a slot for a recreational tennis match.',
         imageColor: 'bg-green-100',
-        price: 'Free'
+        price: 0,
+        currency: 'USD',
+        description: 'Book a slot for a recreational tennis match.',
+        durationMinutes: 60,
+        isActive: true,
+        providerId: 'admin_1',
+        workingHours: [],
+        bookingRules: { maxAdvanceBookingDays: 14, minAdvanceBookingHours: 1, requiresManualConfirmation: false }
     },
     {
         id: 'abhyanga',
@@ -46,7 +51,14 @@ const SERVICES: Service[] = [
         resources: ['Message Table'],
         intro: 'Traditional Ayurvedic oil massage for relaxation.',
         imageColor: 'bg-blue-100',
-        price: '$120'
+        price: 120,
+        currency: 'USD',
+        description: 'Traditional Ayurvedic oil massage for relaxation.',
+        durationMinutes: 90,
+        isActive: true,
+        providerId: 'admin_1',
+        workingHours: [],
+        bookingRules: { maxAdvanceBookingDays: 30, minAdvanceBookingHours: 48, requiresManualConfirmation: true }
     }
 ];
 
@@ -58,12 +70,57 @@ interface SelectServiceProps {
 export const SelectService: React.FC<SelectServiceProps> = ({ selectedServiceId, onSelect }) => {
     const [searchQuery, setSearchQuery] = useState('');
     const [filterType, setFilterType] = useState<'All' | 'Free' | 'Paid'>('All');
+    const [services, setServices] = useState<Service[]>([]);
+    const [loading, setLoading] = useState(true);
 
-    const filteredServices = SERVICES.filter(service => {
+    useEffect(() => {
+        const fetchAndSeedServices = async () => {
+            try {
+                const fetchedServices = await getAllServices();
+
+                // Check if our default/demo services are present
+                const existingIds = new Set(fetchedServices.map(s => s.id));
+                const servicesToCreate = DEFAULT_SERVICES.filter(ds => ds.id && !existingIds.has(ds.id));
+
+                if (servicesToCreate.length > 0) {
+                    console.log(`Creating ${servicesToCreate.length} missing default services...`);
+
+                    const newServices: Service[] = [];
+                    for (const serviceToCreate of servicesToCreate) {
+                        const newService: Service = {
+                            ...serviceToCreate,
+                            createdAt: Timestamp.now(),
+                            updatedAt: Timestamp.now()
+                        } as Service;
+
+                        await setDoc(doc(servicesCollection, serviceToCreate.id), newService);
+                        newServices.push(newService);
+                    }
+
+                    // Update local state with both existing and newly created services
+                    setServices([...fetchedServices, ...newServices]);
+                } else {
+                    setServices(fetchedServices);
+                }
+            } catch (error) {
+                console.error("Error fetching/seeding services:", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchAndSeedServices();
+    }, []);
+
+    const filteredServices = services.filter(service => {
         const matchesSearch = service.name.toLowerCase().includes(searchQuery.toLowerCase());
         const matchesType = filterType === 'All' || service.type === filterType;
         return matchesSearch && matchesType;
     });
+
+    if (loading) {
+        return <div className="text-center py-10">Loading services...</div>;
+    }
 
     return (
         <div className="space-y-6">
@@ -115,7 +172,7 @@ export const SelectService: React.FC<SelectServiceProps> = ({ selectedServiceId,
                     >
                         <div className="p-5 flex gap-5">
                             {/* Picture Box */}
-                            <div className={cn("w-32 h-32 shrink-0 rounded-lg flex items-center justify-center text-primary/40 font-bold bg-opacity-20", service.imageColor)}>
+                            <div className={cn("w-32 h-32 shrink-0 rounded-lg flex items-center justify-center text-primary/40 font-bold bg-opacity-20", service.imageColor || 'bg-gray-100')}>
                                 Picture
                             </div>
 
@@ -134,7 +191,7 @@ export const SelectService: React.FC<SelectServiceProps> = ({ selectedServiceId,
                                 </div>
 
                                 <div className="space-y-1.5 text-sm text-gray-500">
-                                    {service.users.length > 0 && (
+                                    {service.users && service.users.length > 0 && (
                                         <div className="flex items-start gap-2">
                                             <Users size={14} className="mt-0.5 shrink-0" />
                                             <span>
@@ -145,10 +202,10 @@ export const SelectService: React.FC<SelectServiceProps> = ({ selectedServiceId,
                                     <div className="flex items-start gap-2">
                                         <MapPin size={14} className="mt-0.5 shrink-0" />
                                         <span>
-                                            <span className="font-medium text-gray-700">Location:</span> {service.location}
+                                            <span className="font-medium text-gray-700">Location:</span> {service.location || 'N/A'}
                                         </span>
                                     </div>
-                                    {service.resources.length > 0 && (
+                                    {service.resources && service.resources.length > 0 && (
                                         <div className="flex items-start gap-2">
                                             <Info size={14} className="mt-0.5 shrink-0" />
                                             <span>
@@ -163,7 +220,7 @@ export const SelectService: React.FC<SelectServiceProps> = ({ selectedServiceId,
                         {/* Introduction Message - Footer */}
                         <div className="px-5 pb-4">
                             <p className="text-sm text-gray-500 italic border-l-2 border-primary/30 pl-3">
-                                "{service.intro}"
+                                "{service.intro || service.description}"
                             </p>
                         </div>
                     </div>

@@ -8,6 +8,9 @@ import { SelectSlot } from './steps/SelectSlot';
 import { IntakeForm } from './steps/IntakeForm';
 import { Payment } from './steps/Payment';
 import { Confirmation } from './steps/Confirmation';
+import { useAuth } from '../../context/AuthContext';
+import { createAppointment, getServiceById } from '../../services/db';
+import { Timestamp } from 'firebase/firestore';
 
 // Steps definition
 const STEPS = [
@@ -36,6 +39,20 @@ export const BookingWizard = () => {
     const currentStepIndex = STEPS.findIndex(s => s.id === currentStep);
 
     const handleNext = () => {
+        // Validation
+        if (currentStep === 'service' && !bookingData.serviceId) {
+            alert("Please select a service to continue.");
+            return;
+        }
+        if (currentStep === 'provider' && !bookingData.doctorId) {
+            alert("Please select a doctor to continue.");
+            return;
+        }
+        if (currentStep === 'slot' && (!bookingData.date || !bookingData.slot)) {
+            alert("Please select a date and time slot.");
+            return;
+        }
+
         if (currentStepIndex < STEPS.length - 1) {
             setCurrentStep(STEPS[currentStepIndex + 1].id);
         }
@@ -49,12 +66,79 @@ export const BookingWizard = () => {
 
     // Explicit handler for "Proceed to Payment" from Intake
     const handleProceedToPayment = () => {
+        // Ensure required selections exist before moving to payment
+        if (!bookingData.serviceId) {
+            alert("Please select a service before proceeding to payment.");
+            setCurrentStep('service');
+            return;
+        }
+        if (!bookingData.doctorId) {
+            alert("Please select a doctor before proceeding to payment.");
+            setCurrentStep('provider');
+            return;
+        }
+        if (!bookingData.date || !bookingData.slot) {
+            alert("Please select a date and time before proceeding to payment.");
+            setCurrentStep('slot');
+            return;
+        }
         setCurrentStep('payment');
     };
 
+    const { currentUser } = useAuth();
+    const [isProcessing, setIsProcessing] = useState(false);
+
     // Explicit handler for "Pay Now" from Payment
-    const handlePaymentComplete = () => {
-        setCurrentStep('confirm');
+    const handlePaymentComplete = async () => {
+        if (!currentUser) {
+            alert("You must be logged in to book an appointment.");
+            return;
+        }
+
+        setIsProcessing(true);
+        try {
+            // 1. Validate and Fetch Service Details to get name and duration
+            if (!bookingData.serviceId) {
+                alert("No service selected. Please select a service before completing payment.");
+                return;
+            }
+
+            const service = await getServiceById(bookingData.serviceId);
+
+            if (!service) {
+                console.error(`Service not found for id: ${bookingData.serviceId}`);
+                alert("The selected service could not be found. Please re-select the service and try again.");
+                return;
+            }
+
+            // 2. Construct Timestamp
+            // Assuming bookingData.date is "YYYY-MM-DD" and bookingData.slot is "HH:mm"
+            const startDateTime = new Date(`${bookingData.date}T${bookingData.slot}`);
+            const endDateTime = new Date(startDateTime.getTime() + service.durationMinutes * 60000);
+
+            // 3. Create Appointment Object
+            await createAppointment({
+                customerId: currentUser.uid,
+                customerName: currentUser.displayName || "Unknown Customer",
+                customerEmail: currentUser.email || "",
+                serviceId: bookingData.serviceId,
+                serviceName: service.name,
+                providerId: bookingData.doctorId, // Assuming doctorId maps to providerId
+                startAt: Timestamp.fromDate(startDateTime),
+                endAt: Timestamp.fromDate(endDateTime),
+                status: 'confirmed', // Auto-confirming for now as per "Pay Now" flow
+                notes: JSON.stringify(bookingData.intakeValues), // Storing intake form as notes for now
+                createdAt: Timestamp.now(),
+                updatedAt: Timestamp.now()
+            });
+
+            setCurrentStep('confirm');
+        } catch (error) {
+            console.error("Booking failed:", error);
+            alert("Failed to confirm booking. Please try again.");
+        } finally {
+            setIsProcessing(false);
+        }
     };
 
     return (
