@@ -9,7 +9,8 @@ import { IntakeForm } from './steps/IntakeForm';
 import { Payment } from './steps/Payment';
 import { Confirmation } from './steps/Confirmation';
 import { useAuth } from '../../context/AuthContext';
-import { createAppointment, getServiceById } from '../../services/db';
+import { createAppointment, getServiceById, getUserProfile } from '../../services/db';
+import { sendAppointmentEmail } from '../../services/email';
 import { Timestamp } from 'firebase/firestore';
 
 // Steps definition with Icons
@@ -94,6 +95,22 @@ export const BookingWizard = () => {
                 createdAt: Timestamp.now(),
                 updatedAt: Timestamp.now()
             });
+
+            // Send Confirmation Email
+            try {
+                const doctorProfile = await getUserProfile(bookingData.doctorId);
+                await sendAppointmentEmail({
+                    customerName: currentUser.displayName || "Valued Customer",
+                    customerEmail: currentUser.email || "",
+                    date: bookingData.date,
+                    time: bookingData.slot,
+                    serviceName: service.name,
+                    providerName: doctorProfile?.displayName || "AyurSutra Expert",
+                    status: 'confirmed'
+                });
+            } catch (emailError) {
+                console.error("Email sending failed (non-blocking):", emailError);
+            }
 
             setCurrentStep('confirm');
         } catch (error) {
@@ -184,6 +201,7 @@ export const BookingWizard = () => {
                                 <Payment
                                     bookingData={bookingData}
                                     onPaymentComplete={handlePaymentComplete}
+                                    isProcessing={isProcessing}
                                 />
                             )}
                             {currentStep === 'confirm' && (
