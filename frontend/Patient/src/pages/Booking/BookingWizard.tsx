@@ -9,9 +9,9 @@ import { IntakeForm } from './steps/IntakeForm';
 import { Payment } from './steps/Payment';
 import { Confirmation } from './steps/Confirmation';
 import { useAuth } from '../../context/AuthContext';
-import { createAppointment, getServiceById, getUserProfile } from '../../services/db';
+import { getServiceById, getUserProfile } from '../../services/db';
+import { bookMultiDayAppointment } from '../../services/booking';
 import { sendAppointmentEmail } from '../../services/email';
-import { Timestamp } from 'firebase/firestore';
 
 // Steps definition with Icons
 const STEPS = [
@@ -32,6 +32,7 @@ export const BookingWizard = () => {
         doctorId: '',
         date: '',
         slot: '',
+        roomId: '', // Add roomId
         peopleCount: 1,
         intakeValues: {}
     });
@@ -78,22 +79,21 @@ export const BookingWizard = () => {
             const service = await getServiceById(bookingData.serviceId);
             if (!service) return;
 
-            const startDateTime = new Date(`${bookingData.date}T${bookingData.slot}`);
-            const endDateTime = new Date(startDateTime.getTime() + service.durationMinutes * 60000);
+            // Use the atomic multi-day booking service
+            const daysToBook = service.durationDays || 1;
 
-            await createAppointment({
+            await bookMultiDayAppointment({
                 customerId: currentUser.uid,
                 customerName: currentUser.displayName || "Unknown Customer",
                 customerEmail: currentUser.email || "",
                 serviceId: bookingData.serviceId,
                 serviceName: service.name,
                 providerId: bookingData.doctorId,
-                startAt: Timestamp.fromDate(startDateTime),
-                endAt: Timestamp.fromDate(endDateTime),
-                status: 'confirmed',
-                notes: JSON.stringify(bookingData.intakeValues),
-                createdAt: Timestamp.now(),
-                updatedAt: Timestamp.now()
+                roomId: bookingData.roomId || 'auto-assigned', // Should come from SelectSlot
+                startDate: bookingData.date,
+                startTime: bookingData.slot,
+                days: daysToBook,
+                durationMinutes: service.durationMinutes
             });
 
             // Send Confirmation Email
@@ -187,7 +187,12 @@ export const BookingWizard = () => {
                             )}
                             {currentStep === 'slot' && (
                                 <SelectSlot
-                                    bookingData={{ date: bookingData.date, slot: bookingData.slot, peopleCount: bookingData.peopleCount }}
+                                    bookingData={{
+                                        date: bookingData.date,
+                                        slot: bookingData.slot,
+                                        peopleCount: bookingData.peopleCount,
+                                        serviceId: bookingData.serviceId
+                                    }}
                                     onChange={(data) => setBookingData(prev => ({ ...prev, ...data }))}
                                 />
                             )}
