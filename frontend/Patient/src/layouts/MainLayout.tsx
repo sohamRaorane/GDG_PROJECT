@@ -1,11 +1,59 @@
 import { Outlet, Link } from 'react-router-dom';
-import { User, Menu, Bell, X, CheckCircle, Info } from 'lucide-react';
+import { User, Menu, Bell, X, CheckCircle, Info, AlertCircle, CheckCircle2 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { subscribeToNotifications, markNotificationAsRead } from '../services/notification';
+import { createHealthLog } from '../services/db';
+import { Timestamp } from 'firebase/firestore';
+import { MicroSurveyModal } from '../components/modals/MicroSurveyModal';
+import { AIChatbot } from '../components/ai/AIChatbot';
+import { Button } from '../components/ui/Button';
 import type { Notification } from '../types/db';
+import { format } from 'date-fns';
 
 export const MainLayout = () => {
+    const { currentUser } = useAuth();
+    const [isSurveyOpen, setIsSurveyOpen] = useState(false);
+    const [isSOSConfirmOpen, setIsSOSConfirmOpen] = useState(false);
+    const [sosSubmitted, setSosSubmitted] = useState(false);
+
+    // Mock trigger for survey: show after 2 seconds on first load for demo purposes
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            // In a real app, this would be triggered based on appointment cleanup/completion
+            // setIsSurveyOpen(true); 
+        }, 2000);
+        return () => clearTimeout(timer);
+    }, []);
+
+    const handleSOS = async () => {
+        if (!currentUser) return;
+
+        setSosSubmitted(true);
+
+        try {
+            const date = format(new Date(), 'yyyy-MM-dd');
+            await createHealthLog({
+                userId: currentUser.uid,
+                date,
+                painLevel: 10, // Max pain for SOS
+                appetiteLevel: 5,
+                sleepQuality: 5,
+                isFlagged: true,
+                flaggedReason: "URGENT SOS ALERT: Patient triggered emergency assistance from the app.",
+                createdAt: Timestamp.now()
+            });
+            console.log("SOS Alert recorded in Firestore");
+        } catch (error) {
+            console.error("Error recording SOS Alert:", error);
+        }
+
+        setTimeout(() => {
+            setSosSubmitted(false);
+            setIsSOSConfirmOpen(false);
+        }, 3000);
+    };
+
     return (
         <div className="min-h-screen flex flex-col bg-background">
             <header className="sticky top-0 z-50 w-full border-b border-gray-200 bg-white/80 backdrop-blur-md">
@@ -37,8 +85,59 @@ export const MainLayout = () => {
                 </div>
             </header>
 
-            <main className="flex-1">
+            <main className="flex-1 relative">
                 <Outlet />
+
+                {/* Global SOS Button */}
+                <div className="fixed bottom-8 left-8 z-40">
+                    <button
+                        onClick={() => setIsSOSConfirmOpen(true)}
+                        className="group relative flex items-center justify-center"
+                    >
+                        <div className="absolute inset-0 bg-red-500 rounded-full animate-ping opacity-20 group-hover:opacity-40"></div>
+                        <div className="relative bg-red-600 text-white p-4 rounded-full shadow-2xl hover:bg-red-700 transition-all hover:scale-110 active:scale-95 flex items-center gap-2">
+                            <AlertCircle size={24} />
+                            <span className="max-w-0 overflow-hidden group-hover:max-w-xs transition-all duration-500 font-bold">SOS</span>
+                        </div>
+                    </button>
+                </div>
+
+                {/* SOS Confirmation Overlay */}
+                {isSOSConfirmOpen && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-200">
+                        <div className="bg-white rounded-[32px] p-8 max-w-md w-full shadow-2xl animate-in zoom-in-95 duration-300 overflow-hidden relative">
+                            {!sosSubmitted ? (
+                                <div className="space-y-6 text-center">
+                                    <div className="w-20 h-20 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto">
+                                        <AlertCircle size={40} />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <h2 className="text-2xl font-bold text-slate-800">Need Immediate Help?</h2>
+                                        <p className="text-slate-500">Pressing this will instantly alert Dr. Sharma and our emergency nursing staff.</p>
+                                    </div>
+                                    <div className="flex flex-col gap-3">
+                                        <Button onClick={handleSOS} className="w-full bg-red-600 hover:bg-red-700 py-6 text-lg rounded-2xl">
+                                            Yes, Alert Doctor
+                                        </Button>
+                                        <Button variant="outline" onClick={() => setIsSOSConfirmOpen(false)} className="w-full py-6 rounded-2xl border-slate-200">
+                                            Cancel
+                                        </Button>
+                                    </div>
+                                </div>
+                            ) : (
+                                <div className="space-y-6 text-center animate-in zoom-in-95 duration-300">
+                                    <div className="w-20 h-20 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto">
+                                        <CheckCircle2 size={40} />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <h2 className="text-2xl font-bold text-slate-800">Help is on the way!</h2>
+                                        <p className="text-slate-500">Dr. Sharma has been notified. A nurse will call you in less than 5 minutes.</p>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                )}
             </main>
 
             <footer className="border-t border-gray-100 bg-white py-8 mt-12">
@@ -46,6 +145,14 @@ export const MainLayout = () => {
                     <p>© 2024 AyurSutra. All rights reserved.</p>
                 </div>
             </footer>
+
+            <MicroSurveyModal
+                isOpen={isSurveyOpen}
+                onClose={() => setIsSurveyOpen(false)}
+                onSubmit={(data) => console.log('Survey submitted:', data)}
+                therapyName="Shirodhara"
+            />
+            <AIChatbot />
         </div>
     );
 };
@@ -72,7 +179,7 @@ const NotificationBell = () => {
     };
 
     return (
-        <div className="relative">
+        <div className="relative text-black">
             <button
                 onClick={() => setIsOpen(!isOpen)}
                 className="p-2 rounded-full hover:bg-gray-100 transition-colors text-text relative"

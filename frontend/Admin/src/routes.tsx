@@ -7,6 +7,7 @@ import UserManagement from "./pages/UserManagement";
 import Login from "./pages/Login";
 import ActiveTherapies from "./pages/ActiveTherapies";
 import TherapyControl from "./pages/TherapyControl";
+import DoctorDashboard from "./pages/DoctorDashboard";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 const AppRoutes = () => {
@@ -19,6 +20,7 @@ const AppRoutes = () => {
                 </ProtectedRoute>
             }>
                 <Route index element={<DashboardHome />} />
+                <Route path="doctor-dashboard" element={<DoctorDashboard />} />
                 <Route path="appointments" element={<Appointments />} />
                 <Route path="reports" element={<Reports />} />
                 <Route path="users" element={<UserManagement />} />

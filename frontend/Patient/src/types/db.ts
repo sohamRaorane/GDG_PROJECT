@@ -1,6 +1,6 @@
 import { Timestamp } from 'firebase/firestore';
 
-export type UserRole = 'customer' | 'admin' | 'organiser';
+export type UserRole = 'customer' | 'admin' | 'organiser' | 'doctor';
 
 export interface UserProfile {
     uid: string;
@@ -106,7 +106,11 @@ export interface DailyHealthLog {
     painLevel: number; // 1-10
     appetiteLevel: number; // 1-10
     sleepQuality: number; // 1-10
+    digestionQuality?: 'Poor' | 'Moderate' | 'Excellent';
+    mentalState?: 'Agitated' | 'Calm' | 'Lethargic';
     notes?: string;
+    isFlagged?: boolean;
+    flaggedReason?: string;
     createdAt: Timestamp;
 }
 
