@@ -5,6 +5,8 @@ import Appointments from "./pages/Appointments";
 import Reports from "./pages/Reports";
 import UserManagement from "./pages/UserManagement";
 import Login from "./pages/Login";
+import ActiveTherapies from "./pages/ActiveTherapies";
+import TherapyControl from "./pages/TherapyControl";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 const AppRoutes = () => {
@@ -20,6 +22,8 @@ const AppRoutes = () => {
                 <Route path="appointments" element={<Appointments />} />
                 <Route path="reports" element={<Reports />} />
                 <Route path="users" element={<UserManagement />} />
+                <Route path="active-therapies" element={<ActiveTherapies />} />
+                <Route path="active-therapies/:id" element={<TherapyControl />} />
             </Route>
         </Routes>
     );
