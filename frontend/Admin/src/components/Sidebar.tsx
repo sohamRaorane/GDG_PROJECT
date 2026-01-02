@@ -6,7 +6,8 @@ import {
     BarChart3,
     Settings,
     LogOut,
-    Activity
+    Activity,
+    AlertTriangle
 } from "lucide-react";
 
 const Sidebar = () => {
@@ -15,6 +16,7 @@ const Sidebar = () => {
 
     const navItems = [
         { name: "Dashboard", path: "/", icon: LayoutDashboard },
+        { name: "Doctor Dashboard", path: "/doctor-dashboard", icon: AlertTriangle },
         { name: "Appointments & Services", path: "/appointments", icon: Calendar },
         { name: "Reports & Insights", path: "/reports", icon: BarChart3 },
         { name: "Active Therapies", path: "/active-therapies", icon: Activity },
