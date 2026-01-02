@@ -14,26 +14,36 @@ interface IntakeFormProps {
     onChange: (data: IntakeData) => void;
 }
 
+interface FormInputProps {
+    label: string;
+    icon: any;
+    type: string;
+    value: string | undefined;
+    field: keyof IntakeData;
+    placeholder: string;
+    onChange: (field: keyof IntakeData, value: string) => void;
+}
+
+const FormInput: React.FC<FormInputProps> = ({ label, icon: Icon, type, value, field, placeholder, onChange }) => (
+    <div className="space-y-2 group">
+        <label className="text-xs font-bold text-primary/60 uppercase tracking-widest flex items-center gap-2">
+            <Icon size={12} />
+            {label}
+        </label>
+        <input
+            type={type}
+            value={value || ''}
+            onChange={(e) => onChange(field, e.target.value)}
+            placeholder={placeholder}
+            className="w-full bg-slate-50/50 border-b-2 border-slate-100 py-3 px-1 focus:border-primary focus:bg-transparent outline-none transition-all text-slate-700 font-medium placeholder:text-slate-300"
+        />
+    </div>
+);
+
 export const IntakeForm: React.FC<IntakeFormProps> = ({ data, onChange }) => {
     const handleChange = (field: keyof IntakeData, value: string) => {
         onChange({ ...data, [field]: value });
     };
-
-    const FormInput = ({ label, icon: Icon, type, value, field, placeholder }: any) => (
-        <div className="space-y-2 group">
-            <label className="text-xs font-bold text-primary/60 uppercase tracking-widest flex items-center gap-2">
-                <Icon size={12} />
-                {label}
-            </label>
-            <input
-                type={type}
-                value={value || ''}
-                onChange={(e) => handleChange(field, e.target.value)}
-                placeholder={placeholder}
-                className="w-full bg-slate-50/50 border-b-2 border-slate-100 py-3 px-1 focus:border-primary focus:bg-transparent outline-none transition-all text-slate-700 font-medium placeholder:text-slate-300"
-            />
-        </div>
-    );
 
     return (
         <div className="max-w-3xl mx-auto space-y-12 py-4">
@@ -49,7 +59,8 @@ export const IntakeForm: React.FC<IntakeFormProps> = ({ data, onChange }) => {
                     type="text"
                     value={data.name}
                     field="name"
-                    placeholder="Aditya Raorane"
+                    placeholder="Write your name"
+                    onChange={handleChange}
                 />
                 <FormInput
                     label="Email Address"
@@ -57,7 +68,8 @@ export const IntakeForm: React.FC<IntakeFormProps> = ({ data, onChange }) => {
                     type="email"
                     value={data.email}
                     field="email"
-                    placeholder="aditya@example.com"
+                    placeholder="Enter your email address"
+                    onChange={handleChange}
                 />
                 <FormInput
                     label="Phone Number"
@@ -65,7 +77,8 @@ export const IntakeForm: React.FC<IntakeFormProps> = ({ data, onChange }) => {
                     type="tel"
                     value={data.phone}
                     field="phone"
-                    placeholder="+91 98765 43210"
+                    placeholder="Enter your phone number"
+                    onChange={handleChange}
                 />
 
                 <div className="md:col-span-2 space-y-2 group">
