@@ -5,6 +5,7 @@ import { CreditCard, Smartphone, Globe, ArrowRight, ShieldCheck, IndianRupee } f
 interface PaymentProps {
     bookingData: any;
     onPaymentComplete: () => void;
+    isProcessing?: boolean;
 }
 
 const PAYMENT_METHODS = [
@@ -13,7 +14,7 @@ const PAYMENT_METHODS = [
     { id: 'paypal', label: 'PayPal', icon: Globe, subtitle: 'Worldwide payment' },
 ];
 
-export const Payment: React.FC<PaymentProps> = ({ bookingData, onPaymentComplete }) => {
+export const Payment: React.FC<PaymentProps> = ({ bookingData, onPaymentComplete, isProcessing = false }) => {
     const [paymentMethod, setPaymentMethod] = useState('credit-card');
 
     return (
@@ -113,10 +114,15 @@ export const Payment: React.FC<PaymentProps> = ({ bookingData, onPaymentComplete
 
                     <button
                         onClick={onPaymentComplete}
-                        className="w-full bg-primary text-white py-5 rounded-2xl font-bold text-lg shadow-xl shadow-primary/20 hover:bg-primary/90 transition-all flex items-center justify-center gap-3 group"
+                        disabled={isProcessing}
+                        className={cn(
+                            "w-full bg-primary text-white py-5 rounded-2xl font-bold text-lg shadow-xl shadow-primary/20",
+                            "hover:bg-primary/90 transition-all flex items-center justify-center gap-3 group",
+                            isProcessing && "opacity-70 cursor-not-allowed"
+                        )}
                     >
-                        Complete Booking
-                        <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
+                        {isProcessing ? "Processing..." : "Complete Booking"}
+                        {!isProcessing && <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />}
                     </button>
 
                     <p className="text-center text-[10px] text-slate-400 font-medium mt-6 uppercase tracking-widest">
