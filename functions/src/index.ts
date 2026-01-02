@@ -73,13 +73,12 @@ app.use(cors());
 app.use(express.json());
 
 // Prefer Firebase Functions config if set (functions.config().genai.key), otherwise fall back to env var
-const FALLBACK_KEY = 'AIzaSyDWp23JdLvBZAjkMKaJUhVCZL5EqAlKito';
 let GEN_AI_KEY = '';
 try {
     const cfgKey = (functions.config && (functions.config() as any).genai && (functions.config() as any).genai.key) || '';
-    GEN_AI_KEY = cfgKey || process.env.GEN_AI_API_KEY || process.env.GEMINI_API_KEY || FALLBACK_KEY;
+    GEN_AI_KEY = cfgKey || process.env.GEN_AI_API_KEY || process.env.GEMINI_API_KEY;
 } catch (e) {
-    GEN_AI_KEY = process.env.GEN_AI_API_KEY || process.env.GEMINI_API_KEY || FALLBACK_KEY;
+    GEN_AI_KEY = process.env.GEN_AI_API_KEY || process.env.GEMINI_API_KEY || '';
 }
 
 if (!GEN_AI_KEY) {
