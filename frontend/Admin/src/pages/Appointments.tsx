@@ -6,6 +6,7 @@ import Modal from "../components/ui/Modal";
 import ScheduleManager from "../components/appointments/ScheduleManager";
 import IntakeFormBuilder from "../components/appointments/IntakeFormBuilder";
 import CalendarView from "../components/appointments/CalendarView";
+import { TreatmentWizard } from "../components/appointments/TreatmentWizard";
 import { getAllServices, createService, getAllAppointments, updateAppointmentStatus, updateService, deleteService, type Service } from "../services/db";
 import type { Appointment } from "../types/db";
 import { Timestamp } from "firebase/firestore";
@@ -22,6 +23,7 @@ interface AppointmentType {
 const Appointments = () => {
     const [activeTab, setActiveTab] = useState<"services" | "availability" | "calendar" | "settings">("services");
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isWizardOpen, setIsWizardOpen] = useState(false);
     const [appointmentTypes, setAppointmentTypes] = useState<AppointmentType[]>([]);
     const [loadingServices, setLoadingServices] = useState(false);
     const [appointments, setAppointments] = useState<Appointment[]>([]);
@@ -228,7 +230,23 @@ const Appointments = () => {
 
                 {activeTab === "calendar" && (
                     <div className="space-y-6">
+                        <div className="flex justify-between items-center">
+                            <h2 className="text-xl font-bold text-dark-slate">Calendar Management</h2>
+                            <Button onClick={() => setIsWizardOpen(true)} className="bg-primary hover:bg-primary-dark">
+                                <Plus className="mr-2 h-4 w-4" /> New Treatment Plan
+                            </Button>
+                        </div>
                         <CalendarView />
+
+                        <TreatmentWizard
+                            isOpen={isWizardOpen}
+                            onClose={() => setIsWizardOpen(false)}
+                            onSuccess={() => {
+                                // Refresh appointments logic to be handled by effect or simple reload for now
+                                window.location.reload();
+                            }}
+                        />
+
                         <Card title="Appointments" description="Manage appointment statuses.">
                             <div className="space-y-2">
                                 {loadingAppointments ? (

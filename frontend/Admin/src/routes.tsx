@@ -4,7 +4,6 @@ import DashboardHome from "./pages/DashboardHome";
 import Appointments from "./pages/Appointments";
 import Reports from "./pages/Reports";
 import UserManagement from "./pages/UserManagement";
-
 import Login from "./pages/Login";
 import ProtectedRoute from "./components/ProtectedRoute";
 
