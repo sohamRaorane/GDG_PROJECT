@@ -60,14 +60,13 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-const FALLBACK_KEY = 'AIzaSyDWp23JdLvBZAjkMKaJUhVCZL5EqAlKito';
 let GEN_AI_KEY = '';
 try {
   const cfg = functions.config && functions.config().genai;
   const cfgKey = cfg && cfg.key ? cfg.key : '';
-  GEN_AI_KEY = cfgKey || process.env.GEN_AI_API_KEY || process.env.GEMINI_API_KEY || FALLBACK_KEY;
+  GEN_AI_KEY = cfgKey || process.env.GEN_AI_API_KEY || process.env.GEMINI_API_KEY;
 } catch (e) {
-  GEN_AI_KEY = process.env.GEN_AI_API_KEY || process.env.GEMINI_API_KEY || FALLBACK_KEY;
+  GEN_AI_KEY = process.env.GEN_AI_API_KEY || process.env.GEMINI_API_KEY || '';
 }
 
 if (!GEN_AI_KEY) {
