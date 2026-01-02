@@ -1,5 +1,8 @@
 import { useState, useEffect } from "react";
-import { Plus, Link as LinkIcon, Eye, Trash2, Edit2, Clock, Users, DollarSign } from "lucide-react";
+import { Plus, Link as LinkIcon, Eye, Trash2, Clock, Users, DollarSign, Power } from "lucide-react";
+
+// Simple utility for joining classes
+const cn = (...classes: any[]) => classes.filter(Boolean).join(' ');
 import Button from "../components/ui/Button";
 import Card from "../components/ui/Card";
 import Modal from "../components/ui/Modal";
@@ -7,8 +10,8 @@ import ScheduleManager from "../components/appointments/ScheduleManager";
 import IntakeFormBuilder from "../components/appointments/IntakeFormBuilder";
 import CalendarView from "../components/appointments/CalendarView";
 import { TreatmentWizard } from "../components/appointments/TreatmentWizard";
-import { getAllServices, createService, getAllAppointments, updateAppointmentStatus, updateService, deleteService, type Service } from "../services/db";
-import type { Appointment } from "../types/db";
+import { getAllServices, createService, getAllAppointments, updateAppointmentStatus, updateService, deleteService } from "../services/db";
+import type { Appointment, Service } from "../types/db";
 import { Timestamp } from "firebase/firestore";
 
 interface AppointmentType {
@@ -18,6 +21,8 @@ interface AppointmentType {
     type: "User" | "Resource";
     price: number;
     status: "Published" | "Unpublished";
+    prePrecautions?: string;
+    postPrecautions?: string;
 }
 
 const Appointments = () => {
@@ -34,7 +39,9 @@ const Appointments = () => {
         duration: 30,
         type: "User",
         price: 0,
-        status: "Unpublished"
+        status: "Unpublished",
+        prePrecautions: "",
+        postPrecautions: ""
     });
 
     const handleCreateType = () => {
@@ -61,6 +68,8 @@ const Appointments = () => {
                     providerId: "admin",
                     workingHours: [],
                     bookingRules: { maxAdvanceBookingDays: 30, minAdvanceBookingHours: 2, requiresManualConfirmation: false },
+                    prePrecautions: newType.prePrecautions,
+                    postPrecautions: newType.postPrecautions,
                     createdAt: Timestamp.now(),
                     updatedAt: Timestamp.now(),
                 };
@@ -72,7 +81,7 @@ const Appointments = () => {
         })();
 
         setIsModalOpen(false);
-        setNewType({ name: "", duration: 30, type: "User", price: 0, status: "Unpublished" });
+        setNewType({ name: "", duration: 30, type: "User", price: 0, status: "Unpublished", prePrecautions: "", postPrecautions: "" });
     };
 
     const AppointmentTypeCard = ({ type, onToggle, onDelete }: { type: AppointmentType; onToggle?: () => void; onDelete?: () => void }) => (
@@ -88,7 +97,16 @@ const Appointments = () => {
                 <div className="flex gap-2">
                     <button className="text-slate-400 hover:text-medical-blue" title="Share Link"><LinkIcon className="h-4 w-4" /></button>
                     <button className="text-slate-400 hover:text-medical-blue" title="Preview"><Eye className="h-4 w-4" /></button>
-                    <button onClick={onToggle} className="text-slate-400 hover:text-medical-blue" title="Toggle Active"><Edit2 className="h-4 w-4" /></button>
+                    <button
+                        onClick={onToggle}
+                        className={cn(
+                            "p-1 rounded-md transition-colors",
+                            type.status === "Published" ? "text-green-600 hover:bg-green-50" : "text-slate-400 hover:bg-slate-100"
+                        )}
+                        title={type.status === "Published" ? "Unpublish Service" : "Publish Service"}
+                    >
+                        <Power className="h-4 w-4" />
+                    </button>
                     <button onClick={onDelete} className="text-slate-400 hover:text-red-500" title="Delete"><Trash2 className="h-4 w-4" /></button>
                 </div>
             </div>
@@ -371,6 +389,41 @@ const Appointments = () => {
                                 <span className="text-sm">Resource Assigned</span>
                             </label>
                         </div>
+                    </div>
+
+                    <div className="flex items-center gap-2 py-2">
+                        <input
+                            type="checkbox"
+                            id="published-status"
+                            className="h-4 w-4 rounded border-slate-300 text-deep-forest focus:ring-deep-forest"
+                            checked={newType.status === "Published"}
+                            onChange={(e) => setNewType({ ...newType, status: e.target.checked ? "Published" : "Unpublished" })}
+                        />
+                        <label htmlFor="published-status" className="text-sm font-medium text-slate-700">
+                            Publish immediately
+                        </label>
+                    </div>
+
+                    <div>
+                        <label className="mb-1 block text-sm font-medium text-slate-700">Pre-treatment Precautions</label>
+                        <textarea
+                            className="w-full rounded-lg border border-slate-300 px-3 py-2 focus:border-deep-forest focus:outline-none focus:ring-1 focus:ring-deep-forest"
+                            placeholder="Instructions for patient before treatment..."
+                            rows={3}
+                            value={String(newType.prePrecautions || '')}
+                            onChange={(e) => setNewType({ ...newType, prePrecautions: e.target.value })}
+                        />
+                    </div>
+
+                    <div>
+                        <label className="mb-1 block text-sm font-medium text-slate-700">Post-treatment Precautions</label>
+                        <textarea
+                            className="w-full rounded-lg border border-slate-300 px-3 py-2 focus:border-deep-forest focus:outline-none focus:ring-1 focus:ring-deep-forest"
+                            placeholder="Instructions for patient after treatment..."
+                            rows={3}
+                            value={String(newType.postPrecautions || '')}
+                            onChange={(e) => setNewType({ ...newType, postPrecautions: e.target.value })}
+                        />
                     </div>
 
                     <div className="pt-4">

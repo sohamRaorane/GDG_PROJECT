@@ -39,14 +39,21 @@ export interface Service {
     bookingRules: BookingRules;
     createdAt: Timestamp;
     updatedAt: Timestamp;
-    // UI specific fields (optional for now to allow seamless transition)
-    type?: 'Free' | 'Paid';
-    users?: string[];
-    location?: string;
-    resources?: string[];
-    intro?: string;
-    imageColor?: string;
+    prePrecautions?: string;
+    postPrecautions?: string;
 }
+
+export interface Notification {
+    id: string;
+    userId: string;
+    title: string;
+    message: string;
+    type: 'pre' | 'post';
+    appointmentId: string;
+    isRead: boolean;
+    createdAt: Timestamp;
+}
+
 
 export type AppointmentStatus = 'pending' | 'confirmed' | 'cancelled' | 'completed' | 'no-show';
 

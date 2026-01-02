@@ -1,22 +1,25 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
     format, addMonths, subMonths, startOfMonth, endOfMonth,
     startOfWeek, endOfWeek, eachDayOfInterval, isSameMonth,
     isToday
 } from 'date-fns';
 import { cn } from '../../../utils/cn';
-import { ChevronLeft, ChevronRight, Minus, Plus, Clock, Calendar as CalendarIcon, Users } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Minus, Plus, Clock, Calendar as CalendarIcon, Users, RefreshCw } from 'lucide-react';
+import { getAvailableSlotsForService } from '../../../services/scheduling'; // Check path
 
 interface SelectSlotProps {
     bookingData: {
         date: string;
         slot: string;
         peopleCount?: number;
+        serviceId?: string;
     };
-    onChange: (data: { date?: string; slot?: string; peopleCount?: number }) => void;
+    onChange: (data: { date?: string; slot?: string; peopleCount?: number; roomId?: string }) => void;
 }
 
-const TIME_SLOTS = [
+// Default fallback slots
+const DEFAULT_TIME_SLOTS = [
     '09:00', '09:30', '10:00', '10:30',
     '11:00', '11:30', '12:00', '12:30',
     '14:00', '14:30', '15:00', '15:30'
@@ -25,6 +28,36 @@ const TIME_SLOTS = [
 export const SelectSlot: React.FC<SelectSlotProps> = ({ bookingData, onChange }) => {
     const [currentMonth, setCurrentMonth] = useState(new Date());
     const [peopleCount, setPeopleCount] = useState(bookingData.peopleCount || 1);
+
+    // Availability State
+    const [availableSlots, setAvailableSlots] = useState<{ time: string; roomId: string }[]>([]);
+    const [isLoadingSlots, setIsLoadingSlots] = useState(false);
+
+    // Fetch slots when Date or Service changes
+    useEffect(() => {
+        const fetchSlots = async () => {
+            if (!bookingData.date || !bookingData.serviceId) return;
+
+            setIsLoadingSlots(true);
+            try {
+                // If serviceId is present, use smart scheduling
+                const slots = await getAvailableSlotsForService(
+                    bookingData.serviceId,
+                    bookingData.date,
+                    bookingData.doctorId
+                );
+                setAvailableSlots(slots.map(s => ({ time: s.time, roomId: s.availableRoomId })));
+            } catch (error) {
+                console.error("Error fetching slots:", error);
+                // Fallback (no room info, might fail later if checks are strict)
+                setAvailableSlots(DEFAULT_TIME_SLOTS.map(t => ({ time: t, roomId: 'default' })));
+            } finally {
+                setIsLoadingSlots(false);
+            }
+        };
+
+        fetchSlots();
+    }, [bookingData.date, bookingData.serviceId]);
 
     const monthStart = startOfMonth(currentMonth);
     const monthEnd = endOfMonth(currentMonth);
@@ -136,23 +169,33 @@ export const SelectSlot: React.FC<SelectSlotProps> = ({ bookingData, onChange })
                     </div>
 
                     <div className="grid grid-cols-3 gap-3">
-                        {TIME_SLOTS.map((slot) => {
-                            const isSelected = bookingData.slot === slot;
-                            return (
-                                <button
-                                    key={slot}
-                                    onClick={() => onChange({ slot })}
-                                    className={cn(
-                                        "py-3 px-4 rounded-xl border-2 text-sm font-bold transition-all",
-                                        isSelected
-                                            ? "border-primary bg-primary text-white shadow-md"
-                                            : "border-slate-100 bg-white text-slate-600 hover:border-primary/30 hover:bg-slate-50"
-                                    )}
-                                >
-                                    {slot}
-                                </button>
-                            );
-                        })}
+                        {isLoadingSlots ? (
+                            <div className="col-span-3 py-8 flex justify-center text-slate-400">
+                                <RefreshCw className="animate-spin" />
+                            </div>
+                        ) : availableSlots.length > 0 ? (
+                            availableSlots.map((slotObj) => {
+                                const isSelected = bookingData.slot === slotObj.time;
+                                return (
+                                    <button
+                                        key={slotObj.time}
+                                        onClick={() => onChange({ slot: slotObj.time, roomId: slotObj.roomId })}
+                                        className={cn(
+                                            "py-3 px-4 rounded-xl border-2 text-sm font-bold transition-all",
+                                            isSelected
+                                                ? "border-primary bg-primary text-white shadow-md"
+                                                : "border-slate-100 bg-white text-slate-600 hover:border-primary/30 hover:bg-slate-50"
+                                        )}
+                                    >
+                                        {slotObj.time}
+                                    </button>
+                                );
+                            })
+                        ) : (
+                            <div className="col-span-3 text-center text-slate-400 py-4 text-sm">
+                                No slots available for this date.
+                            </div>
+                        )}
                     </div>
                 </div>
 

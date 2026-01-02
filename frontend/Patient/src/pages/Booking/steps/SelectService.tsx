@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react';
-import { Search, MapPin, Users, Info, Sparkles, Clock, IndianRupee } from 'lucide-react';
+import { Search, MapPin, Sparkles, Clock, IndianRupee } from 'lucide-react';
 import { cn } from '../../../utils/cn';
 import { getAllServices, servicesCollection } from '../../../services/db';
 import type { Service } from '../../../types/db';
 import { doc, setDoc, Timestamp } from 'firebase/firestore';
+import { seedTreatmentRooms } from '../../../services/seedRooms';
 
 // Textures
 import oilTexture from '../../../assets/textures/oil_massage.png';
@@ -60,14 +61,20 @@ interface SelectServiceProps {
     onSelect: (serviceId: string) => void;
 }
 
-export const SelectService: React.FC<SelectServiceProps> = ({ selectedServiceId, onSelect }) => {
+export const SelectService = ({ selectedServiceId, onSelect }: SelectServiceProps) => {
     const [searchQuery, setSearchQuery] = useState('');
     const [filterType, setFilterType] = useState<'All' | 'Free' | 'Paid'>('All');
     const [services, setServices] = useState<Service[]>([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        const fetchAndSeedServices = async () => {
+        // Seed rooms on first load to ensure availability logic works
+        console.log("Starting Room Seeding...");
+        seedTreatmentRooms().then(success => {
+            console.log("Room Seeding Finished. Success:", success);
+        });
+
+        const fetchServices = async () => {
             try {
                 const fetchedServices = await getAllServices();
                 const existingIds = new Set(fetchedServices.map(s => s.id));
@@ -94,7 +101,7 @@ export const SelectService: React.FC<SelectServiceProps> = ({ selectedServiceId,
                 setLoading(false);
             }
         };
-        fetchAndSeedServices();
+        fetchServices();
     }, []);
 
     const filteredServices = services.filter(service => {
