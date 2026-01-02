@@ -1,3 +1,4 @@
+
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import { MainLayout } from './layouts/MainLayout';
 import { Home } from './pages/Home/Home';
@@ -6,6 +7,7 @@ import { Profile } from './pages/Profile/Profile';
 import { Doctors } from './pages/Doctors/Doctors';
 import { Services } from './pages/Services/Services';
 import { Progress } from './pages/Progress/Progress';
+import { TherapyDashboard } from './components/dashboard/TherapyDashboard';
 
 import Login from './pages/Login';
 import ProtectedRoute from './components/ProtectedRoute';
@@ -68,6 +70,10 @@ const router = createBrowserRouter([
             {
                 path: 'progress',
                 element: <Progress />,
+            },
+            {
+                path: 'therapy/live/:id',
+                element: <TherapyDashboard />,
             },
         ],
     },

@@ -72,3 +72,42 @@ export interface Appointment {
     createdAt: Timestamp;
     updatedAt: Timestamp;
 }
+
+export interface DailyTask {
+    id: string;
+    userId: string;
+    date: string; // YYYY-MM-DD
+    title: string; // "Drink hot water"
+    isCompleted: boolean;
+    category?: 'diet' | 'activity' | 'sleep' | 'medication';
+    createdAt: Timestamp;
+}
+
+export interface DailyHealthLog {
+    id: string;
+    userId: string;
+    date: string; // YYYY-MM-DD
+    painLevel: number; // 1-10
+    appetiteLevel: number; // 1-10
+    sleepQuality: number; // 1-10
+    notes?: string;
+    createdAt: Timestamp;
+}
+
+export interface TherapyLog {
+    date: string; // "2024-01-01" or "day_1" key
+    painLevel: number | null;
+    status: 'Pending' | 'In_Progress' | 'Done';
+    notes: string;
+}
+
+export interface ActiveTherapy {
+    id: string; // document ID
+    patientId: string;
+    therapyName: string;
+    startDate: string; // "YYYY-MM-DD"
+    totalDays: number;
+    status: 'IN_PROGRESS' | 'PAUSED' | 'COMPLETED';
+    currentDay: number;
+    logs: Record<string, TherapyLog>; // Keyed by "day_1", "day_2", etc.
+}
