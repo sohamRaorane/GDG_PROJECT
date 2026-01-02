@@ -9,7 +9,8 @@ import {
     Timestamp,
     type DocumentData,
     type QueryDocumentSnapshot,
-    type SnapshotOptions
+    type SnapshotOptions,
+    writeBatch
 } from 'firebase/firestore';
 import { db } from '../firebase';
 import type { UserProfile, Service, Appointment } from '../types/db';
@@ -37,8 +38,12 @@ export const getUserProfile = async (uid: string): Promise<UserProfile | null> =
 };
 
 export const getAllUsers = async (): Promise<UserProfile[]> => {
+    console.log("Fetching users from 'users' collection...");
     const snapshot = await getDocs(usersCollection);
-    return snapshot.docs.map(doc => doc.data());
+    console.log("Snapshot size:", snapshot.size);
+    const users = snapshot.docs.map(doc => doc.data());
+    console.log("Mapped users:", users);
+    return users;
 };
 
 // --- Service Management ---
@@ -76,4 +81,43 @@ export const updateAppointmentStatus = async (id: string, status: Appointment['s
         status,
         updatedAt: Timestamp.now()
     });
+};
+
+export const createAppointmentBatch = async (appointments: Omit<Appointment, 'id'>[]): Promise<void> => {
+    const batch = writeBatch(db);
+
+    appointments.forEach(appt => {
+        const docRef = doc(appointmentsCollection);
+        batch.set(docRef, appt);
+    });
+
+    await batch.commit();
+};
+
+export const checkConflicts = async (startDate: string, days: number, startTime: string): Promise<{ date: string, conflict: boolean }[]> => {
+    // Ideally this should be a cloud function or complex query. 
+    // For now, client-side check against fetched appointments is simpler for prototype.
+    const allAppointments = await getAllAppointments();
+    const conflicts = [];
+
+    let currentDate = new Date(startDate);
+
+    for (let i = 0; i < days; i++) {
+        const dateStr = currentDate.toISOString().split('T')[0];
+        // Check if any appointment starts at the same time on this day
+        // This is a basic check. Real-world would check duration overlaps.
+        const hasConflict = allAppointments.some(appt => {
+            const apptDate = appt.startAt.toDate().toISOString().split('T')[0];
+            const apptTime = appt.startAt.toDate().toTimeString().substring(0, 5);
+            return apptDate === dateStr && apptTime === startTime && appt.status !== 'cancelled';
+        });
+
+        if (hasConflict) {
+            conflicts.push({ date: dateStr, conflict: true });
+        }
+
+        currentDate.setDate(currentDate.getDate() + 1);
+    }
+
+    return conflicts;
 };

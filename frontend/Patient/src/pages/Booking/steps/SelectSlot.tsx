@@ -5,7 +5,7 @@ import {
     isToday
 } from 'date-fns';
 import { cn } from '../../../utils/cn';
-import { ChevronLeft, ChevronRight, Minus, Plus } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Minus, Plus, Clock, Calendar as CalendarIcon, Users } from 'lucide-react';
 
 interface SelectSlotProps {
     bookingData: {
@@ -26,7 +26,6 @@ export const SelectSlot: React.FC<SelectSlotProps> = ({ bookingData, onChange })
     const [currentMonth, setCurrentMonth] = useState(new Date());
     const [peopleCount, setPeopleCount] = useState(bookingData.peopleCount || 1);
 
-    // Calendar Logic
     const monthStart = startOfMonth(currentMonth);
     const monthEnd = endOfMonth(currentMonth);
     const startDate = startOfWeek(monthStart);
@@ -47,66 +46,96 @@ export const SelectSlot: React.FC<SelectSlotProps> = ({ bookingData, onChange })
         onChange({ peopleCount: newCount });
     };
 
-    return (
-        <div className="flex flex-col lg:flex-row gap-12">
-            {/* Left: Date Picker (Calendar) */}
-            <div className="flex-1 max-w-md">
-                <h3 className="text-xl font-display font-medium mb-6 text-primary">Date picker</h3>
+    const selectedDateObj = bookingData.date ? new Date(bookingData.date) : null;
 
-                <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-                    <div className="flex items-center justify-between mb-6">
-                        <button onClick={handlePrevMonth} className="p-1 hover:bg-gray-100 rounded-full transition-colors">
-                            <ChevronLeft size={20} className="text-gray-600" />
-                        </button>
-                        <span className="font-bold text-gray-700">
-                            {format(currentMonth, 'MMMM yyyy')}
-                        </span>
-                        <button onClick={handleNextMonth} className="p-1 hover:bg-gray-100 rounded-full transition-colors">
-                            <ChevronRight size={20} className="text-gray-600" />
-                        </button>
+    return (
+        <div className="flex flex-col lg:grid lg:grid-cols-12 gap-12">
+            {/* Left: Date Picker (Calendar) */}
+            <div className="lg:col-span-7 space-y-6">
+                <div className="flex items-center gap-2 text-primary font-display font-bold text-xl mb-4">
+                    <CalendarIcon size={22} />
+                    <span>Select Date</span>
+                </div>
+
+                <div className="bg-white rounded-3xl p-8 border border-slate-100 shadow-sm">
+                    <div className="flex items-center justify-between mb-8">
+                        <div className="flex flex-col">
+                            <h4 className="text-2xl font-display font-bold text-text">
+                                {format(currentMonth, 'MMMM')}
+                            </h4>
+                            <span className="text-slate-400 text-sm">{format(currentMonth, 'yyyy')}</span>
+                        </div>
+                        <div className="flex gap-2">
+                            <button onClick={handlePrevMonth} className="p-2 hover:bg-slate-50 rounded-xl border border-slate-100 transition-colors">
+                                <ChevronLeft size={20} className="text-slate-600" />
+                            </button>
+                            <button onClick={handleNextMonth} className="p-2 hover:bg-slate-50 rounded-xl border border-slate-100 transition-colors">
+                                <ChevronRight size={20} className="text-slate-600" />
+                            </button>
+                        </div>
                     </div>
 
-                    <div className="grid grid-cols-7 gap-1 text-center mb-2">
-                        {['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'].map(day => (
-                            <div key={day} className="text-xs font-medium text-gray-400 py-1">
+                    <div className="grid grid-cols-7 gap-2 text-center mb-4">
+                        {['Sun', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sat'].map(day => (
+                            <div key={day} className="text-xs font-bold text-slate-400 uppercase tracking-widest pb-2">
                                 {day}
                             </div>
                         ))}
                     </div>
 
-                    <div className="grid grid-cols-7 gap-1">
+                    <div className="grid grid-cols-7 gap-2">
                         {calendarDays.map((day) => {
                             const dateStr = format(day, 'yyyy-MM-dd');
                             const isSelected = bookingData.date === dateStr;
                             const isCurrentMonth = isSameMonth(day, currentMonth);
+                            const today = isToday(day);
 
                             return (
                                 <button
                                     key={day.toISOString()}
                                     onClick={() => handleDateClick(day)}
-                                    disabled={!isCurrentMonth} // Disable functionality for simpler logic/demo
                                     className={cn(
-                                        "h-9 w-9 rounded-full flex items-center justify-center text-sm transition-all",
-                                        !isCurrentMonth && "text-gray-300 pointer-events-none",
-                                        isCurrentMonth && !isSelected && "text-text hover:bg-gray-100",
-                                        isSelected && "bg-dark-slate text-white hover:bg-dark-slate/90 shadow-md",
-                                        isToday(day) && !isSelected && "border border-primary text-primary"
+                                        "h-12 w-full rounded-2xl flex flex-col items-center justify-center text-sm font-bold transition-all relative overflow-hidden",
+                                        !isCurrentMonth && "text-slate-300 opacity-40 hover:opacity-100",
+                                        isCurrentMonth && !isSelected && "text-slate-600 hover:bg-secondary/30",
+                                        isSelected && "bg-primary text-white shadow-lg shadow-primary/20 scale-105 z-10",
+                                        today && !isSelected && "text-primary ring-1 ring-inset ring-primary/30"
                                     )}
                                 >
                                     {format(day, 'd')}
+                                    {today && !isSelected && <div className="absolute bottom-1.5 w-1 h-1 rounded-full bg-primary" />}
                                 </button>
                             );
                         })}
                     </div>
                 </div>
+
+                {/* Selected Date Indicator */}
+                {selectedDateObj && (
+                    <div className="bg-secondary/20 border border-primary/10 rounded-2xl p-4 flex items-center justify-between animate-in slide-in-from-bottom-2 duration-300">
+                        <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center text-primary shadow-sm border border-primary/5">
+                                <CalendarIcon size={20} />
+                            </div>
+                            <div>
+                                <p className="text-xs font-bold text-primary/60 uppercase tracking-widest">Selected Date</p>
+                                <p className="font-display font-bold text-text">{format(selectedDateObj, 'EEEE, MMMM do, yyyy')}</p>
+                            </div>
+                        </div>
+                    </div>
+                )}
             </div>
 
             {/* Right: Slots & Capacity */}
-            <div className="flex-1 max-w-md">
-                <h3 className="text-xl font-display font-medium mb-6 text-primary">Slots</h3>
+            <div className="lg:col-span-5 space-y-10">
+                {/* Slots */}
+                <div>
+                    <div className="flex items-center gap-2 text-primary font-display font-bold text-xl mb-6">
+                        <Clock size={22} />
+                        <span>Select Time</span>
+                    </div>
 
-                <div className="bg-white p-6 rounded-xl border border-primary/20 bg-primary/5">
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-3 gap-3">
                         {TIME_SLOTS.map((slot) => {
                             const isSelected = bookingData.slot === slot;
                             return (
@@ -114,10 +143,10 @@ export const SelectSlot: React.FC<SelectSlotProps> = ({ bookingData, onChange })
                                     key={slot}
                                     onClick={() => onChange({ slot })}
                                     className={cn(
-                                        "py-2 px-4 rounded-lg border text-sm font-medium transition-all",
+                                        "py-3 px-4 rounded-xl border-2 text-sm font-bold transition-all",
                                         isSelected
-                                            ? "border-primary bg-primary text-white shadow-sm"
-                                            : "border-primary/30 bg-white text-primary hover:bg-primary/10"
+                                            ? "border-primary bg-primary text-white shadow-md"
+                                            : "border-slate-100 bg-white text-slate-600 hover:border-primary/30 hover:bg-slate-50"
                                     )}
                                 >
                                     {slot}
@@ -127,27 +156,35 @@ export const SelectSlot: React.FC<SelectSlotProps> = ({ bookingData, onChange })
                     </div>
                 </div>
 
-                {/* Manage Capacity */}
-                <div className="mt-8 flex flex-col items-center">
-                    <label className="text-sm font-display text-primary mb-3">Number of people</label>
-                    <div className="flex items-center gap-4 bg-white px-4 py-2 rounded-lg border border-gray-200 shadow-sm">
-                        <button
-                            onClick={() => handlePeopleChange(-1)}
-                            className="p-1 hover:bg-gray-100 rounded-md text-gray-500 transition-colors"
-                        >
-                            <Minus size={16} />
-                        </button>
-                        <span className="w-8 text-center font-bold text-lg text-text">{peopleCount}</span>
-                        <button
-                            onClick={() => handlePeopleChange(1)}
-                            className="p-1 hover:bg-gray-100 rounded-md text-gray-500 transition-colors"
-                        >
-                            <Plus size={16} />
-                        </button>
+                {/* Capacity Counter */}
+                <div className="pt-8 border-t border-slate-100">
+                    <div className="flex items-center gap-2 text-primary font-display font-bold text-xl mb-6">
+                        <Users size={22} />
+                        <span>Attendees</span>
                     </div>
-                    <p className="text-[10px] text-primary/60 mt-2 text-center">
-                        Limit this according to manage capacity value
-                    </p>
+
+                    <div className="bg-white p-6 rounded-3xl border border-slate-100 flex items-center justify-between">
+                        <div>
+                            <p className="font-bold text-text">Number of people</p>
+                            <p className="text-xs text-slate-400">Total participants for this session</p>
+                        </div>
+                        <div className="flex items-center gap-4 bg-slate-50 p-1 rounded-2xl border border-slate-100">
+                            <button
+                                onClick={() => handlePeopleChange(-1)}
+                                className="w-10 h-10 flex items-center justify-center bg-white hover:bg-slate-50 rounded-xl text-slate-600 transition-all shadow-sm disabled:opacity-50"
+                                disabled={peopleCount <= 1}
+                            >
+                                <Minus size={18} />
+                            </button>
+                            <span className="w-8 text-center font-bold text-xl text-primary">{peopleCount}</span>
+                            <button
+                                onClick={() => handlePeopleChange(1)}
+                                className="w-10 h-10 flex items-center justify-center bg-white hover:bg-slate-50 rounded-xl text-slate-600 transition-all shadow-sm"
+                            >
+                                <Plus size={18} />
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
