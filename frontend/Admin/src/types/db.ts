@@ -39,7 +39,21 @@ export interface Service {
     bookingRules: BookingRules;
     createdAt: Timestamp;
     updatedAt: Timestamp;
+    prePrecautions?: string;
+    postPrecautions?: string;
 }
+
+export interface Notification {
+    id: string;
+    userId: string;
+    title: string;
+    message: string;
+    type: 'pre' | 'post';
+    appointmentId: string;
+    isRead: boolean;
+    createdAt: Timestamp;
+}
+
 
 export type AppointmentStatus = 'pending' | 'confirmed' | 'cancelled' | 'completed' | 'no-show';
 

@@ -31,6 +31,7 @@ export interface Service {
     name: string;
     description: string;
     durationMinutes: number;
+    durationDays?: number; // Default 1 if undefined
     price: number;
     currency: string;
     isActive: boolean;
@@ -39,6 +40,8 @@ export interface Service {
     bookingRules: BookingRules;
     createdAt: Timestamp;
     updatedAt: Timestamp;
+    prePrecautions?: string;
+    postPrecautions?: string;
     // UI specific fields (optional for now to allow seamless transition)
     type?: 'Free' | 'Paid';
     users?: string[];
@@ -50,6 +53,25 @@ export interface Service {
 
 export type AppointmentStatus = 'pending' | 'confirmed' | 'cancelled' | 'completed' | 'no-show';
 
+export interface TreatmentRoom {
+    id: string;
+    name: string; // "Dhanvantari Room"
+    supportedTherapies: string[]; // ["Abhyanga", "Shirodhara"]
+    capacity: number;
+    isActive: boolean;
+}
+
+export interface Slot {
+    id: string; // Format: "doctorId_roomId_date_time"
+    doctorId: string;
+    roomId: string;
+    date: string; // YYYY-MM-DD
+    time: string; // HH:MM
+    serviceId: string;
+    appointmentId: string; // Link to parent appointment
+    lockedAt: Timestamp;
+}
+
 export interface Appointment {
     id: string;
     customerId: string;
@@ -58,6 +80,7 @@ export interface Appointment {
     serviceId: string;
     serviceName: string;
     providerId: string;
+    roomId?: string; // Assigned Room
     startAt: Timestamp;
     endAt: Timestamp;
     status: AppointmentStatus;
@@ -84,5 +107,16 @@ export interface DailyHealthLog {
     appetiteLevel: number; // 1-10
     sleepQuality: number; // 1-10
     notes?: string;
+    createdAt: Timestamp;
+}
+
+export interface Notification {
+    id: string;
+    userId: string;
+    title: string;
+    message: string;
+    type: 'pre' | 'post';
+    appointmentId: string;
+    isRead: boolean;
     createdAt: Timestamp;
 }

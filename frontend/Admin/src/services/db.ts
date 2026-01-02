@@ -13,7 +13,7 @@ import {
     writeBatch
 } from 'firebase/firestore';
 import { db } from '../firebase';
-import type { UserProfile, Service, Appointment } from '../types/db';
+import type { UserProfile, Service, Appointment, Notification } from '../types/db';
 
 // Firestore Data Converter
 const converter = <T>() => ({
@@ -28,6 +28,7 @@ const converter = <T>() => ({
 export const usersCollection = collection(db, 'users').withConverter(converter<UserProfile>());
 export const servicesCollection = collection(db, 'services').withConverter(converter<Service>());
 export const appointmentsCollection = collection(db, 'appointments').withConverter(converter<Appointment>());
+export const notificationsCollection = collection(db, 'notifications').withConverter(converter<Notification>());
 
 // --- User Services ---
 
@@ -81,6 +82,33 @@ export const updateAppointmentStatus = async (id: string, status: Appointment['s
         status,
         updatedAt: Timestamp.now()
     });
+
+    if (status === 'completed') {
+        const apptSnap = await getDoc(docRef);
+        if (apptSnap.exists()) {
+            const appt = apptSnap.data();
+            const svcSnap = await getDoc(doc(db, 'services', appt.serviceId));
+            if (svcSnap.exists()) {
+                const svc = svcSnap.data() as Service;
+                if (svc.postPrecautions) {
+                    await createNotification({
+                        userId: appt.customerId,
+                        title: `Post-treatment Precautions: ${appt.serviceName}`,
+                        message: svc.postPrecautions,
+                        type: 'post',
+                        appointmentId: id,
+                        isRead: false,
+                        createdAt: Timestamp.now()
+                    });
+                }
+            }
+        }
+    }
+};
+
+export const createNotification = async (notification: Omit<Notification, 'id'>): Promise<string> => {
+    const docRef = await addDoc(notificationsCollection, notification as Notification);
+    return docRef.id;
 };
 
 export const createAppointmentBatch = async (appointments: Omit<Appointment, 'id'>[]): Promise<void> => {
