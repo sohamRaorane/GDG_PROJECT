@@ -14,6 +14,7 @@ interface SelectSlotProps {
         slot: string;
         peopleCount?: number;
         serviceId?: string;
+        doctorId?: string;
     };
     onChange: (data: { date?: string; slot?: string; peopleCount?: number; roomId?: string }) => void;
 }
@@ -85,32 +86,34 @@ export const SelectSlot: React.FC<SelectSlotProps> = ({ bookingData, onChange })
         <div className="flex flex-col lg:grid lg:grid-cols-12 gap-12">
             {/* Left: Date Picker (Calendar) */}
             <div className="lg:col-span-7 space-y-6">
-                <div className="flex items-center gap-2 text-primary font-display font-bold text-xl mb-4">
-                    <CalendarIcon size={22} />
+                <div className="flex items-center gap-2 text-primary font-display font-medium text-xl mb-4 italic">
+                    <CalendarIcon size={20} />
                     <span>Select Date</span>
                 </div>
 
-                <div className="bg-white rounded-3xl p-8 border border-slate-100 shadow-sm">
-                    <div className="flex items-center justify-between mb-8">
+                <div className="bg-white rounded-[2.5rem] p-8 border-4 border-secondary/20 shadow-sm relative overflow-hidden">
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-secondary/10 rounded-bl-[100px] -mr-8 -mt-8" />
+
+                    <div className="flex items-center justify-between mb-8 relative z-10">
                         <div className="flex flex-col">
-                            <h4 className="text-2xl font-display font-bold text-text">
+                            <h4 className="text-2xl font-display font-bold text-text mb-0.5">
                                 {format(currentMonth, 'MMMM')}
                             </h4>
-                            <span className="text-slate-400 text-sm">{format(currentMonth, 'yyyy')}</span>
+                            <span className="text-secondary/60 text-sm font-bold tracking-widest uppercase">{format(currentMonth, 'yyyy')}</span>
                         </div>
                         <div className="flex gap-2">
-                            <button onClick={handlePrevMonth} className="p-2 hover:bg-slate-50 rounded-xl border border-slate-100 transition-colors">
-                                <ChevronLeft size={20} className="text-slate-600" />
+                            <button onClick={handlePrevMonth} className="p-3 hover:bg-secondary/20 rounded-full border border-secondary/20 transition-colors text-primary">
+                                <ChevronLeft size={18} />
                             </button>
-                            <button onClick={handleNextMonth} className="p-2 hover:bg-slate-50 rounded-xl border border-slate-100 transition-colors">
-                                <ChevronRight size={20} className="text-slate-600" />
+                            <button onClick={handleNextMonth} className="p-3 hover:bg-secondary/20 rounded-full border border-secondary/20 transition-colors text-primary">
+                                <ChevronRight size={18} />
                             </button>
                         </div>
                     </div>
 
                     <div className="grid grid-cols-7 gap-2 text-center mb-4">
                         {['Sun', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sat'].map(day => (
-                            <div key={day} className="text-xs font-bold text-slate-400 uppercase tracking-widest pb-2">
+                            <div key={day} className="text-xs font-bold text-text/40 uppercase tracking-widest pb-2">
                                 {day}
                             </div>
                         ))}
@@ -129,10 +132,10 @@ export const SelectSlot: React.FC<SelectSlotProps> = ({ bookingData, onChange })
                                     onClick={() => handleDateClick(day)}
                                     className={cn(
                                         "h-12 w-full rounded-2xl flex flex-col items-center justify-center text-sm font-bold transition-all relative overflow-hidden",
-                                        !isCurrentMonth && "text-slate-300 opacity-40 hover:opacity-100",
-                                        isCurrentMonth && !isSelected && "text-slate-600 hover:bg-secondary/30",
+                                        !isCurrentMonth && "text-text/10",
+                                        isCurrentMonth && !isSelected && "text-text/70 hover:bg-secondary/10 hover:text-primary hover:border hover:border-secondary/20",
                                         isSelected && "bg-primary text-white shadow-lg shadow-primary/20 scale-105 z-10",
-                                        today && !isSelected && "text-primary ring-1 ring-inset ring-primary/30"
+                                        today && !isSelected && "text-primary ring-2 ring-inset ring-primary/30 bg-primary/5"
                                     )}
                                 >
                                     {format(day, 'd')}
@@ -145,14 +148,14 @@ export const SelectSlot: React.FC<SelectSlotProps> = ({ bookingData, onChange })
 
                 {/* Selected Date Indicator */}
                 {selectedDateObj && (
-                    <div className="bg-secondary/20 border border-primary/10 rounded-2xl p-4 flex items-center justify-between animate-in slide-in-from-bottom-2 duration-300">
-                        <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-xl bg-white flex items-center justify-center text-primary shadow-sm border border-primary/5">
-                                <CalendarIcon size={20} />
+                    <div className="bg-secondary/10 border-2 border-primary/20 rounded-3xl p-6 flex items-center justify-between animate-in slide-in-from-bottom-2 duration-300">
+                        <div className="flex items-center gap-4">
+                            <div className="w-12 h-12 rounded-2xl bg-white flex items-center justify-center text-primary shadow-sm border border-secondary/20">
+                                <CalendarIcon size={22} />
                             </div>
                             <div>
-                                <p className="text-xs font-bold text-primary/60 uppercase tracking-widest">Selected Date</p>
-                                <p className="font-display font-bold text-text">{format(selectedDateObj, 'EEEE, MMMM do, yyyy')}</p>
+                                <p className="text-xs font-bold text-secondary/60 uppercase tracking-widest mb-0.5">Selected Date</p>
+                                <p className="font-display font-bold text-text text-lg">{format(selectedDateObj, 'EEEE, MMMM do, yyyy')}</p>
                             </div>
                         </div>
                     </div>
@@ -163,14 +166,14 @@ export const SelectSlot: React.FC<SelectSlotProps> = ({ bookingData, onChange })
             <div className="lg:col-span-5 space-y-10">
                 {/* Slots */}
                 <div>
-                    <div className="flex items-center gap-2 text-primary font-display font-bold text-xl mb-6">
-                        <Clock size={22} />
+                    <div className="flex items-center gap-2 text-primary font-display font-medium text-xl mb-6 italic">
+                        <Clock size={20} />
                         <span>Select Time</span>
                     </div>
 
                     <div className="grid grid-cols-3 gap-3">
                         {isLoadingSlots ? (
-                            <div className="col-span-3 py-8 flex justify-center text-slate-400">
+                            <div className="col-span-3 py-12 flex justify-center text-primary/40">
                                 <RefreshCw className="animate-spin" />
                             </div>
                         ) : availableSlots.length > 0 ? (
@@ -181,10 +184,10 @@ export const SelectSlot: React.FC<SelectSlotProps> = ({ bookingData, onChange })
                                         key={slotObj.time}
                                         onClick={() => onChange({ slot: slotObj.time, roomId: slotObj.roomId })}
                                         className={cn(
-                                            "py-3 px-4 rounded-xl border-2 text-sm font-bold transition-all",
+                                            "py-3.5 px-4 rounded-2xl border-2 text-sm font-bold transition-all",
                                             isSelected
-                                                ? "border-primary bg-primary text-white shadow-md"
-                                                : "border-slate-100 bg-white text-slate-600 hover:border-primary/30 hover:bg-slate-50"
+                                                ? "border-primary bg-primary text-white shadow-lg shadow-primary/20"
+                                                : "border-secondary/20 bg-white text-text/60 hover:border-secondary/40 hover:bg-secondary/5 hover:text-primary"
                                         )}
                                     >
                                         {slotObj.time}
@@ -192,7 +195,7 @@ export const SelectSlot: React.FC<SelectSlotProps> = ({ bookingData, onChange })
                                 );
                             })
                         ) : (
-                            <div className="col-span-3 text-center text-slate-400 py-4 text-sm">
+                            <div className="col-span-3 text-center text-text/40 py-8 text-sm italic border-2 border-dashed border-secondary/20 rounded-2xl">
                                 No slots available for this date.
                             </div>
                         )}
@@ -200,31 +203,31 @@ export const SelectSlot: React.FC<SelectSlotProps> = ({ bookingData, onChange })
                 </div>
 
                 {/* Capacity Counter */}
-                <div className="pt-8 border-t border-slate-100">
-                    <div className="flex items-center gap-2 text-primary font-display font-bold text-xl mb-6">
-                        <Users size={22} />
+                <div className="pt-8 border-t-2 border-secondary/10">
+                    <div className="flex items-center gap-2 text-primary font-display font-medium text-xl mb-6 italic">
+                        <Users size={20} />
                         <span>Attendees</span>
                     </div>
 
-                    <div className="bg-white p-6 rounded-3xl border border-slate-100 flex items-center justify-between">
+                    <div className="bg-white p-6 rounded-3xl border-2 border-secondary/20 flex items-center justify-between shadow-sm">
                         <div>
                             <p className="font-bold text-text">Number of people</p>
-                            <p className="text-xs text-slate-400">Total participants for this session</p>
+                            <p className="text-xs text-text/40 mt-1">Total participants for this session</p>
                         </div>
-                        <div className="flex items-center gap-4 bg-slate-50 p-1 rounded-2xl border border-slate-100">
+                        <div className="flex items-center gap-4 bg-secondary/10 p-1.5 rounded-2xl border border-secondary/20">
                             <button
                                 onClick={() => handlePeopleChange(-1)}
-                                className="w-10 h-10 flex items-center justify-center bg-white hover:bg-slate-50 rounded-xl text-slate-600 transition-all shadow-sm disabled:opacity-50"
+                                className="w-10 h-10 flex items-center justify-center bg-white hover:bg-white/80 rounded-xl text-primary transition-all shadow-sm disabled:opacity-50 disabled:shadow-none border border-secondary/10"
                                 disabled={peopleCount <= 1}
                             >
-                                <Minus size={18} />
+                                <Minus size={16} />
                             </button>
-                            <span className="w-8 text-center font-bold text-xl text-primary">{peopleCount}</span>
+                            <span className="w-8 text-center font-bold text-xl text-primary font-display">{peopleCount}</span>
                             <button
                                 onClick={() => handlePeopleChange(1)}
-                                className="w-10 h-10 flex items-center justify-center bg-white hover:bg-slate-50 rounded-xl text-slate-600 transition-all shadow-sm"
+                                className="w-10 h-10 flex items-center justify-center bg-white hover:bg-white/80 rounded-xl text-primary transition-all shadow-sm border border-secondary/10"
                             >
-                                <Plus size={18} />
+                                <Plus size={16} />
                             </button>
                         </div>
                     </div>
