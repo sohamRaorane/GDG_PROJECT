@@ -17,6 +17,7 @@ import ForgotPassword from './pages/ForgotPassword';
 import VerifyEmail from './pages/VerifyEmail';
 
 import { Landing } from './pages/Landing/Landing';
+import ClinicLocator from './pages/ClinicLocator/ClinicLocator';
 
 const router = createBrowserRouter([
     {
@@ -58,6 +59,10 @@ const router = createBrowserRouter([
             {
                 path: 'profile',
                 element: <Profile />,
+            },
+            {
+                path: 'clinics',
+                element: <ClinicLocator />,
             },
             {
                 path: 'doctors',

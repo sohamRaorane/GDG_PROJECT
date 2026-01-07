@@ -67,6 +67,8 @@ export const checkPatientVitals = functions.firestore
 import express from 'express';
 import cors from 'cors';
 import { GoogleGenerativeAI } from '@google/generative-ai';
+import * as dotenv from 'dotenv';
+dotenv.config();
 
 const app = express();
 app.use(cors());
@@ -81,20 +83,17 @@ try {
     GEN_AI_KEY = process.env.GEN_AI_API_KEY || process.env.GEMINI_API_KEY || '';
 }
 
+console.log("DEBUG: Env Keys:", Object.keys(process.env));
+console.log("DEBUG: GEN_AI_KEY length:", GEN_AI_KEY ? GEN_AI_KEY.length : 0);
+
 if (!GEN_AI_KEY) {
     console.warn('GEN_AI_API_KEY is not set (checked functions.config and env). AI proxy will return an error.');
 }
 
 const genAI = GEN_AI_KEY ? new GoogleGenerativeAI(GEN_AI_KEY) : null;
 
-const MODEL_CANDIDATES = [
-    'models/gemini-flash-latest',
-    'models/gemini-pro-latest',
-    'models/gemini-1.5-flash',
-    'models/gemini-1.5-pro',
-    'models/gemini-2.0-flash-lite-preview'
-];
-const API_VERSIONS = ['v1beta', 'v1'] as const;
+// Use Gemini 1.5 flash to avoid the 2.0 free-tier quota if configured
+const MODEL_NAME = 'gemini-1.5-flash';
 
 app.post('/generate', async (req, res) => {
     const { history, nextMessage } = req.body as { history?: any[]; nextMessage?: string };
@@ -102,29 +101,46 @@ app.post('/generate', async (req, res) => {
     if (!nextMessage) return res.status(400).json({ error: 'nextMessage is required.' });
 
     const safeHistory = Array.isArray(history) ? history : [];
-    let detailedErrors: string[] = [];
 
-    for (const version of API_VERSIONS) {
-        for (const candidate of MODEL_CANDIDATES) {
-            try {
-                const model = genAI.getGenerativeModel({ model: candidate }, { apiVersion: version });
-                const chat = model.startChat({ history: safeHistory, generationConfig: { maxOutputTokens: 600 } });
-                const result = await chat.sendMessage(nextMessage);
-                const response = await result.response;
-                return res.json({ text: response.text() });
-            } catch (err: any) {
-                const msg = err?.message || String(err);
-                detailedErrors.push(`[${version}] ${candidate}: ${msg}`);
-                console.warn(`Model "${candidate}" on ${version} failed:`, msg);
-            }
+    try {
+        const model = genAI.getGenerativeModel({ model: MODEL_NAME });
+        const chat = model.startChat({ history: safeHistory });
+        const result = await chat.sendMessage(nextMessage);
+        const response = await result.response;
+        return res.json({ text: response.text() });
+    } catch (err: any) {
+        console.error(`Gemini Error on ${MODEL_NAME}:`, err);
+        const status = err?.status || 500;
+
+        // If quota/rate-limit is exceeded, advise client with Retry-After and helpful links
+        if (status === 429) {
+            // Prefer an explicit retry delay if provided by the error, otherwise fall back to 30s
+            const retrySeconds = (() => {
+                try {
+                    const rd = err?.details?.[0]?.retryDelay || err?.retryDelay || err?.response?.retryDelay;
+                    if (typeof rd === 'string') {
+                        const m = rd.match(/(\d+)(?:\.?\d*)/);
+                        if (m) return Number(m[1]);
+                    }
+                } catch (e) {}
+                return 30;
+            })();
+
+            res.set('Retry-After', String(retrySeconds));
+            return res.status(429).json({
+                error: 'AI Generation Failed - quota exceeded',
+                details: err?.message || String(err),
+                retryAfterSeconds: retrySeconds,
+                helpUrl: 'https://ai.google.dev/gemini-api/docs/rate-limits'
+            });
         }
-    }
 
-    // If no model succeeded
-    return res.status(404).json({
-        error: 'No compatible AI model found.',
-        details: detailedErrors.join(' | ')
-    });
+        return res.status(status).json({
+            error: 'AI Generation Failed',
+            details: err?.message || String(err),
+            code: status
+        });
+    }
 });
 
 export const aiProxy = functions.https.onRequest(app);
