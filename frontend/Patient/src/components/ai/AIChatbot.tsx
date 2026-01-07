@@ -35,16 +35,26 @@ export const AIChatbot = () => {
         setInput('');
         setIsLoading(true);
 
-        const history = [...messages, userMessage].map(m => ({ role: m.role, parts: m.parts }));
-        const aiResponse = await getChatResponse(history, input);
+        try {
+            const history = [...messages, userMessage].map(m => ({ role: m.role, parts: m.parts }));
+            const aiResponse = await getChatResponse(history, input);
 
-        const modelMessage: Message = {
-            role: 'model',
-            parts: [{ text: aiResponse }]
-        };
+            const modelMessage: Message = {
+                role: 'model',
+                parts: [{ text: aiResponse }]
+            };
 
-        setMessages(prev => [...prev, modelMessage]);
-        setIsLoading(false);
+            setMessages(prev => [...prev, modelMessage]);
+        } catch (error) {
+            console.error("Chat error:", error);
+            const errorMessage: Message = {
+                role: 'model',
+                parts: [{ text: "I'm having trouble connecting to the server. Please check your internet connection." }]
+            };
+            setMessages(prev => [...prev, errorMessage]);
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     return (

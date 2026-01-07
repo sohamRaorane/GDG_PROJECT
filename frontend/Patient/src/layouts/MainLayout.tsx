@@ -69,6 +69,7 @@ export const MainLayout = () => {
                         <Link to="/" className="text-sm font-medium text-text hover:text-primary transition-colors">Home</Link>
                         <Link to="/services" className="text-sm font-medium text-text hover:text-primary transition-colors">Therapies</Link>
                         <Link to="/doctors" className="text-sm font-medium text-text hover:text-primary transition-colors">Doctors</Link>
+                        <Link to="/clinics" className="text-sm font-medium text-text hover:text-primary transition-colors">Clinics</Link>
                     </nav>
 
                     <div className="flex items-center gap-4">

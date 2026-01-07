@@ -1,8 +1,9 @@
 import { useState } from 'react';
-import { Check, ChevronRight, ChevronLeft, Calendar as CalendarIcon, User, Package, FileText, CreditCard, CheckCircle } from 'lucide-react';
+import { Check, ChevronRight, ChevronLeft, Calendar as CalendarIcon, User, Package, FileText, CreditCard, CheckCircle, MapPin } from 'lucide-react';
 import { cn } from '../../utils/cn';
 import { Button } from '../../components/ui/Button';
 import { SelectService } from './steps/SelectService';
+import { SelectClinic } from './steps/SelectClinic';
 import { SelectDoctor } from './steps/SelectDoctor';
 import { SelectSlot } from './steps/SelectSlot';
 import { IntakeForm } from './steps/IntakeForm';
@@ -16,6 +17,7 @@ import { sendAppointmentEmail } from '../../services/email';
 // Steps definition with Icons
 const STEPS = [
     { id: 'service', label: 'Therapy', icon: Package },
+    { id: 'clinic', label: 'Location', icon: MapPin },
     { id: 'provider', label: 'Doctor', icon: User },
     { id: 'slot', label: 'Schedule', icon: CalendarIcon },
     { id: 'intake', label: 'Details', icon: FileText },
@@ -29,10 +31,11 @@ export const BookingWizard = () => {
     const [currentStep, setCurrentStep] = useState<StepId>('service');
     const [bookingData, setBookingData] = useState({
         serviceId: '',
+        clinicId: '',
         doctorId: '',
         date: '',
         slot: '',
-        roomId: '', // Add roomId
+        roomId: '',
         peopleCount: 1,
         intakeValues: {}
     });
@@ -42,6 +45,10 @@ export const BookingWizard = () => {
     const handleNext = () => {
         if (currentStep === 'service' && !bookingData.serviceId) {
             alert("Please select a service to continue.");
+            return;
+        }
+        if (currentStep === 'clinic' && !bookingData.clinicId) {
+            alert("Please select a clinic location to continue.");
             return;
         }
         if (currentStep === 'provider' && !bookingData.doctorId) {
@@ -179,10 +186,17 @@ export const BookingWizard = () => {
                                     onSelect={(id) => setBookingData(prev => ({ ...prev, serviceId: id }))}
                                 />
                             )}
+                            {currentStep === 'clinic' && (
+                                <SelectClinic
+                                    selectedClinicId={bookingData.clinicId}
+                                    onSelect={(id) => setBookingData(prev => ({ ...prev, clinicId: id }))}
+                                />
+                            )}
                             {currentStep === 'provider' && (
                                 <SelectDoctor
                                     selectedDoctorId={bookingData.doctorId}
                                     onSelect={(id) => setBookingData(prev => ({ ...prev, doctorId: id }))}
+                                    clinicId={bookingData.clinicId}
                                 />
                             )}
                             {currentStep === 'slot' && (
