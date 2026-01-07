@@ -124,3 +124,14 @@ export interface Notification {
     isRead: boolean;
     createdAt: Timestamp;
 }
+
+export interface ActiveTherapy {
+    id: string;
+    patientId: string;
+    therapyName: string;
+    startDate: string;
+    totalDays: number;
+    currentDay: number;
+    status: string;
+    logs: Record<string, any>;
+}
