@@ -18,6 +18,7 @@ import VerifyEmail from './pages/VerifyEmail';
 
 import { Landing } from './pages/Landing/Landing';
 import ClinicLocator from './pages/ClinicLocator/ClinicLocator';
+import { Guidelines } from './pages/Guidelines/Guidelines';
 
 const router = createBrowserRouter([
     {
@@ -71,6 +72,10 @@ const router = createBrowserRouter([
             {
                 path: 'services',
                 element: <Services />,
+            },
+            {
+                path: 'guidelines',
+                element: <Guidelines />,
             },
             {
                 path: 'progress',

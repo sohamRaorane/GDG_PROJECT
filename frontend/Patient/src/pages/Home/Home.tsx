@@ -149,7 +149,11 @@ export const Home = () => {
                                         <Button onClick={() => navigate('/progress')} className="rounded-xl px-6 py-6 shadow-lg shadow-primary/20">
                                             Start Daily Check-in
                                         </Button>
-                                        <Button variant="outline" className="rounded-xl px-6 py-6 border-slate-200 bg-transparent hover:bg-slate-50">
+                                        <Button
+                                            variant="outline"
+                                            onClick={() => navigate('/guidelines')}
+                                            className="rounded-xl px-6 py-6 border-slate-200 bg-transparent hover:bg-slate-50"
+                                        >
                                             View Guidelines
                                         </Button>
                                     </div>
@@ -215,7 +219,11 @@ export const Home = () => {
                                     </div>
                                 </div>
 
-                                <Button variant="ghost" className="w-full mt-4 h-8 text-xs font-bold text-primary hover:bg-white hover:shadow-sm border border-transparent hover:border-primary/10">
+                                <Button
+                                    variant="ghost"
+                                    onClick={() => navigate('/profile')}
+                                    className="w-full mt-4 h-8 text-xs font-bold text-primary hover:bg-white hover:shadow-sm border border-transparent hover:border-primary/10"
+                                >
                                     View Prescription
                                 </Button>
                             </div>
