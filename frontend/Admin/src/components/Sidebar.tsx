@@ -30,8 +30,9 @@ const Sidebar = () => {
                 <p className="text-[10px] text-slate-400 tracking-wide">Medical Portal</p>
             </div>
 
-            <div className="flex-1 overflow-y-auto py-4">
-                <nav className="space-y-1 px-3">
+            {/* Navigation */}
+            <div className="flex-1 overflow-y-auto py-6 px-3">
+                <nav className="space-y-2">
                     {navItems.map((item) => (
                         <Link
                             key={item.path}
