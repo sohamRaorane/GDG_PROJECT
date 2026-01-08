@@ -33,6 +33,8 @@ const Appointments = () => {
     const [loadingServices, setLoadingServices] = useState(false);
     const [appointments, setAppointments] = useState<Appointment[]>([]);
     const [loadingAppointments, setLoadingAppointments] = useState(false);
+    const [selectedAppointment, setSelectedAppointment] = useState<Appointment | null>(null);
+    const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
 
     const [newType, setNewType] = useState<Partial<AppointmentType>>({
         name: "",
@@ -265,33 +267,210 @@ const Appointments = () => {
                             }}
                         />
 
-                        <Card title="Appointments" description="Manage appointment statuses.">
-                            <div className="space-y-2">
-                                {loadingAppointments ? (
-                                    <div className="text-sm text-slate-400">Loading appointments...</div>
-                                ) : appointments.length === 0 ? (
-                                    <div className="text-sm text-slate-400">No appointments found.</div>
-                                ) : (
-                                    appointments.map((a) => (
-                                        <div key={a.id} className="flex items-center justify-between border-b border-slate-100 py-3">
-                                            <div>
-                                                <div className="font-medium text-dark-slate">{a.serviceName} — {a.customerName}</div>
-                                                <div className="text-xs text-slate-400">{a.startAt.toDate().toLocaleString()}</div>
-                                            </div>
-                                            <div className="flex items-center gap-2">
-                                                <select value={a.status} onChange={(e) => handleChangeAppointmentStatus(a.id, e.target.value as Appointment['status'])} className="rounded-lg border border-slate-300 px-2 py-1">
-                                                    <option value="pending">pending</option>
-                                                    <option value="confirmed">confirmed</option>
-                                                    <option value="cancelled">cancelled</option>
-                                                    <option value="completed">completed</option>
-                                                    <option value="no-show">no-show</option>
+                        {/* Appointment Status Sections */}
+                        <div className="grid gap-6 lg:grid-cols-2">
+                            {/* Pending Appointments */}
+                            <Card
+                                title={
+                                    <div className="flex items-center justify-between">
+                                        <span>Pending</span>
+                                        <span className="inline-flex items-center rounded-full bg-amber-100 px-3 py-1 text-sm font-semibold text-amber-700">
+                                            {appointments.filter(a => a.status === 'pending').length}
+                                        </span>
+                                    </div>
+                                }
+                                description="Awaiting confirmation"
+                            >
+                                <div className="space-y-2 max-h-96 overflow-y-auto pr-1">
+                                    {appointments.filter(a => a.status === 'pending').length === 0 ? (
+                                        <div className="text-sm text-slate-400 text-center py-4">No pending appointments</div>
+                                    ) : (
+                                        appointments.filter(a => a.status === 'pending').map((a) => (
+                                            <div
+                                                key={a.id}
+                                                onClick={() => {
+                                                    setSelectedAppointment(a);
+                                                    setIsDetailsModalOpen(true);
+                                                }}
+                                                className="flex items-center justify-between border-l-4 border-amber-500 bg-amber-50/50 rounded-r-lg px-3 py-2.5 hover:bg-amber-50 transition-colors cursor-pointer mb-2 last:mb-0"
+                                            >
+                                                <div className="flex-1">
+                                                    <div className="font-medium text-admin-text text-sm">{a.serviceName}</div>
+                                                    <div className="text-xs text-slate-500">{a.customerName} • {a.startAt.toDate().toLocaleString()}</div>
+                                                </div>
+                                                <select
+                                                    value={a.status}
+                                                    onChange={(e) => handleChangeAppointmentStatus(a.id, e.target.value as Appointment['status'])}
+                                                    className="text-xs rounded-lg border border-amber-300 bg-white px-2 py-1 focus:border-amber-500 focus:outline-none"
+                                                >
+                                                    <option value="pending">Pending</option>
+                                                    <option value="confirmed">Confirmed</option>
+                                                    <option value="cancelled">Cancelled</option>
+                                                    <option value="completed">Completed</option>
+                                                    <option value="no-show">No-show</option>
                                                 </select>
                                             </div>
-                                        </div>
-                                    ))
-                                )}
-                            </div>
-                        </Card>
+                                        ))
+                                    )}
+                                </div>
+                            </Card>
+
+                            {/* Confirmed Appointments */}
+                            <Card
+                                title={
+                                    <div className="flex items-center justify-between">
+                                        <span>Confirmed</span>
+                                        <span className="inline-flex items-center rounded-full bg-green-100 px-3 py-1 text-sm font-semibold text-green-700">
+                                            {appointments.filter(a => a.status === 'confirmed').length}
+                                        </span>
+                                    </div>
+                                }
+                                description="Ready to proceed"
+                            >
+                                <div className="space-y-2 max-h-64 overflow-y-auto">
+                                    {appointments.filter(a => a.status === 'confirmed').length === 0 ? (
+                                        <div className="text-sm text-slate-400 text-center py-4">No confirmed appointments</div>
+                                    ) : (
+                                        appointments.filter(a => a.status === 'confirmed').map((a) => (
+                                            <div key={a.id} className="flex items-center justify-between border-l-4 border-green-500 bg-green-50/50 rounded-r-lg px-3 py-2 hover:bg-green-50 transition-colors">
+                                                <div className="flex-1">
+                                                    <div className="font-medium text-admin-text text-sm">{a.serviceName}</div>
+                                                    <div className="text-xs text-slate-500">{a.customerName} • {a.startAt.toDate().toLocaleString()}</div>
+                                                </div>
+                                                <select
+                                                    value={a.status}
+                                                    onChange={(e) => handleChangeAppointmentStatus(a.id, e.target.value as Appointment['status'])}
+                                                    className="text-xs rounded-lg border border-green-300 bg-white px-2 py-1 focus:border-green-500 focus:outline-none"
+                                                >
+                                                    <option value="pending">Pending</option>
+                                                    <option value="confirmed">Confirmed</option>
+                                                    <option value="cancelled">Cancelled</option>
+                                                    <option value="completed">Completed</option>
+                                                    <option value="no-show">No-show</option>
+                                                </select>
+                                            </div>
+                                        ))
+                                    )}
+                                </div>
+                            </Card>
+
+                            {/* Completed Appointments */}
+                            <Card
+                                title={
+                                    <div className="flex items-center justify-between">
+                                        <span>Completed</span>
+                                        <span className="inline-flex items-center rounded-full bg-indigo-100 px-3 py-1 text-sm font-semibold text-indigo-700">
+                                            {appointments.filter(a => a.status === 'completed').length}
+                                        </span>
+                                    </div>
+                                }
+                                description="Successfully finished"
+                            >
+                                <div className="space-y-2 max-h-64 overflow-y-auto">
+                                    {appointments.filter(a => a.status === 'completed').length === 0 ? (
+                                        <div className="text-sm text-slate-400 text-center py-4">No completed appointments</div>
+                                    ) : (
+                                        appointments.filter(a => a.status === 'completed').map((a) => (
+                                            <div key={a.id} className="flex items-center justify-between border-l-4 border-indigo-500 bg-indigo-50/50 rounded-r-lg px-3 py-2 hover:bg-indigo-50 transition-colors">
+                                                <div className="flex-1">
+                                                    <div className="font-medium text-admin-text text-sm">{a.serviceName}</div>
+                                                    <div className="text-xs text-slate-500">{a.customerName} • {a.startAt.toDate().toLocaleString()}</div>
+                                                </div>
+                                                <select
+                                                    value={a.status}
+                                                    onChange={(e) => handleChangeAppointmentStatus(a.id, e.target.value as Appointment['status'])}
+                                                    className="text-xs rounded-lg border border-indigo-300 bg-white px-2 py-1 focus:border-indigo-500 focus:outline-none"
+                                                >
+                                                    <option value="pending">Pending</option>
+                                                    <option value="confirmed">Confirmed</option>
+                                                    <option value="cancelled">Cancelled</option>
+                                                    <option value="completed">Completed</option>
+                                                    <option value="no-show">No-show</option>
+                                                </select>
+                                            </div>
+                                        ))
+                                    )}
+                                </div>
+                            </Card>
+
+                            {/* Cancelled Appointments */}
+                            <Card
+                                title={
+                                    <div className="flex items-center justify-between">
+                                        <span>Cancelled</span>
+                                        <span className="inline-flex items-center rounded-full bg-red-100 px-3 py-1 text-sm font-semibold text-red-700">
+                                            {appointments.filter(a => a.status === 'cancelled').length}
+                                        </span>
+                                    </div>
+                                }
+                                description="Cancelled by patient or admin"
+                            >
+                                <div className="space-y-2 max-h-64 overflow-y-auto">
+                                    {appointments.filter(a => a.status === 'cancelled').length === 0 ? (
+                                        <div className="text-sm text-slate-400 text-center py-4">No cancelled appointments</div>
+                                    ) : (
+                                        appointments.filter(a => a.status === 'cancelled').map((a) => (
+                                            <div key={a.id} className="flex items-center justify-between border-l-4 border-red-500 bg-red-50/50 rounded-r-lg px-3 py-2 hover:bg-red-50 transition-colors">
+                                                <div className="flex-1">
+                                                    <div className="font-medium text-admin-text text-sm">{a.serviceName}</div>
+                                                    <div className="text-xs text-slate-500">{a.customerName} • {a.startAt.toDate().toLocaleString()}</div>
+                                                </div>
+                                                <select
+                                                    value={a.status}
+                                                    onChange={(e) => handleChangeAppointmentStatus(a.id, e.target.value as Appointment['status'])}
+                                                    className="text-xs rounded-lg border border-red-300 bg-white px-2 py-1 focus:border-red-500 focus:outline-none"
+                                                >
+                                                    <option value="pending">Pending</option>
+                                                    <option value="confirmed">Confirmed</option>
+                                                    <option value="cancelled">Cancelled</option>
+                                                    <option value="completed">Completed</option>
+                                                    <option value="no-show">No-show</option>
+                                                </select>
+                                            </div>
+                                        ))
+                                    )}
+                                </div>
+                            </Card>
+
+                            {/* No-Show Appointments */}
+                            <Card
+                                title={
+                                    <div className="flex items-center justify-between">
+                                        <span>No-Show</span>
+                                        <span className="inline-flex items-center rounded-full bg-slate-100 px-3 py-1 text-sm font-semibold text-slate-700">
+                                            {appointments.filter(a => a.status === 'no-show').length}
+                                        </span>
+                                    </div>
+                                }
+                                description="Patient did not attend"
+                            >
+                                <div className="space-y-2 max-h-64 overflow-y-auto">
+                                    {appointments.filter(a => a.status === 'no-show').length === 0 ? (
+                                        <div className="text-sm text-slate-400 text-center py-4">No no-show appointments</div>
+                                    ) : (
+                                        appointments.filter(a => a.status === 'no-show').map((a) => (
+                                            <div key={a.id} className="flex items-center justify-between border-l-4 border-slate-500 bg-slate-50/50 rounded-r-lg px-3 py-2 hover:bg-slate-50 transition-colors">
+                                                <div className="flex-1">
+                                                    <div className="font-medium text-admin-text text-sm">{a.serviceName}</div>
+                                                    <div className="text-xs text-slate-500">{a.customerName} • {a.startAt.toDate().toLocaleString()}</div>
+                                                </div>
+                                                <select
+                                                    value={a.status}
+                                                    onChange={(e) => handleChangeAppointmentStatus(a.id, e.target.value as Appointment['status'])}
+                                                    className="text-xs rounded-lg border border-slate-300 bg-white px-2 py-1 focus:border-slate-500 focus:outline-none"
+                                                >
+                                                    <option value="pending">Pending</option>
+                                                    <option value="confirmed">Confirmed</option>
+                                                    <option value="cancelled">Cancelled</option>
+                                                    <option value="completed">Completed</option>
+                                                    <option value="no-show">No-show</option>
+                                                </select>
+                                            </div>
+                                        ))
+                                    )}
+                                </div>
+                            </Card>
+                        </div>
                     </div>
                 )}
 
@@ -430,6 +609,113 @@ const Appointments = () => {
                         <Button className="w-full" onClick={handleCreateType}>Create Appointment Type</Button>
                     </div>
                 </div>
+            </Modal>
+
+            {/* Appointment Details Modal */}
+            <Modal
+                isOpen={isDetailsModalOpen}
+                onClose={() => {
+                    setIsDetailsModalOpen(false);
+                    setSelectedAppointment(null);
+                }}
+                title="Appointment Details"
+            >
+                {selectedAppointment && (
+                    <div className="space-y-6">
+                        {/* Status Badge */}
+                        <div className="flex items-center justify-between">
+                            <h3 className="text-lg font-semibold text-admin-text">{selectedAppointment.serviceName}</h3>
+                            <span className={`inline-flex items-center rounded-full px-3 py-1 text-sm font-semibold ${selectedAppointment.status === 'confirmed' ? 'bg-green-100 text-green-700' :
+                                selectedAppointment.status === 'pending' ? 'bg-amber-100 text-amber-700' :
+                                    selectedAppointment.status === 'cancelled' ? 'bg-red-100 text-red-700' :
+                                        selectedAppointment.status === 'completed' ? 'bg-indigo-100 text-indigo-700' :
+                                            'bg-slate-100 text-slate-700'
+                                }`}>
+                                {selectedAppointment.status.charAt(0).toUpperCase() + selectedAppointment.status.slice(1)}
+                            </span>
+                        </div>
+
+                        {/* Patient Information */}
+                        <div className="bg-admin-bg rounded-lg p-4 space-y-3">
+                            <h4 className="font-semibold text-admin-text text-sm uppercase tracking-wide">Patient Information</h4>
+                            <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                    <p className="text-xs text-slate-500">Name</p>
+                                    <p className="text-sm font-medium text-admin-text">{selectedAppointment.customerName}</p>
+                                </div>
+                                <div>
+                                    <p className="text-xs text-slate-500">Email</p>
+                                    <p className="text-sm font-medium text-admin-text">{selectedAppointment.customerEmail}</p>
+                                </div>
+                                <div>
+                                    <p className="text-xs text-slate-500">Phone</p>
+                                    <p className="text-sm font-medium text-admin-text">{selectedAppointment.customerEmail}</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Appointment Details */}
+                        <div className="bg-admin-bg rounded-lg p-4 space-y-3">
+                            <h4 className="font-semibold text-admin-text text-sm uppercase tracking-wide">Appointment Details</h4>
+                            <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                    <p className="text-xs text-slate-500">Date & Time</p>
+                                    <p className="text-sm font-medium text-admin-text">{selectedAppointment.startAt.toDate().toLocaleString()}</p>
+                                </div>
+                                <div>
+                                    <p className="text-xs text-slate-500">Duration</p>
+                                    <p className="text-sm font-medium text-admin-text">
+                                        {Math.round((selectedAppointment.endAt.toDate().getTime() - selectedAppointment.startAt.toDate().getTime()) / 60000)} mins
+                                    </p>
+                                </div>
+                                <div>
+                                    <p className="text-xs text-slate-500">Doctor</p>
+                                    <p className="text-sm font-medium text-admin-text">{selectedAppointment.doctorId || 'Not assigned'}</p>
+                                </div>
+                                <div>
+                                    <p className="text-xs text-slate-500">Clinic</p>
+                                    <p className="text-sm font-medium text-admin-text">{selectedAppointment.clinicId || 'N/A'}</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Notes */}
+                        {selectedAppointment.notes && (
+                            <div className="bg-admin-bg rounded-lg p-4 space-y-2">
+                                <h4 className="font-semibold text-admin-text text-sm uppercase tracking-wide">Notes</h4>
+                                <p className="text-sm text-slate-600">{selectedAppointment.notes}</p>
+                            </div>
+                        )}
+
+                        {/* Actions */}
+                        <div className="flex gap-3 pt-4 border-t border-admin-border">
+                            <select
+                                value={selectedAppointment.status}
+                                onChange={(e) => {
+                                    handleChangeAppointmentStatus(selectedAppointment.id, e.target.value as Appointment['status']);
+                                    setIsDetailsModalOpen(false);
+                                    setSelectedAppointment(null);
+                                }}
+                                className="flex-1 rounded-lg border border-slate-300 px-3 py-2 focus:border-admin-active focus:outline-none"
+                            >
+                                <option value="pending">Pending</option>
+                                <option value="confirmed">Confirmed</option>
+                                <option value="cancelled">Cancelled</option>
+                                <option value="completed">Completed</option>
+                                <option value="no-show">No-show</option>
+                            </select>
+                            <Button
+                                onClick={() => {
+                                    setIsDetailsModalOpen(false);
+                                    setSelectedAppointment(null);
+                                }}
+                                className="bg-slate-500 hover:bg-slate-600"
+                            >
+                                Close
+                            </Button>
+                        </div>
+                    </div>
+                )}
             </Modal>
         </div>
     );
