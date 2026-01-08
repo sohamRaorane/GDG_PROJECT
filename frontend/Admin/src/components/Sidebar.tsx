@@ -38,7 +38,7 @@ const Sidebar = () => {
                             key={item.path}
                             to={item.path}
                             className={`group flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200 relative ${isActive(item.path)
-                                ? "bg-gradient-to-r from-[#0F766E] to-[#0ea5e9] text-white shadow-lg shadow-teal-500/20"
+                                ? "bg-gradient-to-r from-[#1C4E46] to-[#0F766E] text-white shadow-lg shadow-teal-500/20"
                                 : "text-slate-400 hover:bg-slate-800/50 hover:text-white"
                                 }`}
                         >
@@ -46,8 +46,8 @@ const Sidebar = () => {
                                 <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-white rounded-r-full animate-pulse" />
                             )}
                             <div className={`flex items-center justify-center w-8 h-8 rounded-lg transition-all duration-200 ${isActive(item.path)
-                                    ? "bg-white/20"
-                                    : "bg-slate-800/50 group-hover:bg-slate-700/50"
+                                ? "bg-white/20"
+                                : "bg-slate-800/50 group-hover:bg-slate-700/50"
                                 }`}>
                                 <item.icon className={`h-5 w-5 ${isActive(item.path) ? "text-white" : "text-slate-400 group-hover:text-white"}`} />
                             </div>
@@ -57,7 +57,23 @@ const Sidebar = () => {
                 </nav>
             </div>
 
-            <div className="border-t border-slate-700/50 p-4 bg-gradient-to-t from-slate-900/30 to-transparent">
+            {/* User Profile Mini Card */}
+            <div className="border-t border-slate-700/50 p-4 bg-gradient-to-t from-slate-900/50 to-transparent">
+                <div className="bg-gradient-to-br from-[#1C4E46]/20 to-[#0F766E]/10 rounded-xl p-3 mb-3 border border-[#1C4E46]/30">
+                    <div className="flex items-center gap-3">
+                        <div className="relative">
+                            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#1C4E46] to-[#0F766E] flex items-center justify-center text-white font-bold text-sm">
+                                AD
+                            </div>
+                            <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-emerald-500 rounded-full border-2 border-slate-900"></div>
+                        </div>
+                        <div className="flex-1 min-w-0">
+                            <p className="text-sm font-semibold text-white truncate">Admin User</p>
+                            <p className="text-xs text-slate-400">Super Admin</p>
+                        </div>
+                    </div>
+                </div>
+
                 <button className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-slate-400 transition-all hover:bg-slate-800/50 hover:text-white group">
                     <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-slate-800/50 group-hover:bg-slate-700/50 transition-all duration-200">
                         <Settings className="h-5 w-5" />

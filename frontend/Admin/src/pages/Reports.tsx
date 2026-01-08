@@ -1,8 +1,9 @@
 import {
     XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
-    Area, AreaChart
+    Area, AreaChart, LineChart, Line, BarChart, Bar, Legend
 } from 'recharts';
-import { TrendingUp, Users, Clock } from 'lucide-react';
+import { TrendingUp, Clock } from 'lucide-react';
+import Card from '../components/ui/Card';
 
 const data = [
     { name: 'Mon', appointments: 40, revenue: 2400 },
@@ -53,148 +54,105 @@ const Reports = () => {
                             <p className="text-slate-300 text-lg font-medium">Analytics and performance metrics for your practice.</p>
                         </div>
 
-            <div className="grid gap-6 lg:grid-cols-2">
-                <Card title="Appointment Trends" description="Daily appointment volume over the last week.">
-                    <div className="h-[300px] w-full">
-                        <ResponsiveContainer width="100%" height="100%">
-                            <LineChart data={data}>
-                                <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                                <XAxis dataKey="name" stroke="#94a3b8" />
-                                <YAxis stroke="#94a3b8" />
-                                <Tooltip
-                                    contentStyle={{ backgroundColor: '#fff', borderRadius: '8px', border: '1px solid #e2e8f0' }}
-                                />
-                                <Line type="monotone" dataKey="appointments" stroke="#0F766E" strokeWidth={3} dot={{ r: 4 }} activeDot={{ r: 6 }} />
-                            </LineChart>
-                        </ResponsiveContainer>
-                    </div>
-                </Card>
+                        <div className="grid gap-6 lg:grid-cols-2">
+                            <Card title="Appointment Trends" description="Daily appointment volume over the last week.">
+                                <div className="h-[300px] w-full">
+                                    <ResponsiveContainer width="100%" height="100%">
+                                        <LineChart data={data}>
+                                            <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                                            <XAxis dataKey="name" stroke="#94a3b8" />
+                                            <YAxis stroke="#94a3b8" />
+                                            <Tooltip
+                                                contentStyle={{ backgroundColor: '#fff', borderRadius: '8px', border: '1px solid #e2e8f0' }}
+                                            />
+                                            <Line type="monotone" dataKey="appointments" stroke="#0F766E" strokeWidth={3} dot={{ r: 4 }} activeDot={{ r: 6 }} />
+                                        </LineChart>
+                                    </ResponsiveContainer>
+                                </div>
+                            </Card>
 
-                <Card title="Provider Utilization" description="Percentage of available hours booked.">
-                    <div className="h-[300px] w-full">
-                        <ResponsiveContainer width="100%" height="100%">
-                            <BarChart data={providerData} layout="vertical">
-                                <CartesianGrid strokeDasharray="3 3" horizontal={false} />
-                                <XAxis type="number" domain={[0, 100]} stroke="#94a3b8" />
-                                <YAxis dataKey="name" type="category" width={100} stroke="#94a3b8" />
-                                <Tooltip cursor={{ fill: '#f1f5f9' }} />
-                                <Legend />
-                                <Bar dataKey="utilization" fill="#0EA5E9" radius={[0, 4, 4, 0]} name="Utilization %" />
-                            </BarChart>
-                        </ResponsiveContainer>
-                    </div>
+                            <Card title="Provider Utilization" description="Percentage of available hours booked.">
+                                <div className="h-[300px] w-full">
+                                    <ResponsiveContainer width="100%" height="100%">
+                                        <BarChart data={providerData} layout="vertical">
+                                            <CartesianGrid strokeDasharray="3 3" horizontal={false} />
+                                            <XAxis type="number" domain={[0, 100]} stroke="#94a3b8" />
+                                            <YAxis dataKey="name" type="category" width={100} stroke="#94a3b8" />
+                                            <Tooltip cursor={{ fill: '#f1f5f9' }} />
+                                            <Legend />
+                                            <Bar dataKey="utilization" fill="#0EA5E9" radius={[0, 4, 4, 0]} name="Utilization %" />
+                                        </BarChart>
+                                    </ResponsiveContainer>
+                                </div>
+                            </Card>
+                        </div>
 
-                    {/* Provider Utilization - Enhanced with Gradient Bars */}
-                    <div className="group bg-white rounded-3xl shadow-xl border border-slate-200 overflow-hidden hover:shadow-2xl hover:border-emerald-200 transition-all duration-500 hover:-translate-y-1">
-                        <div className="p-6 border-b border-slate-100">
-                            <div className="flex items-center justify-between">
+                        {/* Peak Booking Hours - Activity Bubbles Style */}
+                        <div className="group bg-white p-8 rounded-3xl border border-slate-200 shadow-xl hover:shadow-2xl hover:border-emerald-200 transition-all duration-500 hover:-translate-y-1">
+                            <div className="flex justify-between items-center mb-6">
                                 <div className="flex items-center gap-3">
-                                    <div className="p-2.5 bg-gradient-to-br from-teal-50 to-emerald-50 rounded-xl">
-                                        <Users size={20} className="text-teal-600" />
+                                    <div className="p-2.5 bg-gradient-to-br from-emerald-50 to-teal-50 rounded-xl">
+                                        <Clock size={20} className="text-emerald-700" />
                                     </div>
-                                    <div>
-                                        <h3 className="text-lg font-bold text-admin-sidebar">Provider Utilization</h3>
-                                        <p className="text-xs text-admin-muted">Percentage of hours booked</p>
-                                    </div>
+                                    <h3 className="text-lg font-serif font-bold text-emerald-900">Peak Booking Hours</h3>
+                                </div>
+                                <div className="flex gap-4 text-xs text-slate-500 font-medium">
+                                    <span className="flex items-center"><div className="w-2 h-2 bg-slate-200 rounded-full mr-2"></div> Idle</span>
+                                    <span className="flex items-center"><div className="w-3 h-3 bg-emerald-300 rounded-full mr-2"></div> Moderate</span>
+                                    <span className="flex items-center"><div className="w-4 h-4 bg-emerald-600 rounded-full mr-2"></div> Busy</span>
                                 </div>
                             </div>
-                        </div>
-                        <div className="p-6">
-                            <div className="space-y-5">
-                                {providerData.map((provider, index) => (
-                                    <div key={provider.name} className="group">
-                                        <div className="flex items-center justify-between mb-2">
-                                            <span className="text-sm font-bold text-admin-sidebar group-hover:text-admin-active transition-colors">
-                                                {provider.name}
-                                            </span>
-                                            <div className="flex items-center gap-2">
-                                                <span className="text-xs text-admin-muted font-semibold">{provider.hours}h</span>
-                                                <span className="text-lg font-bold bg-gradient-to-r from-teal-600 to-emerald-600 bg-clip-text text-transparent">
-                                                    {provider.utilization}%
-                                                </span>
-                                            </div>
-                                        </div>
-                                        <div className="relative h-3 bg-slate-100 rounded-full overflow-hidden">
-                                            <div
-                                                className={`h-full bg-gradient-to-r from-teal-500 to-emerald-500 rounded-full transition-all duration-500 shadow-lg ${provider.utilization >= 90 ? 'shadow-emerald-500/50' :
-                                                    provider.utilization >= 75 ? 'shadow-teal-500/50' : 'shadow-teal-500/30'
-                                                    }`}
-                                                style={{ width: `${provider.utilization}%` }}
-                                            >
-                                                <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent"></div>
-                                            </div>
-                                        </div>
+
+                            <div className="grid grid-cols-[auto_1fr] gap-6">
+                                {/* Y-Axis Labels (Days) */}
+                                <div className="flex flex-col justify-around text-xs font-bold text-slate-400 pt-8">
+                                    {heatmapData.map(d => <div key={d.day} className="h-12 flex items-center">{d.day}</div>)}
+                                </div>
+
+                                {/* The Grid */}
+                                <div className="w-full">
+                                    {/* X-Axis Labels (Time) */}
+                                    <div className="grid grid-cols-7 gap-2 mb-4">
+                                        {['9 AM', '10 AM', '11 AM', '12 PM', '1 PM', '2 PM', '3 PM'].map(time => (
+                                            <div key={time} className="text-center text-xs text-slate-400 font-semibold">{time}</div>
+                                        ))}
                                     </div>
-                                ))}
-                            </div>
-                        </div>
-                    </div>
-                </div>
 
-                {/* Peak Booking Hours - Activity Bubbles Style */}
-                <div className="group bg-white p-8 rounded-3xl border border-slate-200 shadow-xl hover:shadow-2xl hover:border-emerald-200 transition-all duration-500 hover:-translate-y-1">
-                    <div className="flex justify-between items-center mb-6">
-                        <div className="flex items-center gap-3">
-                            <div className="p-2.5 bg-gradient-to-br from-emerald-50 to-teal-50 rounded-xl">
-                                <Clock size={20} className="text-emerald-700" />
-                            </div>
-                            <h3 className="text-lg font-serif font-bold text-emerald-900">Peak Booking Hours</h3>
-                        </div>
-                        <div className="flex gap-4 text-xs text-slate-500 font-medium">
-                            <span className="flex items-center"><div className="w-2 h-2 bg-slate-200 rounded-full mr-2"></div> Idle</span>
-                            <span className="flex items-center"><div className="w-3 h-3 bg-emerald-300 rounded-full mr-2"></div> Moderate</span>
-                            <span className="flex items-center"><div className="w-4 h-4 bg-emerald-600 rounded-full mr-2"></div> Busy</span>
-                        </div>
-                    </div>
+                                    {/* The Bubbles */}
+                                    <div className="space-y-2">
+                                        {heatmapData.map((row, rowIdx) => (
+                                            <div key={rowIdx} className="grid grid-cols-7 gap-2">
+                                                {row.slots.map((val, colIdx) => {
+                                                    // Helper to get color/size based on intensity
+                                                    const getIntensityStyles = (value: number) => {
+                                                        if (value === 0) return "w-2 h-2 bg-slate-200"; // Tiny grey dot
+                                                        if (value < 3) return "w-8 h-8 bg-emerald-200 text-emerald-800"; // Light Emerald (Solid) - Increased size for visibility
+                                                        if (value < 6) return "w-10 h-10 bg-emerald-400 text-white shadow-md shadow-emerald-400/20"; // Medium Emerald
+                                                        return "w-12 h-12 bg-emerald-700 text-white shadow-lg shadow-emerald-700/30"; // Deep Emerald (High)
+                                                    };
 
-                    <div className="grid grid-cols-[auto_1fr] gap-6">
-                        {/* Y-Axis Labels (Days) */}
-                        <div className="flex flex-col justify-around text-xs font-bold text-slate-400 pt-8">
-                            {heatmapData.map(d => <div key={d.day} className="h-12 flex items-center">{d.day}</div>)}
-                        </div>
+                                                    return (
+                                                        <div key={colIdx} className="h-12 flex items-center justify-center relative">
+                                                            {/* The Bubble with its own hover group */}
+                                                            <div className={`group/bubble rounded-full transition-all duration-500 ${getIntensityStyles(val)} flex items-center justify-center hover:scale-110 cursor-pointer relative`}>
+                                                                {/* Number is always visible */}
+                                                                <span className={`text-[10px] font-bold ${val === 0 ? 'hidden' : 'opacity-100'}`}>
+                                                                    {val}
+                                                                </span>
 
-                        {/* The Grid */}
-                        <div className="w-full">
-                            {/* X-Axis Labels (Time) */}
-                            <div className="grid grid-cols-7 gap-2 mb-4">
-                                {['9 AM', '10 AM', '11 AM', '12 PM', '1 PM', '2 PM', '3 PM'].map(time => (
-                                    <div key={time} className="text-center text-xs text-slate-400 font-semibold">{time}</div>
-                                ))}
-                            </div>
-
-                            {/* The Bubbles */}
-                            <div className="space-y-2">
-                                {heatmapData.map((row, rowIdx) => (
-                                    <div key={rowIdx} className="grid grid-cols-7 gap-2">
-                                        {row.slots.map((val, colIdx) => {
-                                            // Helper to get color/size based on intensity
-                                            const getIntensityStyles = (value: number) => {
-                                                if (value === 0) return "w-2 h-2 bg-slate-200"; // Tiny grey dot
-                                                if (value < 3) return "w-8 h-8 bg-emerald-200 text-emerald-800"; // Light Emerald (Solid) - Increased size for visibility
-                                                if (value < 6) return "w-10 h-10 bg-emerald-400 text-white shadow-md shadow-emerald-400/20"; // Medium Emerald
-                                                return "w-12 h-12 bg-emerald-700 text-white shadow-lg shadow-emerald-700/30"; // Deep Emerald (High)
-                                            };
-
-                                            return (
-                                                <div key={colIdx} className="h-12 flex items-center justify-center relative">
-                                                    {/* The Bubble with its own hover group */}
-                                                    <div className={`group/bubble rounded-full transition-all duration-500 ${getIntensityStyles(val)} flex items-center justify-center hover:scale-110 cursor-pointer relative`}>
-                                                        {/* Number is always visible */}
-                                                        <span className={`text-[10px] font-bold ${val === 0 ? 'hidden' : 'opacity-100'}`}>
-                                                            {val}
-                                                        </span>
-
-                                                        {/* Tooltip */}
-                                                        <div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-emerald-700 text-white text-xs py-1.5 px-3 rounded-lg opacity-0 group-hover/bubble:opacity-100 transition-opacity whitespace-nowrap z-10 shadow-xl pointer-events-none">
-                                                            {val} Bookings
-                                                            <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-emerald-700"></div>
+                                                                {/* Tooltip */}
+                                                                <div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-emerald-700 text-white text-xs py-1.5 px-3 rounded-lg opacity-0 group-hover/bubble:opacity-100 transition-opacity whitespace-nowrap z-10 shadow-xl pointer-events-none">
+                                                                    {val} Bookings
+                                                                    <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-emerald-700"></div>
+                                                                </div>
+                                                            </div>
                                                         </div>
-                                                    </div>
-                                                </div>
-                                            );
-                                        })}
+                                                    );
+                                                })}
+                                            </div>
+                                        ))}
                                     </div>
-                                ))}
+                                </div>
                             </div>
                         </div>
                     </div>

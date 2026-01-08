@@ -2,7 +2,7 @@ import { Routes, Route } from "react-router-dom";
 import DashboardLayout from "./layouts/DashboardLayout";
 import DashboardHome from "./pages/DashboardHome";
 import Appointments from "./pages/Appointments";
-import Reports from "./pages/Reports";
+import Reports from "./pages/Reports.tsx";
 import UserManagement from "./pages/UserManagement";
 import Login from "./pages/Login";
 import ActiveTherapies from "./pages/ActiveTherapies";
