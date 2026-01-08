@@ -74,12 +74,21 @@ const Sidebar = () => {
                     </div>
                 </div>
 
-                <button className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-slate-400 transition-all hover:bg-slate-800/50 hover:text-white group">
-                    <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-slate-800/50 group-hover:bg-slate-700/50 transition-all duration-200">
+                <Link
+                    to="/settings"
+                    className={`flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all group ${isActive('/settings')
+                            ? 'bg-gradient-to-r from-[#1C4E46] to-[#0F766E] text-white shadow-lg shadow-teal-500/20'
+                            : 'text-slate-400 hover:bg-slate-800/50 hover:text-white'
+                        }`}
+                >
+                    <div className={`flex items-center justify-center w-8 h-8 rounded-lg transition-all duration-200 ${isActive('/settings')
+                            ? 'bg-white/20'
+                            : 'bg-slate-800/50 group-hover:bg-slate-700/50'
+                        }`}>
                         <Settings className="h-5 w-5" />
                     </div>
                     <span>Settings</span>
-                </button>
+                </Link>
                 <button className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-red-400 transition-all hover:bg-red-500/10 hover:text-red-300 mt-1 group border border-transparent hover:border-red-500/30">
                     <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-red-500/10 group-hover:bg-red-500/20 transition-all duration-200">
                         <LogOut className="h-5 w-5" />

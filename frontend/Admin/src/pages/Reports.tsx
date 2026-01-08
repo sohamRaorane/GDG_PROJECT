@@ -1,9 +1,8 @@
 import {
     XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
-    LineChart, Line, BarChart, Bar, Legend
+    LineChart, Line, BarChart, Bar, Legend, AreaChart, Area
 } from 'recharts';
-import { TrendingUp, Users, Clock } from 'lucide-react';
-import Card from "../components/ui/Card";
+import { TrendingUp, Users, Clock, DollarSign, Activity } from 'lucide-react';
 
 const data = [
     { name: 'Mon', appointments: 40, revenue: 2400 },
@@ -20,6 +19,15 @@ const providerData = [
     { name: 'Dr. Doe', utilization: 72, hours: 35 },
     { name: 'Dr. Jane', utilization: 92, hours: 45 },
     { name: 'Massage Therapy', utilization: 68, hours: 50 },
+];
+
+const revenueData = [
+    { month: 'Jan', revenue: 45000 },
+    { month: 'Feb', revenue: 52000 },
+    { month: 'Mar', revenue: 48000 },
+    { month: 'Apr', revenue: 61000 },
+    { month: 'May', revenue: 73000 },
+    { month: 'Jun', revenue: 85000 },
 ];
 
 // Heatmap data - booking intensity by day and hour
@@ -41,7 +49,7 @@ const Reports = () => {
             <div className="space-y-6 pb-8">
                 {/* Compact Header */}
                 <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-6 shadow-xl border border-white/5">
-                    {/* Animated Floating Orbs - Smaller */}
+                    {/* Animated Floating Orbs */}
                     <div className="absolute top-0 right-0 w-64 h-64 bg-blue-500/20 rounded-full blur-3xl animate-pulse"></div>
                     <div className="absolute bottom-0 left-0 w-64 h-64 bg-emerald-500/20 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }}></div>
 
@@ -52,26 +60,164 @@ const Reports = () => {
                             </h1>
                             <p className="text-slate-400 text-sm mt-1">Analytics and performance metrics</p>
                         </div>
-
                     </div>
                 </div>
 
-                <div className="grid gap-4 lg:grid-cols-2">
-                    <Card title="Appointment Trends" description="Daily appointment volume">
-                        <div className="h-[200px] w-full">
+                {/* Charts Grid - 2 Column Layout */}
+                <div className="grid gap-6 lg:grid-cols-2">
+                    {/* Revenue Trends - Area Chart */}
+                    <div className="group bg-white p-8 rounded-3xl border border-slate-200 shadow-xl hover:shadow-2xl hover:border-emerald-200 transition-all duration-500 hover:-translate-y-1">
+                        <div className="flex items-center gap-3 mb-6">
+                            <div className="p-2.5 bg-gradient-to-br from-emerald-50 to-teal-50 rounded-xl">
+                                <DollarSign size={20} className="text-emerald-700" />
+                            </div>
+                            <div>
+                                <h3 className="text-lg font-serif font-bold text-emerald-900">Revenue Trends</h3>
+                                <p className="text-xs text-slate-500">Monthly revenue overview</p>
+                            </div>
+                        </div>
+                        <div className="h-[280px] w-full">
+                            <ResponsiveContainer width="100%" height="100%">
+                                <AreaChart data={revenueData}>
+                                    <defs>
+                                        <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
+                                            <stop offset="5%" stopColor="#0F766E" stopOpacity={0.4} />
+                                            <stop offset="95%" stopColor="#0F766E" stopOpacity={0.05} />
+                                        </linearGradient>
+                                    </defs>
+                                    <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" vertical={false} />
+                                    <XAxis
+                                        dataKey="month"
+                                        stroke="#94a3b8"
+                                        style={{ fontSize: '12px', fontWeight: '500' }}
+                                    />
+                                    <YAxis
+                                        stroke="#94a3b8"
+                                        style={{ fontSize: '12px' }}
+                                        tickFormatter={(value) => `₹${value / 1000}k`}
+                                    />
+                                    <Tooltip
+                                        contentStyle={{
+                                            backgroundColor: '#fff',
+                                            borderRadius: '12px',
+                                            border: '1px solid #e2e8f0',
+                                            boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)'
+                                        }}
+                                        formatter={(value: number | undefined) => [`₹${value?.toLocaleString() ?? '0'}`, 'Revenue']}
+                                    />
+                                    <Area
+                                        type="monotone"
+                                        dataKey="revenue"
+                                        stroke="#0F766E"
+                                        strokeWidth={3}
+                                        fill="url(#colorRevenue)"
+                                        animationDuration={1500}
+                                    />
+                                </AreaChart>
+                            </ResponsiveContainer>
+                        </div>
+                    </div>
+
+                    {/* Appointment Trends - Line Chart */}
+                    <div className="group bg-white p-8 rounded-3xl border border-slate-200 shadow-xl hover:shadow-2xl hover:border-blue-200 transition-all duration-500 hover:-translate-y-1">
+                        <div className="flex items-center gap-3 mb-6">
+                            <div className="p-2.5 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl">
+                                <Activity size={20} className="text-blue-700" />
+                            </div>
+                            <div>
+                                <h3 className="text-lg font-serif font-bold text-blue-900">Appointment Trends</h3>
+                                <p className="text-xs text-slate-500">Daily appointment volume</p>
+                            </div>
+                        </div>
+                        <div className="h-[280px] w-full">
                             <ResponsiveContainer width="100%" height="100%">
                                 <LineChart data={data}>
-                                    <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                                    <XAxis dataKey="name" stroke="#94a3b8" />
-                                    <YAxis stroke="#94a3b8" />
-                                    <Tooltip
-                                        contentStyle={{ backgroundColor: '#fff', borderRadius: '8px', border: '1px solid #e2e8f0' }}
+                                    <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" vertical={false} />
+                                    <XAxis
+                                        dataKey="name"
+                                        stroke="#94a3b8"
+                                        style={{ fontSize: '12px', fontWeight: '500' }}
                                     />
-                                    <Line type="monotone" dataKey="appointments" stroke="#0F766E" strokeWidth={3} dot={{ r: 4 }} activeDot={{ r: 6 }} />
+                                    <YAxis
+                                        stroke="#94a3b8"
+                                        style={{ fontSize: '12px' }}
+                                    />
+                                    <Tooltip
+                                        contentStyle={{
+                                            backgroundColor: '#fff',
+                                            borderRadius: '12px',
+                                            border: '1px solid #e2e8f0',
+                                            boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)'
+                                        }}
+                                    />
+                                    <Line
+                                        type="monotone"
+                                        dataKey="appointments"
+                                        stroke="#3B82F6"
+                                        strokeWidth={3}
+                                        dot={{ r: 5, fill: '#3B82F6', strokeWidth: 2, stroke: '#fff' }}
+                                        activeDot={{ r: 7, fill: '#3B82F6', strokeWidth: 3, stroke: '#fff' }}
+                                        animationDuration={1500}
+                                    />
                                 </LineChart>
                             </ResponsiveContainer>
                         </div>
-                    </Card>
+                    </div>
+
+                    {/* Provider Performance - Bar Chart */}
+                    <div className="group bg-white p-8 rounded-3xl border border-slate-200 shadow-xl hover:shadow-2xl hover:border-purple-200 transition-all duration-500 hover:-translate-y-1">
+                        <div className="flex items-center gap-3 mb-6">
+                            <div className="p-2.5 bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl">
+                                <Users size={20} className="text-purple-700" />
+                            </div>
+                            <div>
+                                <h3 className="text-lg font-serif font-bold text-purple-900">Provider Performance</h3>
+                                <p className="text-xs text-slate-500">Utilization rates by provider</p>
+                            </div>
+                        </div>
+                        <div className="h-[280px] w-full">
+                            <ResponsiveContainer width="100%" height="100%">
+                                <BarChart data={providerData}>
+                                    <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" vertical={false} />
+                                    <XAxis
+                                        dataKey="name"
+                                        stroke="#94a3b8"
+                                        style={{ fontSize: '11px', fontWeight: '500' }}
+                                        angle={-15}
+                                        textAnchor="end"
+                                        height={60}
+                                    />
+                                    <YAxis
+                                        stroke="#94a3b8"
+                                        style={{ fontSize: '12px' }}
+                                        tickFormatter={(value) => `${value}%`}
+                                    />
+                                    <Tooltip
+                                        contentStyle={{
+                                            backgroundColor: '#fff',
+                                            borderRadius: '12px',
+                                            border: '1px solid #e2e8f0',
+                                            boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)'
+                                        }}
+                                        formatter={(value: number | undefined) => [`${value ?? 0}%`, 'Utilization']}
+                                    />
+                                    <Bar
+                                        dataKey="utilization"
+                                        fill="url(#colorBar)"
+                                        radius={[8, 8, 0, 0]}
+                                        animationDuration={1500}
+                                    >
+                                        <defs>
+                                            <linearGradient id="colorBar" x1="0" y1="0" x2="0" y2="1">
+                                                <stop offset="0%" stopColor="#9333EA" stopOpacity={0.9} />
+                                                <stop offset="100%" stopColor="#EC4899" stopOpacity={0.7} />
+                                            </linearGradient>
+                                        </defs>
+                                    </Bar>
+                                </BarChart>
+                            </ResponsiveContainer>
+                        </div>
+                    </div>
 
                     {/* Peak Booking Hours - Activity Bubbles Style */}
                     <div className="group bg-white p-8 rounded-3xl border border-slate-200 shadow-xl hover:shadow-2xl hover:border-emerald-200 transition-all duration-500 hover:-translate-y-1">
