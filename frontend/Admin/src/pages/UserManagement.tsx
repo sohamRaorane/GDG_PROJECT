@@ -89,7 +89,7 @@ const UserManagement = () => {
                 {/* Table */}
                 <div className="overflow-x-auto">
                     <table className="w-full text-left text-sm">
-                        <thead className="bg-slate-50 text-slate-500">
+                        <thead className="bg-slate-50 text-slate-500 border-b border-admin-border">
                             <tr>
                                 <th className="px-6 py-3 font-medium">Name</th>
                                 <th className="px-6 py-3 font-medium">Role</th>
@@ -98,7 +98,7 @@ const UserManagement = () => {
                                 <th className="px-6 py-3 font-medium text-right">Actions</th>
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-gray-100">
+                        <tbody className="divide-y divide-admin-border">
                             {users.map((user) => (
                                 <tr key={user.id} className="hover:bg-slate-50">
                                     <td className="px-6 py-4">

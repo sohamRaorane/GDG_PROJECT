@@ -53,88 +53,35 @@ const Reports = () => {
                             <p className="text-slate-300 text-lg font-medium">Analytics and performance metrics for your practice.</p>
                         </div>
 
-                        {/* Enhanced Glassmorphism Selector */}
-                        <div className="relative group">
-                            <div className="absolute inset-0 bg-gradient-to-r from-blue-500/20 to-emerald-500/20 rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                            <select className="relative bg-white/10 backdrop-blur-md border border-white/20 text-white rounded-2xl px-6 py-3.5 text-sm font-bold focus:outline-none focus:ring-2 focus:ring-emerald-400/50 hover:bg-white/20 hover:border-white/30 transition-all cursor-pointer shadow-lg">
-                                <option className="bg-slate-800 text-white">Last 7 Days</option>
-                                <option className="bg-slate-800 text-white">Last 30 Days</option>
-                                <option className="bg-slate-800 text-white">This Year</option>
-                            </select>
-                        </div>
+            <div className="grid gap-6 lg:grid-cols-2">
+                <Card title="Appointment Trends" description="Daily appointment volume over the last week.">
+                    <div className="h-[300px] w-full">
+                        <ResponsiveContainer width="100%" height="100%">
+                            <LineChart data={data}>
+                                <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                                <XAxis dataKey="name" stroke="#94a3b8" />
+                                <YAxis stroke="#94a3b8" />
+                                <Tooltip
+                                    contentStyle={{ backgroundColor: '#fff', borderRadius: '8px', border: '1px solid #e2e8f0' }}
+                                />
+                                <Line type="monotone" dataKey="appointments" stroke="#0F766E" strokeWidth={3} dot={{ r: 4 }} activeDot={{ r: 6 }} />
+                            </LineChart>
+                        </ResponsiveContainer>
                     </div>
-                </div>
+                </Card>
 
-                {/* Charts Grid */}
-                <div className="grid gap-8 lg:grid-cols-2">
-                    {/* Appointment Trends - Enhanced with Area Chart */}
-                    <div className="group bg-white rounded-3xl shadow-xl border border-slate-200 overflow-hidden hover:shadow-2xl hover:border-blue-200 transition-all duration-500 hover:-translate-y-1">
-                        <div className="p-6 border-b border-slate-100">
-                            <div className="flex items-center justify-between">
-                                <div className="flex items-center gap-3">
-                                    <div className="p-2.5 bg-gradient-to-br from-blue-50 to-sky-50 rounded-xl">
-                                        <TrendingUp size={20} className="text-blue-600" />
-                                    </div>
-                                    <div>
-                                        <h3 className="text-lg font-bold text-admin-sidebar">Appointment Trends</h3>
-                                        <p className="text-xs text-admin-muted">Daily volume over the last week</p>
-                                    </div>
-                                </div>
-                                <div className="text-right">
-                                    <p className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-sky-600 bg-clip-text text-transparent">192</p>
-                                    <p className="text-xs text-admin-muted font-semibold">Total</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div className="p-6">
-                            <div className="h-[280px] w-full">
-                                <ResponsiveContainer width="100%" height="100%">
-                                    <AreaChart data={data}>
-                                        <defs>
-                                            <linearGradient id="appointmentGradient" x1="0" y1="0" x2="0" y2="1">
-                                                <stop offset="5%" stopColor="#0EA5E9" stopOpacity={0.3} />
-                                                <stop offset="95%" stopColor="#0EA5E9" stopOpacity={0} />
-                                            </linearGradient>
-                                        </defs>
-                                        <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" vertical={false} />
-                                        <XAxis
-                                            dataKey="name"
-                                            stroke="#64748B"
-                                            fontSize={12}
-                                            tickLine={false}
-                                            axisLine={false}
-                                            dy={10}
-                                        />
-                                        <YAxis
-                                            stroke="#64748B"
-                                            fontSize={12}
-                                            tickLine={false}
-                                            axisLine={false}
-                                        />
-                                        <Tooltip
-                                            contentStyle={{
-                                                backgroundColor: '#fff',
-                                                borderRadius: '12px',
-                                                border: '1px solid #e2e8f0',
-                                                boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
-                                                padding: '8px 12px'
-                                            }}
-                                            itemStyle={{ fontSize: '12px', fontWeight: 'bold', color: '#0EA5E9' }}
-                                            labelStyle={{ fontSize: '11px', fontWeight: 'bold', color: '#64748B', marginBottom: '4px' }}
-                                        />
-                                        <Area
-                                            type="monotone"
-                                            dataKey="appointments"
-                                            stroke="#0EA5E9"
-                                            strokeWidth={3}
-                                            fill="url(#appointmentGradient)"
-                                            dot={{ fill: '#0EA5E9', strokeWidth: 2, r: 5 }}
-                                            activeDot={{ r: 7, strokeWidth: 0, fill: '#0EA5E9' }}
-                                        />
-                                    </AreaChart>
-                                </ResponsiveContainer>
-                            </div>
-                        </div>
+                <Card title="Provider Utilization" description="Percentage of available hours booked.">
+                    <div className="h-[300px] w-full">
+                        <ResponsiveContainer width="100%" height="100%">
+                            <BarChart data={providerData} layout="vertical">
+                                <CartesianGrid strokeDasharray="3 3" horizontal={false} />
+                                <XAxis type="number" domain={[0, 100]} stroke="#94a3b8" />
+                                <YAxis dataKey="name" type="category" width={100} stroke="#94a3b8" />
+                                <Tooltip cursor={{ fill: '#f1f5f9' }} />
+                                <Legend />
+                                <Bar dataKey="utilization" fill="#0EA5E9" radius={[0, 4, 4, 0]} name="Utilization %" />
+                            </BarChart>
+                        </ResponsiveContainer>
                     </div>
 
                     {/* Provider Utilization - Enhanced with Gradient Bars */}

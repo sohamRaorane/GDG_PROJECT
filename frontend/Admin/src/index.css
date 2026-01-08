@@ -6,4 +6,12 @@
   --color-cool-grey: #F1F5F9;
   --color-surface-white: #FFFFFF;
   --color-medical-blue: #0284C7;
+
+  /* Glacial Command Theme */
+  --color-admin-sidebar: #0F172A;
+  --color-admin-active: #1C4E46;
+  --color-admin-bg: #F8FAFC;
+  --color-admin-text: #334155;
+  --color-admin-border: #E2E8F0;
+  --color-admin-surface: #FFFFFF;
 }

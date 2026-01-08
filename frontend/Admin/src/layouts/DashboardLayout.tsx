@@ -7,12 +7,12 @@ const DashboardLayout = () => {
             <Sidebar />
 
             <main className="pl-64 transition-all duration-300">
-                <header className="sticky top-0 z-40 flex h-16 items-center justify-between border-b border-admin-border bg-white px-8">
+                <header className="sticky top-0 z-40 flex h-16 items-center justify-between border-b border-admin-border bg-admin-surface/95 px-8 backdrop-blur-md">
                     <div className="flex items-center gap-4">
-                        <h2 className="text-lg font-semibold text-admin-sidebar">Admin Portal</h2>
+                        <h2 className="text-lg font-semibold text-admin-text">Admin Portal</h2>
                     </div>
                     <div className="flex items-center gap-4">
-                        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-deep-forest text-sm font-medium text-white">
+                        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-admin-active text-sm font-medium text-white">
                             AD
                         </div>
                     </div>

@@ -1,16 +1,16 @@
 @import "tailwindcss";
 
 @theme {
-  --color-primary: #0F766E;
-  /* Deep Teal */
-  --color-secondary: #CCFBF1;
-  /* Glacial Mint */
-  --color-accent: #38BDF8;
-  /* Serene Blue */
-  --color-background: #F8FAFC;
-  /* Cool Slate */
-  --color-text: #334155;
-  /* Blue Charcoal */
+  --color-primary: #1C4E46;
+  /* Mountain Pine */
+  --color-secondary: #475569;
+  /* Granite Slate */
+  --color-accent: #0EA5E9;
+  /* Prayer Flag Blue */
+  --color-background: #F1F5F9;
+  /* Summit Mist */
+  --color-text: #0F172A;
+  /* Basalt */
 
   --font-sans: "Inter", "system-ui", "sans-serif";
   --font-display: "Outfit", "system-ui", "sans-serif";

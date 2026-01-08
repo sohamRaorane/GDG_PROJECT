@@ -1,37 +1,218 @@
+/* Premium Calendar Styling */
 .rbc-calendar {
     font-family: inherit;
 }
 
-.rbc-toolbar button {
-    color: #0F172A;
-    /* Dark Slate */
-    border-color: #e2e8f0;
+/* Toolbar styling */
+.rbc-toolbar {
+    padding: 1rem 0;
+    margin-bottom: 1rem;
+    border-bottom: 1px solid #E2E8F0;
 }
 
-.rbc-toolbar button:active,
-.rbc-toolbar button.rbc-active {
-    background-color: #2C5F2D;
-    /* Deep Forest */
-    color: white;
-    border-color: #2C5F2D;
+.rbc-toolbar button {
+    color: #334155;
+    border: 1px solid #E2E8F0;
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    font-weight: 500;
+    transition: all 0.2s;
 }
 
 .rbc-toolbar button:hover {
-    background-color: #f1f5f9;
+    background: #F8FAFC;
+    border-color: #0F766E;
+    color: #0F766E;
 }
 
-.rbc-event {
-    background-color: #0284C7;
-    /* Medical Blue */
-    border-radius: 4px;
+.rbc-toolbar button.rbc-active {
+    background: linear-gradient(to right, #0F766E, #0ea5e9);
+    color: white;
+    border-color: transparent;
+    box-shadow: 0 4px 6px -1px rgba(15, 118, 110, 0.2);
+}
+
+/* Header styling */
+.rbc-header {
+    padding: 0.75rem;
+    font-weight: 600;
+    color: #334155;
+    border-bottom: 2px solid #E2E8F0;
+    background: #F8FAFC;
+}
+
+/* Time slots */
+.rbc-time-slot {
+    border-top: 1px solid #F1F5F9;
 }
 
 .rbc-today {
-    background-color: #f8fafc;
+    background-color: #F0FDFA;
 }
 
-.rbc-header {
-    padding: 8px;
-    font-weight: 600;
-    color: #0F172A;
+/* Event styling - refined pastel design */
+.rbc-event {
+    padding: 4px 8px;
+    border-radius: 8px;
+    font-size: 0.875rem;
+    transition: all 0.2s ease;
+}
+
+.rbc-event:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.rbc-event:focus {
+    outline: 2px solid #0F766E;
+    outline-offset: 2px;
+}
+
+/* Agenda view */
+.rbc-agenda-view {
+    border: 1px solid #E2E8F0;
+    border-radius: 0.5rem;
+}
+
+.rbc-agenda-table {
+    border: none;
+}
+
+.rbc-agenda-date-cell,
+.rbc-agenda-time-cell {
+    font-weight: 500;
+    color: #334155;
+}
+
+.rbc-agenda-event-cell {
+    padding: 0.5rem;
+}
+
+/* Month view */
+.rbc-month-view {
+    border: 1px solid #E2E8F0;
+    border-radius: 0.5rem;
+    overflow: hidden;
+}
+
+.rbc-day-bg {
+    border-left: 1px solid #F1F5F9;
+}
+
+.rbc-off-range-bg {
+    background: #FAFAFA;
+}
+
+/* Week/Day view */
+.rbc-time-view {
+    border: 1px solid #E2E8F0;
+    border-radius: 0.5rem;
+    overflow: hidden;
+}
+
+.rbc-time-header {
+    border-bottom: 2px solid #E2E8F0;
+}
+
+.rbc-time-content {
+    border-top: none;
+}
+
+/* Current time indicator */
+.rbc-current-time-indicator {
+    background-color: #0F766E;
+    height: 2px;
+}
+
+.rbc-current-time-indicator::before {
+    content: '';
+    position: absolute;
+    left: -6px;
+    top: -5px;
+    width: 12px;
+    height: 12px;
+    background-color: #0F766E;
+    border-radius: 50%;
+    border: 2px solid white;
+}
+
+/* Enhanced Current Day Styling */
+.rbc-today {
+    background-color: #F0FDFA !important;
+}
+
+/* Current day header with circular background */
+.rbc-today .rbc-header,
+.rbc-header.rbc-today {
+    position: relative;
+    background: linear-gradient(135deg, #F0FDFA 0%, #CCFBF1 100%) !important;
+    font-weight: 700;
+}
+
+/* Circular background for current day date in month view */
+.rbc-month-view .rbc-today .rbc-date-cell {
+    position: relative;
+}
+
+.rbc-month-view .rbc-today .rbc-date-cell button {
+    background: linear-gradient(135deg, #0F766E, #0ea5e9);
+    color: white;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    box-shadow: 0 4px 6px -1px rgba(15, 118, 110, 0.3);
+}
+
+/* Empty day cells - show subtle indicator on hover */
+.rbc-day-bg:not(.rbc-today):hover::after,
+.rbc-time-slot:hover::after {
+    content: '+';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 24px;
+    color: #CBD5E1;
+    font-weight: 300;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.rbc-day-bg:not(.rbc-today):hover::after {
+    opacity: 0.4;
+}
+
+/* Empty state for week/day view time slots */
+.rbc-time-slot:empty:hover {
+    background-color: #F8FAFC;
+    cursor: pointer;
+}
+
+/* Month view empty cells */
+.rbc-month-view .rbc-day-bg:empty:hover {
+    background-color: #F8FAFC;
+    cursor: pointer;
+}
+
+/* Add subtle dot indicator for completely empty days in month view */
+.rbc-month-view .rbc-row:not(.rbc-month-header) .rbc-day-bg:not(.rbc-off-range-bg):hover::before {
+    content: '';
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 6px;
+    height: 6px;
+    background-color: #0F766E;
+    border-radius: 50%;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.rbc-month-view .rbc-row:not(.rbc-month-header) .rbc-day-bg:not(.rbc-off-range-bg):hover::before {
+    opacity: 0.3;
 }

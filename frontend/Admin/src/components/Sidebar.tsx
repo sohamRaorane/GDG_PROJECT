@@ -24,15 +24,10 @@ const Sidebar = () => {
     ];
 
     return (
-        <aside className="fixed inset-y-0 left-0 z-50 w-64 bg-gradient-to-b from-slate-900 via-admin-sidebar to-slate-950 text-white flex flex-col transition-all duration-300 shadow-2xl border-r border-slate-800/50">
-            {/* Header with Gradient */}
-            <div className="relative overflow-hidden border-b border-slate-700/30 px-6 py-5">
-                <div className="absolute inset-0 bg-gradient-to-r from-admin-active/5 to-transparent"></div>
-                <h1 className="relative text-xl font-bold tracking-wide text-white">
-                    AyurSutra
-                    <span className="text-admin-active ml-0.5 inline-block animate-pulse">.</span>
-                </h1>
-                <p className="text-[10px] text-slate-400 font-semibold tracking-widest uppercase mt-1">Medical Portal</p>
+        <aside className="fixed inset-y-0 left-0 z-50 w-64 bg-gradient-to-b from-[#0F172A] to-[#0a0f1a] text-white flex flex-col transition-all duration-300 shadow-xl border-r border-slate-800/50">
+            <div className="flex flex-col h-16 items-start justify-center border-b border-slate-700/50 px-6 bg-gradient-to-r from-slate-900/50 to-transparent">
+                <h1 className="text-xl font-bold tracking-wider text-white">AyurSutra<span className="text-[#0F766E]">.</span></h1>
+                <p className="text-[10px] text-slate-400 tracking-wide">Medical Portal</p>
             </div>
 
             {/* Navigation */}
@@ -42,50 +37,38 @@ const Sidebar = () => {
                         <Link
                             key={item.path}
                             to={item.path}
-                            className={`group relative flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold transition-all duration-200 ${isActive(item.path)
-                                ? "bg-gradient-to-r from-admin-active to-admin-active/80 text-white shadow-lg shadow-admin-active/20"
-                                : "text-slate-400 hover:bg-slate-800/40 hover:text-white"
+                            className={`group flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200 relative ${isActive(item.path)
+                                ? "bg-gradient-to-r from-[#0F766E] to-[#0ea5e9] text-white shadow-lg shadow-teal-500/20"
+                                : "text-slate-400 hover:bg-slate-800/50 hover:text-white"
                                 }`}
                         >
-                            {/* Active Indicator */}
                             {isActive(item.path) && (
-                                <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-white rounded-r-full shadow-lg"></div>
+                                <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-white rounded-r-full animate-pulse" />
                             )}
-
-                            {/* Icon */}
-                            <div className={`p-1.5 rounded-lg transition-all ${isActive(item.path)
-                                ? "bg-white/20"
-                                : "group-hover:bg-slate-700/50"
+                            <div className={`flex items-center justify-center w-8 h-8 rounded-lg transition-all duration-200 ${isActive(item.path)
+                                    ? "bg-white/20"
+                                    : "bg-slate-800/50 group-hover:bg-slate-700/50"
                                 }`}>
-                                <item.icon className={`h-4 w-4 ${isActive(item.path) ? "text-white" : "text-slate-400 group-hover:text-white"
-                                    }`} />
+                                <item.icon className={`h-5 w-5 ${isActive(item.path) ? "text-white" : "text-slate-400 group-hover:text-white"}`} />
                             </div>
-
-                            {/* Label */}
-                            <span className={isActive(item.path) ? "font-bold" : ""}>{item.name}</span>
-
-                            {/* Active Glow */}
-                            {isActive(item.path) && (
-                                <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-admin-active/0 via-admin-active/10 to-admin-active/0 animate-pulse"></div>
-                            )}
+                            <span className="flex-1">{item.name}</span>
                         </Link>
                     ))}
                 </nav>
             </div>
 
-            {/* Footer Actions */}
-            <div className="border-t border-slate-700/30 p-4 space-y-2">
-                <button className="group flex w-full items-center gap-3 rounded-xl px-4 py-2.5 text-sm font-semibold text-slate-400 transition-all hover:bg-slate-800/40 hover:text-white">
-                    <div className="p-1.5 rounded-lg group-hover:bg-slate-700/50 transition-all">
-                        <Settings className="h-4 w-4" />
+            <div className="border-t border-slate-700/50 p-4 bg-gradient-to-t from-slate-900/30 to-transparent">
+                <button className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-slate-400 transition-all hover:bg-slate-800/50 hover:text-white group">
+                    <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-slate-800/50 group-hover:bg-slate-700/50 transition-all duration-200">
+                        <Settings className="h-5 w-5" />
                     </div>
-                    Settings
+                    <span>Settings</span>
                 </button>
-                <button className="group flex w-full items-center gap-3 rounded-xl px-4 py-2.5 text-sm font-semibold text-red-400 transition-all hover:bg-red-950/30 hover:text-red-300 border border-transparent hover:border-red-900/50">
-                    <div className="p-1.5 rounded-lg group-hover:bg-red-900/20 transition-all">
-                        <LogOut className="h-4 w-4" />
+                <button className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-red-400 transition-all hover:bg-red-500/10 hover:text-red-300 mt-1 group border border-transparent hover:border-red-500/30">
+                    <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-red-500/10 group-hover:bg-red-500/20 transition-all duration-200">
+                        <LogOut className="h-5 w-5" />
                     </div>
-                    Logout
+                    <span>Logout</span>
                 </button>
             </div>
         </aside>

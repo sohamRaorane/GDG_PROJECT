@@ -2,7 +2,8 @@ import { useState, useEffect } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import { Icon } from 'leaflet';
-import { CheckCircle2, Star, MapPin, Navigation } from 'lucide-react';
+import { CheckCircle2, Star, MapPin } from 'lucide-react';
+import { cn } from '../../../utils/cn';
 
 // Fix for default marker icon in React Leaflet with Vite
 import markerIcon2x from 'leaflet/dist/images/marker-icon-2x.png';
@@ -154,17 +155,18 @@ export const SelectClinic = ({ selectedClinicId, onSelect }: SelectClinicProps) 
     return (
         <div className="space-y-6 h-full flex flex-col w-full">
             <div className="flex flex-col items-center text-center mb-6">
-                <h3 className="text-2xl font-display font-bold text-text mb-2 italic">Select a Clinic</h3>
-                <div className="flex items-center gap-2 text-slate-500">
+                <h3 className="text-2xl font-display font-medium text-text mb-2 italic">Select a Sanctuary</h3>
+                <div className="flex items-center gap-2 text-primary/60">
                     <span className="relative flex h-2.5 w-2.5">
-                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                        <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-30"></span>
+                        <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-primary"></span>
                     </span>
-                    <p className="text-sm">Realtime Availability • Choose a location</p>
+                    <p className="text-sm font-serif italic">Realtime Availability • Choose a location</p>
                 </div>
             </div>
 
-            <div className="relative h-[500px] w-full rounded-[2rem] overflow-hidden border-4 border-slate-100 shadow-2xl group isolate bg-slate-900">
+            {/* Map Container */}
+            <div className="relative h-[600px] w-full rounded-[3rem] overflow-hidden border-4 border-secondary/20 shadow-xl shadow-secondary/10 group isolate bg-secondary/5">
                 <MapContainer
                     center={MUMBAI_CENTER}
                     zoom={11}
@@ -173,7 +175,7 @@ export const SelectClinic = ({ selectedClinicId, onSelect }: SelectClinicProps) 
                 >
                     <TileLayer
                         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
-                        url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
+                        url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
                     />
 
                     <MapHandler selectedClinic={activeClinic} />
@@ -187,9 +189,9 @@ export const SelectClinic = ({ selectedClinicId, onSelect }: SelectClinicProps) 
                             }}
                         >
                             <Popup className="custom-popup">
-                                <div className="p-1">
-                                    <span className="font-bold text-slate-800">{clinic.name}</span>
-                                    <div className="max-w-[150px] text-xs text-slate-500 truncate">{clinic.address}</div>
+                                <div className="p-2 font-sans">
+                                    <span className="font-bold text-primary block mb-1">{clinic.name}</span>
+                                    <div className="text-xs text-text/70">{clinic.address}</div>
                                 </div>
                             </Popup>
                         </Marker>
@@ -198,42 +200,49 @@ export const SelectClinic = ({ selectedClinicId, onSelect }: SelectClinicProps) 
 
                 {/* Overlays */}
                 {/* 1. Selection List Sidebar (Desktop) */}
-                <div className="absolute top-4 left-4 bottom-4 w-80 bg-slate-900/95 backdrop-blur-md rounded-2xl shadow-xl overflow-hidden z-[400] flex flex-col border border-slate-700 hidden md:flex">
-                    <div className="p-4 border-b border-slate-800 bg-slate-800/50">
-                        <h4 className="font-bold text-slate-100 flex items-center gap-2">
-                            <MapPin size={16} className="text-emerald-400" /> Nearby Clinics ({MOCK_CLINICS.length})
+                <div className="absolute top-4 left-4 bottom-4 w-80 bg-white/95 backdrop-blur-xl rounded-[2rem] shadow-xl overflow-hidden z-[400] flex flex-col border border-secondary/10 hidden md:flex">
+                    <div className="p-6 border-b border-secondary/10 bg-secondary/5">
+                        <h4 className="font-display font-bold text-primary flex items-center gap-2 text-lg">
+                            <MapPin size={18} className="text-accent" /> Nearby Centers
                         </h4>
+                        <p className="text-xs text-secondary/60 mt-1 ml-6 font-bold">{MOCK_CLINICS.length} locations available</p>
                     </div>
-                    <div className="overflow-y-auto flex-1 p-3 space-y-2.5">
+                    <div className="overflow-y-auto flex-1 p-4 space-y-3 no-scrollbar">
                         {MOCK_CLINICS.map(clinic => (
                             <div
                                 key={clinic.id}
                                 onClick={() => handleClinicClick(clinic)}
-                                className={`p-3 rounded-xl cursor-pointer transition-all border ${selectedClinicId === clinic.id
-                                        ? 'bg-emerald-900/30 border-emerald-500/50 shadow-lg shadow-emerald-900/20'
-                                        : 'bg-slate-800/50 border-transparent hover:bg-slate-800 hover:border-slate-600'
-                                    }`}
+                                className={cn(
+                                    "p-4 rounded-3xl cursor-pointer transition-all border-2 relative overflow-hidden",
+                                    selectedClinicId === clinic.id
+                                        ? "bg-secondary/10 border-primary shadow-none"
+                                        : "bg-surface border-secondary/10 hover:border-secondary/30 hover:shadow-sm"
+                                )}
                             >
-                                <div className="flex justify-between items-start mb-1 gap-2">
-                                    <h5 className={`font-semibold text-sm leading-tight ${selectedClinicId === clinic.id ? 'text-emerald-300' : 'text-slate-200'}`}>
+                                <div className="flex justify-between items-start mb-2 gap-2 relative z-10">
+                                    <h5 className={cn("font-bold text-sm leading-tight transition-colors", selectedClinicId === clinic.id ? "text-primary" : "text-text")}>
                                         {clinic.name}
                                     </h5>
-                                    {selectedClinicId === clinic.id && <CheckCircle2 size={16} className="text-emerald-400 shrink-0" />}
+                                    {selectedClinicId === clinic.id && <CheckCircle2 size={16} className="text-primary shrink-0" />}
                                 </div>
-                                <p className="text-[11px] text-slate-400 line-clamp-2 mb-2">{clinic.address}</p>
-                                <div className="flex items-center justify-between text-[10px]">
+                                <p className="text-[11px] text-text/60 line-clamp-2 mb-3 font-medium relative z-10">{clinic.address}</p>
+                                <div className="flex items-center justify-between text-[10px] relative z-10">
                                     <div className="flex items-center gap-2">
-                                        <span className="flex items-center gap-0.5 text-amber-400 bg-amber-400/10 px-1.5 py-0.5 rounded">
-                                            <Star size={10} fill="currentColor" /> {clinic.rating}
+                                        <span className="flex items-center gap-1 text-primary font-bold bg-white px-2 py-1 rounded-full border border-secondary/10">
+                                            <Star size={10} className="fill-current" /> {clinic.rating}
                                         </span>
                                         {clinic.isOpen ? (
-                                            <span className="text-emerald-400">Open</span>
+                                            <span className="text-green-700 font-bold bg-green-50 px-2 py-1 rounded-full border border-green-100">Open</span>
                                         ) : (
-                                            <span className="text-red-400">Closed</span>
+                                            <span className="text-rose-700 font-bold bg-rose-50 px-2 py-1 rounded-full border border-rose-100">Closed</span>
                                         )}
                                     </div>
-                                    <span className="text-slate-500">{clinic.waitTime}m wait</span>
+                                    <span className="text-secondary/60 font-bold">{clinic.waitTime}m wait</span>
                                 </div>
+
+                                {selectedClinicId === clinic.id && (
+                                    <div className="absolute inset-0 bg-gradient-to-r from-primary/5 to-transparent pointer-events-none" />
+                                )}
                             </div>
                         ))}
                     </div>
@@ -241,31 +250,31 @@ export const SelectClinic = ({ selectedClinicId, onSelect }: SelectClinicProps) 
 
                 {/* Mobile Floating Card for Selected Clinic */}
                 {activeClinic && (
-                    <div className="absolute bottom-4 left-4 right-4 md:hidden bg-slate-900/95 backdrop-blur-md rounded-2xl p-4 shadow-2xl z-[400] border border-slate-700 animate-in slide-in-from-bottom-2">
+                    <div className="absolute bottom-4 left-4 right-4 md:hidden bg-white/95 backdrop-blur-md rounded-[2rem] p-5 shadow-2xl z-[400] border border-white animate-in slide-in-from-bottom-2">
                         <div className="flex justify-between items-start">
                             <div>
-                                <h4 className="font-bold text-slate-100">{activeClinic.name}</h4>
-                                <p className="text-xs text-slate-400 mt-0.5 line-clamp-1">{activeClinic.address}</p>
+                                <h4 className="font-bold text-text text-lg">{activeClinic.name}</h4>
+                                <p className="text-xs text-text/50 mt-1 line-clamp-1 font-medium">{activeClinic.address}</p>
                             </div>
                             {selectedClinicId === activeClinic.id && (
-                                <span className="bg-emerald-500 text-white text-[10px] px-2 py-1 rounded-full font-bold shadow-lg shadow-emerald-500/20">SELECTED</span>
+                                <span className="bg-primary/10 text-primary text-[10px] px-3 py-1 rounded-full font-bold">SELECTED</span>
                             )}
                         </div>
 
-                        <div className="flex items-center gap-3 mt-3 text-xs text-slate-400">
-                            <div className="flex items-center gap-1 text-amber-400">
-                                <Star size={12} fill="currentColor" /> {activeClinic.rating}
+                        <div className="flex items-center gap-4 mt-4 text-xs font-bold text-text/40">
+                            <div className="flex items-center gap-1 text-primary">
+                                <Star size={14} className="fill-current" /> {activeClinic.rating}
                             </div>
-                            <div className="w-px h-3 bg-slate-700"></div>
+                            <div className="w-px h-3 bg-slate-200"></div>
                             <div>{activeClinic.waitTime} min wait</div>
                         </div>
 
                         {selectedClinicId !== activeClinic.id && (
                             <button
                                 onClick={() => onSelect(activeClinic.id)}
-                                className="w-full mt-3 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold py-2.5 rounded-xl transition-colors shadow-lg shadow-emerald-900/20"
+                                className="w-full mt-4 bg-primary hover:bg-primary/90 text-white text-sm font-bold py-3.5 rounded-2xl transition-colors shadow-lg shadow-primary/10"
                             >
-                                Select This Location
+                                Select This Sanctuary
                             </button>
                         )}
                     </div>
