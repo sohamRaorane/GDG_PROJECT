@@ -1,171 +1,314 @@
-import { useState, useEffect } from 'react';
-import { collection, query, where, onSnapshot } from 'firebase/firestore';
-import { db } from '../firebase';
-import Card from '../components/ui/Card';
-import { AlertTriangle, User, Calendar, Phone, CheckCircle2, MessageSquare } from 'lucide-react';
-import type { DailyHealthLog } from '../types/db';
+import { AlertTriangle, Phone, Check, User, AlertCircle, Clock, Activity as ActivityIcon, TrendingUp, Calendar, MapPin } from 'lucide-react';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 
 const DoctorDashboard = () => {
-    const [flaggedLogs, setFlaggedLogs] = useState<DailyHealthLog[]>([]);
-    const [loading, setLoading] = useState(true);
+    // Mock Data for Red Flags
+    const RED_FLAGS = [
+        {
+            id: '1',
+            patientId: 'ODSRC3',
+            sessionDate: '2026-01-07',
+            alert: 'URGENT SOS ALERT: Patient triggered emergency assistance from the app.',
+            painLevel: '10/10',
+            digestion: 'N/A',
+            isUrgent: true
+        },
+        {
+            id: '2',
+            patientId: 'YX9P92',
+            sessionDate: '2026-01-06',
+            alert: 'URGENT SOS ALERT: Patient triggered emergency assistance from the app.',
+            painLevel: '10/10',
+            digestion: 'N/A',
+            isUrgent: true
+        },
+        {
+            id: '3',
+            patientId: 'YX9P92',
+            sessionDate: '2026-01-06',
+            alert: 'URGENT SOS ALERT: Patient triggered emergency assistance from the app.',
+            painLevel: '10/10',
+            digestion: 'N/A',
+            isUrgent: true
+        }
+    ];
 
-    useEffect(() => {
-        // Simple query without orderBy to avoid composite index requirement
-        const q = query(
-            collection(db, 'health_logs'),
-            where('isFlagged', '==', true)
-        );
+    // Mock Data for Incoming Therapy Sessions
+    const INCOMING_SESSIONS = [
+        { id: '1', patient: 'Sarah Jenkins', therapy: 'Panchakarma (Day 3)', time: '09:00 AM', status: 'Arrived', room: 'Room 2A' },
+        { id: '2', patient: 'Michael Chang', therapy: 'Shirodhara', time: '10:30 AM', status: 'En Route', room: 'Room 1B' },
+        { id: '3', patient: 'Emma Wilson', therapy: 'Abhyanga', time: '12:00 PM', status: 'Scheduled', room: 'Room 3C' },
+        { id: '4', patient: 'Robert Fox', therapy: 'Panchakarma (Day 1)', time: '02:00 PM', status: 'Scheduled', room: 'Room 2A' },
+    ];
 
-        const unsubscribe = onSnapshot(q, (snapshot) => {
-            const logs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as DailyHealthLog));
-            // Sort client-side by createdAt
-            const sortedLogs = logs.sort((a, b) => {
-                const getTime = (val: any) => {
-                    if (!val) return 0;
-                    if (typeof val.toMillis === 'function') return val.toMillis();
-                    if (val.seconds) return val.seconds * 1000;
-                    if (val instanceof Date) return val.getTime();
-                    return 0;
-                };
-                return getTime(b.createdAt) - getTime(a.createdAt);
-            });
-            setFlaggedLogs(sortedLogs);
-            setLoading(false);
-        }, (error) => {
-            console.error("Firestore Error in DoctorDashboard:", error);
-            setLoading(false);
-        });
-
-        return () => unsubscribe();
-    }, []);
-
-    const handleAcknowledge = (id: string) => {
-        // In a real app, update Firestore to mark as viewed/resolved
-        console.log('Acknowledged flag:', id);
-    };
+    // Mock Data for Vitals Trends
+    const VITALS_DATA = [
+        { day: 'Mon', pain: 4, sleep: 6, appetite: 7 },
+        { day: 'Tue', pain: 3, sleep: 7, appetite: 8 },
+        { day: 'Wed', pain: 5, sleep: 5, appetite: 6 },
+        { day: 'Thu', pain: 2, sleep: 8, appetite: 9 },
+        { day: 'Fri', pain: 2, sleep: 8, appetite: 9 },
+        { day: 'Sat', pain: 1, sleep: 9, appetite: 10 },
+        { day: 'Sun', pain: 1, sleep: 9, appetite: 10 },
+    ];
 
     return (
-        <div className="space-y-8 animate-in fade-in duration-500">
-            <div className="flex justify-between items-end">
-                <div>
-                    <h1 className="text-3xl font-bold text-slate-800">Red Flag Dashboard</h1>
-                    <p className="text-slate-500 mt-2">Monitoring patients with high-priority health flags.</p>
-                </div>
-                <div className="bg-red-50 px-4 py-2 rounded-xl border border-red-100 flex items-center gap-2">
-                    <AlertTriangle className="text-red-600" size={20} />
-                    <span className="text-red-700 font-bold">{flaggedLogs.length} Active Alerts</span>
+        <div className="space-y-8 pb-12">
+            {/* Header Section with Gradient Background */}
+            <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-8 shadow-xl">
+                <div className="absolute top-0 right-0 w-96 h-96 bg-admin-active/10 rounded-full blur-3xl"></div>
+                <div className="absolute bottom-0 left-0 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl"></div>
+
+                <div className="relative flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div>
+                        <h1 className="text-4xl font-bold text-white mb-2">Red Flag Dashboard</h1>
+                        <p className="text-slate-300">Monitoring active alerts and high-priority patients in real-time.</p>
+                    </div>
+                    <div className="bg-red-500/20 backdrop-blur-sm text-white px-6 py-3 rounded-xl font-bold flex items-center gap-3 border border-red-400/30 shadow-lg">
+                        <div className="relative">
+                            <AlertTriangle size={24} className="text-red-400" />
+                            <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full animate-ping"></span>
+                        </div>
+                        <span className="text-lg">{RED_FLAGS.length} Active Alerts</span>
+                    </div>
                 </div>
             </div>
 
-            {loading ? (
-                <div className="grid gap-6 md:grid-cols-2">
-                    {[1, 2].map(i => (
-                        <div key={i} className="h-64 bg-slate-100 animate-pulse rounded-[32px]"></div>
-                    ))}
+            {/* Red Flag Cards Grid */}
+            <section>
+                <div className="flex items-center gap-3 mb-6">
+                    <div className="h-8 w-1.5 bg-gradient-to-b from-red-500 to-red-600 rounded-full shadow-lg shadow-red-500/50"></div>
+                    <h2 className="text-2xl font-bold text-admin-sidebar uppercase tracking-tight">Critical Interventions</h2>
+                    <div className="flex-1 h-px bg-gradient-to-r from-slate-200 to-transparent"></div>
                 </div>
-            ) : flaggedLogs.length === 0 ? (
-                <div className="bg-white rounded-[40px] p-20 text-center border border-slate-100 shadow-sm">
-                    <div className="w-20 h-20 bg-green-50 text-green-500 rounded-full flex items-center justify-center mx-auto mb-6">
-                        <CheckCircle2 size={40} />
-                    </div>
-                    <h3 className="text-2xl font-bold text-slate-800">All Clear!</h3>
-                    <p className="text-slate-500 max-w-md mx-auto mt-2">
-                        No patients have reported adverse symptoms or high pain levels today.
-                    </p>
-                </div>
-            ) : (
-                <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-                    {flaggedLogs.map((log) => (
-                        <Card
-                            key={log.id}
-                            className="relative overflow-hidden group hover:shadow-2xl hover:-translate-y-2 transition-all duration-500 border-none bg-white p-0 rounded-[32px] shadow-xl"
-                        >
-                            <div className="absolute top-0 left-0 w-2 h-full bg-red-500"></div>
 
-                            <div className="p-8">
-                                <div className="flex justify-between items-start mb-6">
-                                    <div className="flex items-center gap-4">
-                                        <div className="w-14 h-14 bg-slate-100 rounded-2xl flex items-center justify-center text-slate-400 group-hover:bg-red-50 group-hover:text-red-500 transition-colors">
-                                            <User size={28} />
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {RED_FLAGS.map((flag, index) => (
+                        <div
+                            key={flag.id}
+                            className="bg-white rounded-2xl shadow-lg border border-slate-100 overflow-hidden hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 group"
+                            style={{ animationDelay: `${index * 100}ms` }}
+                        >
+                            {/* Red Accent Bar */}
+                            <div className="h-2 bg-gradient-to-r from-red-500 via-red-600 to-red-500 group-hover:from-red-600 group-hover:via-red-700 group-hover:to-red-600 transition-all"></div>
+
+                            <div className="p-6">
+                                {/* Top Row: User & ID */}
+                                <div className="flex items-start justify-between mb-5">
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-12 h-12 bg-gradient-to-br from-slate-100 to-slate-200 rounded-2xl flex items-center justify-center text-slate-600 shadow-inner border border-slate-200 group-hover:from-slate-200 group-hover:to-slate-300 transition-all">
+                                            <User size={22} strokeWidth={2.5} />
                                         </div>
                                         <div>
-                                            <h3 className="font-bold text-slate-800 text-lg uppercase tracking-tight">Patient ID: {log.userId.slice(-6)}</h3>
-                                            <div className="flex items-center gap-1.5 text-slate-400 text-xs">
-                                                <Calendar size={12} />
-                                                <span>Session Date: {log.date}</span>
-                                            </div>
+                                            <h3 className="text-xl font-bold text-admin-sidebar leading-tight">{flag.patientId}</h3>
+                                            <p className="text-xs text-admin-muted font-semibold mt-0.5 flex items-center gap-1">
+                                                <Calendar size={11} />
+                                                {flag.sessionDate}
+                                            </p>
                                         </div>
                                     </div>
-                                    <div className="bg-red-100 text-red-600 font-bold text-[10px] px-2.5 py-1 rounded-full uppercase tracking-widest">Urgent</div>
+                                    {flag.isUrgent && (
+                                        <span className="bg-gradient-to-r from-red-50 to-red-100 text-red-600 text-[10px] font-bold px-3 py-1 rounded-full border border-red-200 uppercase tracking-wider shadow-sm">
+                                            Urgent
+                                        </span>
+                                    )}
                                 </div>
 
-                                <div className="space-y-4 mb-8">
-                                    <div className="bg-slate-50 rounded-2xl p-4 border border-slate-100">
-                                        <p className="text-xs font-bold text-slate-500 uppercase mb-1 flex items-center gap-1.5">
-                                            <AlertTriangle size={12} className="text-red-500" /> Issue Reported
-                                        </p>
-                                        <p className="text-slate-800 font-medium leading-relaxed italic">"{log.flaggedReason || 'High pain level reported'}"</p>
+                                {/* Alert Box */}
+                                <div className="bg-gradient-to-br from-red-50 to-orange-50 rounded-xl p-4 mb-5 border border-red-100/50 shadow-sm">
+                                    <div className="flex items-center gap-2 text-red-600 mb-2">
+                                        <AlertCircle size={16} strokeWidth={2.5} />
+                                        <span className="text-[11px] font-bold uppercase tracking-wide">Issue Reported</span>
                                     </div>
+                                    <p className="text-sm text-slate-700 font-medium leading-relaxed italic">
+                                        "{flag.alert}"
+                                    </p>
+                                </div>
 
-                                    <div className="grid grid-cols-2 gap-4">
-                                        <div className="p-4 rounded-2xl bg-slate-50 border border-slate-100">
-                                            <p className="text-[10px] font-bold text-slate-400 uppercase">Pain Level</p>
-                                            <p className="text-2xl font-black text-red-600 tracking-tighter">{log.painLevel}/10</p>
-                                        </div>
-                                        <div className="p-4 rounded-2xl bg-slate-50 border border-slate-100">
-                                            <p className="text-[10px] font-bold text-slate-400 uppercase">Digestion</p>
-                                            <p className="text-lg font-bold text-slate-700">{log.digestionQuality || 'N/A'}</p>
-                                        </div>
+                                {/* Vitals */}
+                                <div className="grid grid-cols-2 gap-3 mb-5">
+                                    <div className="bg-gradient-to-br from-slate-50 to-slate-100 rounded-xl p-3 border border-slate-200">
+                                        <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wide mb-1">Pain Level</p>
+                                        <p className="text-2xl font-bold bg-gradient-to-r from-red-600 to-red-500 bg-clip-text text-transparent">{flag.painLevel}</p>
+                                    </div>
+                                    <div className="bg-gradient-to-br from-slate-50 to-slate-100 rounded-xl p-3 border border-slate-200">
+                                        <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wide mb-1">Digestion</p>
+                                        <p className="text-2xl font-bold text-slate-700">{flag.digestion}</p>
                                     </div>
                                 </div>
 
+                                {/* Action Buttons */}
                                 <div className="flex gap-3">
-                                    <button className="flex-1 bg-slate-900 text-white font-bold py-4 rounded-2xl hover:bg-slate-800 transition-all flex items-center justify-center gap-2 text-sm">
-                                        <Phone size={16} /> Call Now
+                                    <button className="flex-1 bg-gradient-to-r from-slate-900 to-slate-800 hover:from-slate-800 hover:to-slate-700 text-white py-3 rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition-all shadow-lg shadow-slate-900/20 hover:shadow-xl hover:shadow-slate-900/30">
+                                        <Phone size={16} />
+                                        Call Now
                                     </button>
-                                    <button
-                                        onClick={() => handleAcknowledge(log.id)}
-                                        className="w-14 h-14 border-2 border-slate-100 rounded-2xl flex items-center justify-center text-slate-400 hover:border-green-500 hover:text-green-500 hover:bg-green-50 transition-all"
-                                    >
-                                        <CheckCircle2 size={24} />
+                                    <button className="px-4 bg-white border-2 border-slate-200 text-slate-600 rounded-xl hover:border-green-500 hover:text-green-600 hover:bg-green-50 transition-all flex items-center justify-center group">
+                                        <Check size={18} className="group-hover:scale-110 transition-transform" />
                                     </button>
                                 </div>
                             </div>
-                        </Card>
+                        </div>
                     ))}
                 </div>
-            )}
+            </section>
 
-            <div className="grid gap-6 lg:grid-cols-2">
-                <Card title="Patient Feedback Loop Stats" description="Summary of patient check-ins.">
-                    <div className="space-y-4 py-4">
-                        <div className="flex justify-between items-center p-4 bg-slate-50 rounded-2xl border border-slate-100">
-                            <span className="text-sm font-medium text-slate-600">Total Check-ins Today</span>
-                            <span className="text-lg font-bold text-slate-800">42</span>
-                        </div>
-                        <div className="flex justify-between items-center p-4 bg-slate-50 rounded-2xl border border-slate-100">
-                            <span className="text-sm font-medium text-slate-600">Completion Rate</span>
-                            <span className="text-lg font-bold text-green-600">89%</span>
-                        </div>
-                        <div className="flex justify-between items-center p-4 bg-slate-50 rounded-2xl border border-slate-100 text-red-600">
-                            <span className="text-sm font-bold">Unresolved Flags</span>
-                            <span className="text-lg font-black">{flaggedLogs.length}</span>
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                {/* Incoming Therapy Sessions Table */}
+                <section className="lg:col-span-2">
+                    <div className="flex items-center gap-3 mb-6">
+                        <div className="h-8 w-1.5 bg-gradient-to-b from-blue-500 to-blue-600 rounded-full shadow-lg shadow-blue-500/50"></div>
+                        <h2 className="text-2xl font-bold text-admin-sidebar uppercase tracking-tight">Incoming Therapy Sessions</h2>
+                        <div className="flex-1 h-px bg-gradient-to-r from-slate-200 to-transparent"></div>
+                    </div>
+
+                    <div className="bg-white rounded-2xl shadow-lg border border-slate-100 overflow-hidden">
+                        <div className="overflow-x-auto">
+                            <table className="w-full text-left text-sm">
+                                <thead className="bg-gradient-to-r from-slate-50 to-slate-100 border-b border-slate-200">
+                                    <tr>
+                                        <th className="px-6 py-4 text-xs uppercase text-admin-muted font-bold tracking-wider">Patient</th>
+                                        <th className="px-6 py-4 text-xs uppercase text-admin-muted font-bold tracking-wider">Therapy</th>
+                                        <th className="px-6 py-4 text-xs uppercase text-admin-muted font-bold tracking-wider">Time</th>
+                                        <th className="px-6 py-4 text-xs uppercase text-admin-muted font-bold tracking-wider">Room</th>
+                                        <th className="px-6 py-4 text-xs uppercase text-admin-muted font-bold tracking-wider">Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-slate-100">
+                                    {INCOMING_SESSIONS.map((session, index) => (
+                                        <tr
+                                            key={session.id}
+                                            className="hover:bg-gradient-to-r hover:from-slate-50/50 hover:to-transparent transition-all group"
+                                        >
+                                            <td className="px-6 py-4 font-bold text-admin-sidebar group-hover:text-admin-active transition-colors">{session.patient}</td>
+                                            <td className="px-6 py-4 text-slate-600">{session.therapy}</td>
+                                            <td className="px-6 py-4 font-semibold text-admin-sidebar flex items-center gap-2">
+                                                <Clock size={14} className="text-admin-muted" />
+                                                {session.time}
+                                            </td>
+                                            <td className="px-6 py-4 text-slate-500 flex items-center gap-1.5">
+                                                <MapPin size={12} className="text-slate-400" />
+                                                {session.room}
+                                            </td>
+                                            <td className="px-6 py-4">
+                                                <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider border ${session.status === 'Arrived' ? 'bg-gradient-to-r from-emerald-50 to-green-50 text-emerald-700 border-emerald-200 shadow-sm' :
+                                                        session.status === 'En Route' ? 'bg-gradient-to-r from-amber-50 to-orange-50 text-amber-700 border-amber-200 shadow-sm' :
+                                                            'bg-gradient-to-r from-slate-50 to-slate-100 text-slate-600 border-slate-200'
+                                                    }`}>
+                                                    {session.status === 'Arrived' && <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></div>}
+                                                    {session.status === 'En Route' && <div className="w-1.5 h-1.5 bg-amber-500 rounded-full animate-pulse"></div>}
+                                                    {session.status}
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
                         </div>
                     </div>
-                </Card>
+                </section>
 
-                <Card title="Quick Actions" description="Common tasks for flagged patients.">
-                    <div className="grid grid-cols-2 gap-4 py-4">
-                        <button className="p-6 bg-blue-50 text-blue-700 rounded-3xl font-bold flex flex-col items-center gap-3 hover:bg-blue-100 transition-colors">
-                            <MessageSquare />
-                            <span className="text-xs uppercase tracking-widest text-center">Broadcast Advisory</span>
-                        </button>
-                        <button className="p-6 bg-slate-50 text-slate-700 rounded-3xl font-bold flex flex-col items-center gap-3 hover:bg-slate-100 transition-colors">
-                            <Calendar />
-                            <span className="text-xs uppercase tracking-widest text-center">Reschedule Shifts</span>
-                        </button>
+                {/* Patient Vitals Chart */}
+                <section className="lg:col-span-1">
+                    <div className="flex items-center gap-3 mb-6">
+                        <div className="h-8 w-1.5 bg-gradient-to-b from-teal-500 to-emerald-600 rounded-full shadow-lg shadow-teal-500/50"></div>
+                        <h2 className="text-2xl font-bold text-admin-sidebar uppercase tracking-tight">Vitals</h2>
+                        <div className="flex-1 h-px bg-gradient-to-r from-slate-200 to-transparent"></div>
                     </div>
-                </Card>
+
+                    <div className="bg-white rounded-2xl shadow-lg border border-slate-100 p-6 h-[420px]">
+                        <div className="flex items-center justify-between mb-6">
+                            <h3 className="text-sm font-bold text-admin-muted flex items-center gap-2">
+                                <div className="p-1.5 bg-gradient-to-br from-teal-50 to-emerald-50 rounded-lg">
+                                    <TrendingUp size={16} className="text-teal-600" />
+                                </div>
+                                Avg. Recovery Metrics
+                            </h3>
+                        </div>
+
+                        <ResponsiveContainer width="100%" height="90%">
+                            <LineChart data={VITALS_DATA}>
+                                <defs>
+                                    <linearGradient id="painGradient" x1="0" y1="0" x2="0" y2="1">
+                                        <stop offset="5%" stopColor="#EF4444" stopOpacity={0.1} />
+                                        <stop offset="95%" stopColor="#EF4444" stopOpacity={0} />
+                                    </linearGradient>
+                                    <linearGradient id="sleepGradient" x1="0" y1="0" x2="0" y2="1">
+                                        <stop offset="5%" stopColor="#0EA5E9" stopOpacity={0.1} />
+                                        <stop offset="95%" stopColor="#0EA5E9" stopOpacity={0} />
+                                    </linearGradient>
+                                    <linearGradient id="appetiteGradient" x1="0" y1="0" x2="0" y2="1">
+                                        <stop offset="5%" stopColor="#0F766E" stopOpacity={0.1} />
+                                        <stop offset="95%" stopColor="#0F766E" stopOpacity={0} />
+                                    </linearGradient>
+                                </defs>
+                                <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" vertical={false} />
+                                <XAxis
+                                    dataKey="day"
+                                    stroke="#64748B"
+                                    fontSize={11}
+                                    tickLine={false}
+                                    axisLine={false}
+                                    dy={10}
+                                    fontWeight={600}
+                                />
+                                <YAxis
+                                    stroke="#64748B"
+                                    fontSize={11}
+                                    tickLine={false}
+                                    axisLine={false}
+                                    domain={[0, 10]}
+                                    fontWeight={600}
+                                />
+                                <Tooltip
+                                    contentStyle={{
+                                        backgroundColor: '#fff',
+                                        borderRadius: '12px',
+                                        border: '1px solid #e2e8f0',
+                                        boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
+                                        padding: '8px 12px'
+                                    }}
+                                    itemStyle={{ fontSize: '12px', fontWeight: 'bold' }}
+                                    labelStyle={{ fontSize: '11px', fontWeight: 'bold', color: '#64748B', marginBottom: '4px' }}
+                                />
+                                <Legend
+                                    wrapperStyle={{ fontSize: '11px', paddingTop: '15px', fontWeight: 'bold' }}
+                                    iconType="circle"
+                                />
+                                <Line
+                                    type="monotone"
+                                    dataKey="pain"
+                                    stroke="#EF4444"
+                                    strokeWidth={3}
+                                    dot={{ fill: '#EF4444', strokeWidth: 2, r: 4 }}
+                                    activeDot={{ r: 6, strokeWidth: 0, fill: '#EF4444' }}
+                                    name="Pain"
+                                    fill="url(#painGradient)"
+                                />
+                                <Line
+                                    type="monotone"
+                                    dataKey="sleep"
+                                    stroke="#0EA5E9"
+                                    strokeWidth={3}
+                                    dot={{ fill: '#0EA5E9', strokeWidth: 2, r: 4 }}
+                                    activeDot={{ r: 6, strokeWidth: 0, fill: '#0EA5E9' }}
+                                    name="Sleep"
+                                    fill="url(#sleepGradient)"
+                                />
+                                <Line
+                                    type="monotone"
+                                    dataKey="appetite"
+                                    stroke="#0F766E"
+                                    strokeWidth={3}
+                                    dot={{ fill: '#0F766E', strokeWidth: 2, r: 4 }}
+                                    activeDot={{ r: 6, strokeWidth: 0, fill: '#0F766E' }}
+                                    name="Appetite"
+                                    fill="url(#appetiteGradient)"
+                                />
+                            </LineChart>
+                        </ResponsiveContainer>
+                    </div>
+                </section>
             </div>
         </div>
     );

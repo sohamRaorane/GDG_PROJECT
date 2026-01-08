@@ -76,11 +76,9 @@ if (!GEN_AI_KEY) {
 const genAI = GEN_AI_KEY ? new GoogleGenerativeAI(GEN_AI_KEY) : null;
 
 const MODEL_CANDIDATES = [
-  'models/gemini-flash-latest',
-  'models/gemini-pro-latest',
-  'models/gemini-1.5-flash',
-  'models/gemini-1.5-pro',
-  'models/gemini-2.0-flash-lite-preview'
+  'gemini-1.5-flash',
+  'gemini-1.5-pro',
+  'gemini-pro',
 ];
 const API_VERSIONS = ['v1beta', 'v1'];
 
