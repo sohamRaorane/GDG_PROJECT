@@ -200,8 +200,8 @@ const DashboardHome = () => {
 
                             <div className="mt-4 flex items-center gap-2">
                                 <div className={`flex items-center gap-1 px-2 py-1 rounded-md text-xs font-semibold ${stat.trend === "up"
-                                        ? "bg-emerald-50 text-emerald-700"
-                                        : "bg-red-50 text-red-700"
+                                    ? "bg-emerald-50 text-emerald-700"
+                                    : "bg-red-50 text-red-700"
                                     }`}>
                                     {stat.trend === "up" ? (
                                         <ArrowUpRight className="h-3 w-3" />
@@ -264,7 +264,7 @@ const DashboardHome = () => {
                                         padding: '12px',
                                         boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)'
                                     }}
-                                    formatter={(value: number) => [`₹${value.toLocaleString()}`, 'Revenue']}
+                                    formatter={(value: number | undefined) => [`₹${value?.toLocaleString() ?? '0'}`, 'Revenue']}
                                 />
                                 <Area
                                     type="monotone"
