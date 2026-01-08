@@ -1,9 +1,9 @@
 import {
     XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
-    Area, AreaChart, LineChart, Line, BarChart, Bar, Legend
+    LineChart, Line, BarChart, Bar, Legend
 } from 'recharts';
-import { TrendingUp, Clock } from 'lucide-react';
-import Card from '../components/ui/Card';
+import { TrendingUp, Users, Clock } from 'lucide-react';
+import Card from "../components/ui/Card";
 
 const data = [
     { name: 'Mon', appointments: 40, revenue: 2400 },
@@ -38,54 +38,40 @@ const heatmapData = [
 const Reports = () => {
     return (
         <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-emerald-50/30">
-            <div className="space-y-8 pb-12">
-                {/* Enhanced Header with Animated Gradient Orbs */}
-                <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-10 shadow-2xl border border-white/5">
-                    {/* Animated Floating Orbs */}
-                    <div className="absolute top-0 right-0 w-96 h-96 bg-blue-500/20 rounded-full blur-3xl animate-pulse"></div>
-                    <div className="absolute bottom-0 left-0 w-96 h-96 bg-emerald-500/20 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }}></div>
-                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-purple-500/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '2s' }}></div>
+            <div className="space-y-6 pb-8">
+                {/* Compact Header */}
+                <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-6 shadow-xl border border-white/5">
+                    {/* Animated Floating Orbs - Smaller */}
+                    <div className="absolute top-0 right-0 w-64 h-64 bg-blue-500/20 rounded-full blur-3xl animate-pulse"></div>
+                    <div className="absolute bottom-0 left-0 w-64 h-64 bg-emerald-500/20 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }}></div>
 
-                    <div className="relative flex flex-col md:flex-row md:items-center justify-between gap-6">
-                        <div className="space-y-2">
-                            <h1 className="text-5xl font-black bg-gradient-to-r from-white via-blue-100 to-emerald-100 bg-clip-text text-transparent">
+                    <div className="relative flex items-center justify-between">
+                        <div>
+                            <h1 className="text-3xl font-bold bg-gradient-to-r from-white via-blue-100 to-emerald-100 bg-clip-text text-transparent">
                                 Reports & Insights
                             </h1>
-                            <p className="text-slate-300 text-lg font-medium">Analytics and performance metrics for your practice.</p>
+                            <p className="text-slate-400 text-sm mt-1">Analytics and performance metrics</p>
                         </div>
 
-                        <div className="grid gap-6 lg:grid-cols-2">
-                            <Card title="Appointment Trends" description="Daily appointment volume over the last week.">
-                                <div className="h-[300px] w-full">
-                                    <ResponsiveContainer width="100%" height="100%">
-                                        <LineChart data={data}>
-                                            <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                                            <XAxis dataKey="name" stroke="#94a3b8" />
-                                            <YAxis stroke="#94a3b8" />
-                                            <Tooltip
-                                                contentStyle={{ backgroundColor: '#fff', borderRadius: '8px', border: '1px solid #e2e8f0' }}
-                                            />
-                                            <Line type="monotone" dataKey="appointments" stroke="#0F766E" strokeWidth={3} dot={{ r: 4 }} activeDot={{ r: 6 }} />
-                                        </LineChart>
-                                    </ResponsiveContainer>
-                                </div>
-                            </Card>
+                    </div>
+                </div>
 
-                            <Card title="Provider Utilization" description="Percentage of available hours booked.">
-                                <div className="h-[300px] w-full">
-                                    <ResponsiveContainer width="100%" height="100%">
-                                        <BarChart data={providerData} layout="vertical">
-                                            <CartesianGrid strokeDasharray="3 3" horizontal={false} />
-                                            <XAxis type="number" domain={[0, 100]} stroke="#94a3b8" />
-                                            <YAxis dataKey="name" type="category" width={100} stroke="#94a3b8" />
-                                            <Tooltip cursor={{ fill: '#f1f5f9' }} />
-                                            <Legend />
-                                            <Bar dataKey="utilization" fill="#0EA5E9" radius={[0, 4, 4, 0]} name="Utilization %" />
-                                        </BarChart>
-                                    </ResponsiveContainer>
-                                </div>
-                            </Card>
+                <div className="grid gap-4 lg:grid-cols-2">
+                    <Card title="Appointment Trends" description="Daily appointment volume">
+                        <div className="h-[200px] w-full">
+                            <ResponsiveContainer width="100%" height="100%">
+                                <LineChart data={data}>
+                                    <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                                    <XAxis dataKey="name" stroke="#94a3b8" />
+                                    <YAxis stroke="#94a3b8" />
+                                    <Tooltip
+                                        contentStyle={{ backgroundColor: '#fff', borderRadius: '8px', border: '1px solid #e2e8f0' }}
+                                    />
+                                    <Line type="monotone" dataKey="appointments" stroke="#0F766E" strokeWidth={3} dot={{ r: 4 }} activeDot={{ r: 6 }} />
+                                </LineChart>
+                            </ResponsiveContainer>
                         </div>
+                    </Card>
 
                         {/* Peak Booking Hours - Activity Bubbles Style */}
                         <div className="group bg-white p-8 rounded-3xl border border-slate-200 shadow-xl hover:shadow-2xl hover:border-emerald-200 transition-all duration-500 hover:-translate-y-1">
