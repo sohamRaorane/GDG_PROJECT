@@ -44,7 +44,7 @@ const Reports = () => {
                                 <Tooltip
                                     contentStyle={{ backgroundColor: '#fff', borderRadius: '8px', border: '1px solid #e2e8f0' }}
                                 />
-                                <Line type="monotone" dataKey="appointments" stroke="#0284C7" strokeWidth={3} dot={{ r: 4 }} activeDot={{ r: 6 }} />
+                                <Line type="monotone" dataKey="appointments" stroke="#0F766E" strokeWidth={3} dot={{ r: 4 }} activeDot={{ r: 6 }} />
                             </LineChart>
                         </ResponsiveContainer>
                     </div>
@@ -59,7 +59,7 @@ const Reports = () => {
                                 <YAxis dataKey="name" type="category" width={100} stroke="#94a3b8" />
                                 <Tooltip cursor={{ fill: '#f1f5f9' }} />
                                 <Legend />
-                                <Bar dataKey="utilization" fill="#2C5F2D" radius={[0, 4, 4, 0]} name="Utilization %" />
+                                <Bar dataKey="utilization" fill="#0EA5E9" radius={[0, 4, 4, 0]} name="Utilization %" />
                             </BarChart>
                         </ResponsiveContainer>
                     </div>
