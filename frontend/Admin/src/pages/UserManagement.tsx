@@ -58,82 +58,91 @@ const UserManagement = () => {
 
     return (
         <div className="space-y-6">
-            <div className="flex items-center justify-between">
-                <div>
-                    <h1 className="text-3xl font-bold text-dark-slate">User Management</h1>
-                    <p className="text-slate-500 mt-1">Manage platform users, providers, and administrators.</p>
+            {/* Premium Header with Gradient Background */}
+            <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-8 shadow-xl border border-white/5">
+                {/* Animated Orbs */}
+                <div className="absolute top-0 right-0 w-64 h-64 bg-teal-500/20 rounded-full blur-3xl animate-pulse"></div>
+                <div className="absolute bottom-0 left-0 w-64 h-64 bg-emerald-500/20 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }}></div>
+
+                <div className="relative flex items-center justify-between">
+                    <div>
+                        <h1 className="text-3xl font-bold bg-gradient-to-r from-white via-blue-100 to-emerald-100 bg-clip-text text-transparent">
+                            User Management
+                        </h1>
+                        <p className="text-slate-300 mt-1.5">Manage platform users, providers, and administrators.</p>
+                    </div>
+                    <Button className="bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-700 hover:to-emerald-700 shadow-lg shadow-teal-500/30">
+                        Add New User
+                    </Button>
                 </div>
-                <Button>
-                    Add New User
-                </Button>
             </div>
 
-            <Card className="overflow-hidden">
-                {/* Toolbar */}
-                <div className="flex flex-col gap-4 border-b border-gray-100 p-4 md:flex-row md:items-center md:justify-between">
+            <Card className="overflow-hidden shadow-xl border-2 border-slate-100">
+                {/* Enhanced Toolbar */}
+                <div className="flex flex-col gap-4 border-b border-slate-200 bg-gradient-to-r from-slate-50 to-white p-6 md:flex-row md:items-center md:justify-between">
                     <div className="relative flex-1 md:max-w-md">
-                        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                        <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-teal-500" />
                         <input
                             type="text"
                             placeholder="Search users..."
-                            className="w-full rounded-lg border border-slate-300 py-2 pl-10 pr-4 focus:border-deep-forest focus:outline-none"
+                            className="w-full rounded-xl border-2 border-slate-200 bg-white py-3 pl-12 pr-4 text-sm font-medium transition-all focus:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500/20 hover:border-slate-300"
                         />
                     </div>
-                    <div className="flex gap-2">
-                        <Button variant="outline" size="sm">
+                    <div className="flex gap-3">
+                        <Button variant="outline" size="sm" className="border-2 border-slate-200 hover:border-teal-500 hover:text-teal-600 hover:bg-teal-50 transition-all">
                             <Filter className="mr-2 h-4 w-4" /> Filter
                         </Button>
                     </div>
                 </div>
 
-                {/* Table */}
+                {/* Premium Table */}
                 <div className="overflow-x-auto">
                     <table className="w-full text-left text-sm">
-                        <thead className="bg-slate-50 text-slate-500 border-b border-admin-border">
+                        <thead className="bg-gradient-to-r from-slate-50 to-slate-100 text-slate-600 border-b-2 border-slate-200">
                             <tr>
-                                <th className="px-6 py-3 font-medium">Name</th>
-                                <th className="px-6 py-3 font-medium">Role</th>
-                                <th className="px-6 py-3 font-medium">Status</th>
-                                <th className="px-6 py-3 font-medium">Last Active</th>
-                                <th className="px-6 py-3 font-medium text-right">Actions</th>
+                                <th className="px-6 py-4 font-semibold uppercase text-xs tracking-wide">Name</th>
+                                <th className="px-6 py-4 font-semibold uppercase text-xs tracking-wide">Role</th>
+                                <th className="px-6 py-4 font-semibold uppercase text-xs tracking-wide">Status</th>
+                                <th className="px-6 py-4 font-semibold uppercase text-xs tracking-wide">Last Active</th>
+                                <th className="px-6 py-4 font-semibold uppercase text-xs tracking-wide text-right">Actions</th>
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-admin-border">
+                        <tbody className="divide-y divide-slate-100">
                             {users.map((user) => (
-                                <tr key={user.id} className="hover:bg-slate-50">
+                                <tr key={user.id} className="group hover:bg-gradient-to-r hover:from-teal-50/50 hover:to-emerald-50/50 transition-all duration-200">
                                     <td className="px-6 py-4">
                                         <div className="flex items-center gap-3">
-                                            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-slate-200 text-xs font-medium text-slate-600">
+                                            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-teal-100 to-emerald-100 text-sm font-bold text-teal-700 shadow-sm group-hover:shadow-md group-hover:scale-110 transition-all">
                                                 {user.name.charAt(0)}
                                             </div>
                                             <div>
-                                                <div className="font-medium text-dark-slate">{user.name}</div>
-                                                <div className="text-xs text-slate-400">{user.email}</div>
+                                                <div className="font-semibold text-admin-sidebar group-hover:text-teal-700 transition-colors">{user.name}</div>
+                                                <div className="text-xs text-slate-500">{user.email}</div>
                                             </div>
                                         </div>
                                     </td>
                                     <td className="px-6 py-4">
-                                        <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium ${user.role === "Admin" ? "bg-purple-100 text-purple-700" :
-                                            user.role === "Provider" ? "bg-blue-100 text-blue-700" :
-                                                "bg-slate-100 text-slate-700"
+                                        <span className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-bold shadow-sm ${user.role === "Admin" ? "bg-gradient-to-r from-purple-100 to-purple-200 text-purple-700" :
+                                            user.role === "Provider" ? "bg-gradient-to-r from-blue-100 to-blue-200 text-blue-700" :
+                                                "bg-gradient-to-r from-slate-100 to-slate-200 text-slate-700"
                                             } `}>
-                                            {user.role === "Admin" && <Shield className="h-3 w-3" />}
+                                            {user.role === "Admin" && <Shield className="h-3.5 w-3.5" />}
                                             {user.role}
                                         </span>
                                     </td>
                                     <td className="px-6 py-4">
-                                        <button onClick={() => toggleStatus(user.id)} className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium cursor-pointer transition-colors ${user.status === "Active" ? "bg-green-100 text-green-700 hover:bg-green-200" : "bg-red-100 text-red-700 hover:bg-red-200"
+                                        <button onClick={() => toggleStatus(user.id)} className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-bold transition-all shadow-sm hover:shadow-md ${user.status === "Active" ? "bg-gradient-to-r from-green-100 to-emerald-100 text-green-700 hover:from-green-200 hover:to-emerald-200" : "bg-gradient-to-r from-red-100 to-red-200 text-red-700 hover:from-red-200 hover:to-red-300"
                                             } `}>
-                                            {user.status === "Active" ? <CheckCircle className="h-3 w-3" /> : <XCircle className="h-3 w-3" />}
+                                            {user.status === "Active" ? <CheckCircle className="h-3.5 w-3.5" /> : <XCircle className="h-3.5 w-3.5" />}
                                             {user.status}
                                         </button>
                                     </td>
-                                    <td className="px-6 py-4 text-slate-500">
-                                        {user.lastActive}
+                                    <td className="px-6 py-4">
+                                        <span className="text-sm text-slate-600 font-medium">{user.lastActive}</span>
                                     </td>
                                     <td className="px-6 py-4 text-right">
-                                        <button className="text-slate-400 hover:text-dark-slate">
-                                            <MoreVertical className="h-4 w-4" />
+                                        <button className="inline-flex items-center justify-center rounded-lg p-2 text-slate-400 hover:bg-slate-100 hover:text-teal-600 transition-all group-hover:scale-110">
+                                            <MoreVertical className="h-5 w-5" />
                                         </button>
                                     </td>
                                 </tr>
