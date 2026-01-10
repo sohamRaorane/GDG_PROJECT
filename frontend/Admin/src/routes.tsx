@@ -2,12 +2,13 @@ import { Routes, Route } from "react-router-dom";
 import DashboardLayout from "./layouts/DashboardLayout";
 import DashboardHome from "./pages/DashboardHome";
 import Appointments from "./pages/Appointments";
-import Reports from "./pages/Reports";
+import Reports from "./pages/Reports.tsx";
 import UserManagement from "./pages/UserManagement";
 import Login from "./pages/Login";
 import ActiveTherapies from "./pages/ActiveTherapies";
 import TherapyControl from "./pages/TherapyControl";
 import DoctorDashboard from "./pages/DoctorDashboard";
+import Settings from "./pages/Settings";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 const AppRoutes = () => {
@@ -26,6 +27,7 @@ const AppRoutes = () => {
                 <Route path="users" element={<UserManagement />} />
                 <Route path="active-therapies" element={<ActiveTherapies />} />
                 <Route path="active-therapies/:id" element={<TherapyControl />} />
+                <Route path="settings" element={<Settings />} />
             </Route>
         </Routes>
     );

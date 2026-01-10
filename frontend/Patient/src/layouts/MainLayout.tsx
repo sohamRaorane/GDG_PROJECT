@@ -1,5 +1,5 @@
 import { Outlet, Link } from 'react-router-dom';
-import { User, Menu, Bell, X, CheckCircle, Info, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { User, Bell, X, CheckCircle, Info, AlertCircle, CheckCircle2, Home, Sparkles, Stethoscope, MapPin } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { subscribeToNotifications, markNotificationAsRead } from '../services/notification';
@@ -10,6 +10,7 @@ import { AIChatbot } from '../components/ai/AIChatbot';
 import { Button } from '../components/ui/Button';
 import type { Notification } from '../types/db';
 import { format } from 'date-fns';
+import { FloatingNav } from '../components/ui/floating-navbar';
 
 export const MainLayout = () => {
     const { currentUser } = useAuth();
@@ -54,39 +55,29 @@ export const MainLayout = () => {
         }, 3000);
     };
 
+    const navItems = [
+        { name: 'Home', link: '/', icon: <Home className="w-4 h-4" /> },
+        { name: 'Therapies', link: '/services', icon: <Sparkles className="w-4 h-4" /> },
+        { name: 'Doctors', link: '/doctors', icon: <Stethoscope className="w-4 h-4" /> },
+        { name: 'Clinics', link: '/clinics', icon: <MapPin className="w-4 h-4" /> }
+    ];
+
+    const Actions = () => (
+        <div className="flex items-center gap-2">
+            <NotificationBell />
+            <Link to="/profile">
+                <button className="p-2 rounded-full hover:bg-gray-100 transition-colors text-text/80 hover:text-primary active:scale-95">
+                    <User size={20} />
+                </button>
+            </Link>
+        </div>
+    );
+
     return (
         <div className="min-h-screen flex flex-col bg-background">
-            <header className="sticky top-0 z-50 w-full border-b border-gray-200 bg-white/80 backdrop-blur-md">
-                <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-                    <Link to="/" className="flex items-center gap-2">
-                        <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center">
-                            <span className="text-white font-bold">A</span>
-                        </div>
-                        <span className="text-xl font-bold text-primary font-display">AyurSutra</span>
-                    </Link>
+            <FloatingNav navItems={navItems} actions={<Actions />} />
 
-                    <nav className="hidden md:flex items-center gap-8">
-                        <Link to="/" className="text-sm font-medium text-text hover:text-primary transition-colors">Home</Link>
-                        <Link to="/services" className="text-sm font-medium text-text hover:text-primary transition-colors">Therapies</Link>
-                        <Link to="/doctors" className="text-sm font-medium text-text hover:text-primary transition-colors">Doctors</Link>
-                        <Link to="/clinics" className="text-sm font-medium text-text hover:text-primary transition-colors">Clinics</Link>
-                    </nav>
-
-                    <div className="flex items-center gap-4">
-                        <NotificationBell />
-                        <Link to="/profile">
-                            <button className="p-2 rounded-full hover:bg-gray-100 transition-colors text-text">
-                                <User size={20} />
-                            </button>
-                        </Link>
-                        <button className="md:hidden p-2 text-text">
-                            <Menu size={24} />
-                        </button>
-                    </div>
-                </div>
-            </header>
-
-            <main className="flex-1 relative">
+            <main className="flex-1 relative pt-24">
                 <Outlet />
 
                 {/* Global SOS Button */}

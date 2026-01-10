@@ -9,8 +9,9 @@ interface RecoveryTimelineProps {
 export const RecoveryTimeline = ({ therapy }: RecoveryTimelineProps) => {
     const { totalDays, currentDay } = therapy;
 
-    // Generate timeline items
-    const items = Array.from({ length: totalDays }, (_, i) => {
+    // Generate timeline items (Limit to 7 days as requested)
+    const displayDays = Math.min(totalDays, 7);
+    const items = Array.from({ length: displayDays }, (_, i) => {
         const dayNum = i + 1;
         const isCompleted = dayNum < currentDay;
         const isCurrent = dayNum === currentDay;
