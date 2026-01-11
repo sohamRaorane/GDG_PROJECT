@@ -1,14 +1,13 @@
 import { useState } from 'react';
-import { Clock, CheckCircle, ArrowRight, Info } from 'lucide-react';
+import { Clock, CheckCircle, ArrowRight } from 'lucide-react';
 import { Button } from '../../components/ui/Button';
 import { Modal } from '../../components/ui/Modal';
 import { useNavigate } from 'react-router-dom';
 import { cn } from '../../utils/cn';
+import { OrbitalTherapies } from '../../components/OrbitalTherapies';
 
 // Import images
-import oilTexture from '../../assets/textures/oil_massage.png';
 import shirodharaTexture from '../../assets/textures/shirodhara.png';
-import herbsTexture from '../../assets/textures/herbs.png';
 import panchakarmaTexture from '../../assets/textures/panchakarma.png';
 
 interface Service {
@@ -21,54 +20,30 @@ interface Service {
     image: string;
     tags: string[];
     features: string[];
-    intensity: 1 | 2 | 3; // 1: Mild, 2: Moderate, 3: Intense
+    intensity: 1 | 2 | 3;
     recommended?: boolean;
 }
 
-const SERVICES: Service[] = [
-    {
-        id: 'abhyanga',
-        name: 'Abhyanga',
-        description: 'Full body massage with warm medicated herbal oils to improve circulation.',
-        detailedDescription: 'Abhyanga is a traditional Ayurvedic therapy that involves a full-body massage using warm, herb-infused oils tailored to your dosha. It aids in detoxification, improves skin health, reduces muscle stiffness, and promotes deep relaxation.',
-        duration: '60 Mins',
-        price: '₹1,500',
-        image: oilTexture,
-        tags: ['Stress Relief', 'Circulation', 'Relaxation'],
-        features: ['Improves circulation', 'Relieves fatigue', 'Enhances sleep quality'],
-        intensity: 2
-    },
+const ADDITIONAL_SERVICES: Service[] = [
     {
         id: 'shirodhara',
         name: 'Shirodhara',
         description: 'Continuous pouring of warm medicated oil on the forehead to relieve stress.',
         detailedDescription: 'Shirodhara involves a continuous, rhythmic pouring of warm herbal oil over the forehead (the "third eye"). This therapy is deeply meditative and is highly effective for treating anxiety, insomnia, migraines, and enhancing mental clarity.',
         duration: '45 Mins',
-        price: '₹2,200',
+        price: 'Rs. 2,200',
         image: shirodharaTexture,
         tags: ['Mental Health', 'Insomnia', 'Focus'],
         features: ['Relieves anxiety', 'Treats insomnia', 'Improves focus'],
         intensity: 1
     },
     {
-        id: 'nasya',
-        name: 'Nasya',
-        description: 'Administration of herbal oils through the nasal passage for head ailments.',
-        detailedDescription: 'Nasya is the administration of medicated oil or powder through the nostrils. It clears the head and neck channels, making it effective for sinus congestion, headaches, allergies, and improving sensory perception.',
-        duration: '30 Mins',
-        price: '₹800',
-        image: herbsTexture,
-        tags: ['Detox', 'Sinus Relief', 'Headache'],
-        features: ['Clears nasal passages', 'Relieves headaches', 'Improves sensory perception'],
-        intensity: 2
-    },
-    {
         id: 'panchakarma-full',
         name: 'Full Panchakarma Detox',
         description: 'A complete 7-day detoxification program personalized to your body type.',
-        detailedDescription: 'Panchakarma is the ultimate Ayurvedic detoxification and rejuvenation program. Over 7 days, you will undergo a series of five therapies ("Pancha Karma") designed to purge toxins from the deep tissues, reset your digestion, and restore your body’s natural balance.',
+        detailedDescription: 'Panchakarma is the ultimate Ayurvedic detoxification and rejuvenation program. Over 7 days, you will undergo a series of five therapies designed to purge toxins from the deep tissues, reset your digestion, and restore your natural balance.',
         duration: '7 Days',
-        price: '₹15,000',
+        price: 'Rs. 15,000',
         image: panchakarmaTexture,
         tags: ['Deep Detox', 'Weight Loss', 'Rejuvenation', 'Holistic'],
         features: ['Deep detoxification', 'Weight management', 'Rejuvenation', 'Dosha balance'],
@@ -96,101 +71,110 @@ export const Services = () => {
     const [selectedService, setSelectedService] = useState<Service | null>(null);
 
     return (
-        <div className="container mx-auto px-4 py-8">
-            <div className="mb-12 text-center max-w-2xl mx-auto">
-                <h1 className="text-4xl font-display font-bold text-text mb-4">Our Therapies</h1>
-                <p className="text-gray-500 font-serif text-lg">
-                    Discover our range of authentic Ayurvedic treatments designed to restore balance and harmony.
-                </p>
+        <div className="min-h-screen bg-gradient-to-b from-stone-50 to-amber-50">
+            {/* Hero Section */}
+            <div className="container mx-auto px-4 py-12">
+                <div className="mb-8 text-center max-w-3xl mx-auto">
+                    <h1 className="text-5xl font-display font-bold text-amber-900 mb-4">Our Ayurvedic Therapies</h1>
+                    <p className="text-gray-600 font-serif text-xl">
+                        Experience authentic healing through time-tested Ayurvedic treatments designed to restore balance and harmony.
+                    </p>
+                </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                {SERVICES.map((service) => (
-                    <div
-                        key={service.id}
-                        className={cn(
-                            "group bg-white rounded-2xl border transition-all duration-300 flex flex-col overflow-hidden",
-                            service.recommended
-                                ? "md:col-span-2 lg:col-span-2 border-primary/30 shadow-md ring-1 ring-primary/20"
-                                : "border-slate-200 hover:shadow-xl hover:-translate-y-1"
-                        )}
-                    >
-                        <div className={cn("flex flex-col h-full", service.recommended ? "md:flex-row" : "")}>
-                            {/* Image Section */}
-                            <div className={cn(
-                                "relative overflow-hidden",
-                                service.recommended ? "w-full md:w-2/5 h-64 md:h-auto" : "h-56 w-full"
-                            )}>
-                                <div className="absolute inset-0 bg-black/10 group-hover:bg-black/0 transition-colors z-10" />
-                                <img
-                                    src={service.image}
-                                    alt={service.name}
-                                    className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700"
-                                />
-                                {service.recommended && (
-                                    <div className="absolute top-4 left-4 z-20 bg-secondary/90 backdrop-blur-md text-primary text-xs font-bold px-3 py-1 rounded-full border border-primary/10 shadow-sm">
-                                        RECOMMENDED
-                                    </div>
-                                )}
-                            </div>
+            {/* Orbital Therapies Section */}
+            <OrbitalTherapies />
 
-                            {/* Content Section */}
-                            <div className="p-6 flex flex-col flex-1">
-                                <div className="mb-4">
-                                    <div className="flex justify-between items-start mb-2">
-                                        <h2 className="text-2xl font-serif font-bold text-text group-hover:text-primary transition-colors">
-                                            {service.name}
-                                        </h2>
-                                        <span className="font-bold text-lg text-primary">{service.price}</span>
-                                    </div>
+            {/* Additional Services Section */}
+            <div className="container mx-auto px-4 py-16">
+                <div className="mb-12 text-center">
+                    <h2 className="text-4xl font-display font-bold text-amber-900 mb-4">Featured Treatments</h2>
+                    <p className="text-gray-600 font-serif text-lg">
+                        Specialized programs for comprehensive wellness
+                    </p>
+                </div>
 
-                                    {/* Tags */}
-                                    <div className="flex flex-wrap gap-2 mb-4">
-                                        {service.tags.map(tag => (
-                                            <span key={tag} className="text-xs bg-stone-100 text-stone-600 px-2 py-1 rounded-full border border-stone-200">
-                                                {tag}
-                                            </span>
-                                        ))}
-                                    </div>
-
-                                    <p className="text-gray-600 text-sm leading-relaxed mb-4 font-body">
-                                        {service.description}
-                                    </p>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto">
+                    {ADDITIONAL_SERVICES.map((service) => (
+                        <div
+                            key={service.id}
+                            className={cn(
+                                "group bg-white rounded-2xl border transition-all duration-300 flex flex-col overflow-hidden",
+                                service.recommended
+                                    ? "border-amber-400 shadow-lg ring-2 ring-amber-300"
+                                    : "border-slate-200 hover:shadow-xl hover:-translate-y-1"
+                            )}
+                        >
+                            <div className="flex flex-col h-full">
+                                <div className="relative overflow-hidden h-56 w-full">
+                                    <div className="absolute inset-0 bg-black/10 group-hover:bg-black/0 transition-colors z-10" />
+                                    <img
+                                        src={service.image}
+                                        alt={service.name}
+                                        className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700"
+                                    />
+                                    {service.recommended && (
+                                        <div className="absolute top-4 left-4 z-20 bg-amber-600 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg">
+                                            RECOMMENDED
+                                        </div>
+                                    )}
                                 </div>
 
-                                {/* Features & Details */}
-                                <div className="mt-auto space-y-4">
-                                    <div className="flex items-center justify-between text-sm text-gray-500 border-t border-gray-100 pt-4">
-                                        <div className="flex items-center gap-2">
-                                            <Clock size={16} />
-                                            <span>{service.duration}</span>
+                                <div className="p-6 flex flex-col flex-1">
+                                    <div className="mb-4">
+                                        <div className="flex justify-between items-start mb-2">
+                                            <h2 className="text-2xl font-serif font-bold text-amber-900 group-hover:text-amber-700 transition-colors">
+                                                {service.name}
+                                            </h2>
+                                            <span className="font-bold text-lg text-amber-700">{service.price}</span>
                                         </div>
-                                        <div className="flex items-center gap-2">
-                                            <span className="text-xs uppercase tracking-wider">Intensity</span>
-                                            <IntensityDots level={service.intensity} />
+
+                                        <div className="flex flex-wrap gap-2 mb-4">
+                                            {service.tags.map(tag => (
+                                                <span key={tag} className="text-xs bg-amber-100 text-amber-800 px-2 py-1 rounded-full border border-amber-200">
+                                                    {tag}
+                                                </span>
+                                            ))}
                                         </div>
+
+                                        <p className="text-gray-600 text-sm leading-relaxed mb-4 font-body">
+                                            {service.description}
+                                        </p>
                                     </div>
 
-                                    <div className="flex gap-3 pt-2">
-                                        <Button
-                                            variant="outline"
-                                            className="flex-1 border-stone-300 text-stone-600 hover:bg-stone-50"
-                                            onClick={() => setSelectedService(service)}
-                                        >
-                                            Details
-                                        </Button>
-                                        <Button
-                                            className="flex-1 bg-primary text-white hover:bg-primary/90"
-                                            onClick={() => navigate('/book')}
-                                        >
-                                            Book Now
-                                        </Button>
+                                    <div className="mt-auto space-y-4">
+                                        <div className="flex items-center justify-between text-sm text-gray-500 border-t border-gray-100 pt-4">
+                                            <div className="flex items-center gap-2">
+                                                <Clock size={16} />
+                                                <span>{service.duration}</span>
+                                            </div>
+                                            <div className="flex items-center gap-2">
+                                                <span className="text-xs uppercase tracking-wider">Intensity</span>
+                                                <IntensityDots level={service.intensity} />
+                                            </div>
+                                        </div>
+
+                                        <div className="flex gap-3 pt-2">
+                                            <Button
+                                                variant="outline"
+                                                className="flex-1 border-amber-600 text-amber-900 hover:bg-amber-50"
+                                                onClick={() => setSelectedService(service)}
+                                            >
+                                                Details
+                                            </Button>
+                                            <Button
+                                                className="flex-1 bg-gradient-to-r from-amber-600 to-orange-600 text-white hover:from-amber-700 hover:to-orange-700"
+                                                onClick={() => navigate('/book')}
+                                            >
+                                                Book Now
+                                            </Button>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                ))}
+                    ))}
+                </div>
             </div>
 
             {/* Details Modal */}
@@ -214,15 +198,15 @@ export const Services = () => {
                                 {selectedService.detailedDescription}
                             </p>
 
-                            <div className="bg-stone-50 p-4 rounded-xl border border-stone-100">
+                            <div className="bg-amber-50 p-4 rounded-xl border border-amber-100">
                                 <h3 className="font-bold text-gray-900 mb-3 flex items-center gap-2">
-                                    <CheckCircle size={18} className="text-primary" />
+                                    <CheckCircle size={18} className="text-amber-600" />
                                     Key Benefits
                                 </h3>
                                 <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                                     {selectedService.features.map((feature, idx) => (
                                         <li key={idx} className="flex items-center gap-2 text-sm text-gray-600">
-                                            <span className="w-1.5 h-1.5 bg-primary rounded-full shrink-0" />
+                                            <span className="w-1.5 h-1.5 bg-amber-600 rounded-full shrink-0" />
                                             {feature}
                                         </li>
                                     ))}
@@ -236,7 +220,7 @@ export const Services = () => {
                                 </div>
                                 <div>
                                     <span className="text-gray-500">Price:</span>
-                                    <span className="ml-2 font-bold text-primary text-lg">{selectedService.price}</span>
+                                    <span className="ml-2 font-bold text-amber-700 text-lg">{selectedService.price}</span>
                                 </div>
                             </div>
                         </div>
@@ -250,7 +234,7 @@ export const Services = () => {
                                 Close
                             </Button>
                             <Button
-                                className="flex-1 group"
+                                className="flex-1 group bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700"
                                 onClick={() => {
                                     setSelectedService(null);
                                     navigate('/book');

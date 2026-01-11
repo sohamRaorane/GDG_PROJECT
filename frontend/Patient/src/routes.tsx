@@ -1,5 +1,4 @@
-
-import { createBrowserRouter, RouterProvider } from 'react-router-dom';
+import { createBrowserRouter, RouterProvider, Navigate } from 'react-router-dom';
 import { MainLayout } from './layouts/MainLayout';
 import { Home } from './pages/Home/Home';
 import { BookingWizard } from './pages/Booking/BookingWizard';
@@ -12,7 +11,6 @@ import { TherapyDashboard } from './components/dashboard/TherapyDashboard';
 import Login from './pages/Login';
 import ProtectedRoute from './components/ProtectedRoute';
 
-import Signup from './pages/Signup';
 import ForgotPassword from './pages/ForgotPassword';
 import VerifyEmail from './pages/VerifyEmail';
 
@@ -30,7 +28,7 @@ const router = createBrowserRouter([
     },
     {
         path: '/signup',
-        element: <Signup />,
+        element: <Navigate to="/login?mode=signup" replace />,
     },
     {
         path: '/forgot-password',
