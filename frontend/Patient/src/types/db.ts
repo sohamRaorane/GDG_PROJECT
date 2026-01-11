@@ -125,6 +125,13 @@ export interface Notification {
     createdAt: Timestamp;
 }
 
+export interface TherapyLog {
+    painLevel: number;
+    status: string;
+    notes?: string;
+    [key: string]: any;
+}
+
 export interface ActiveTherapy {
     id: string;
     patientId: string;
@@ -133,5 +140,5 @@ export interface ActiveTherapy {
     totalDays: number;
     currentDay: number;
     status: string;
-    logs: Record<string, any>;
+    logs: Record<string, TherapyLog>;
 }
