@@ -1,16 +1,31 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { useNavigate, Link } from 'react-router-dom';
-import { User, Mail, Lock } from 'lucide-react';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { cn } from '../utils/cn';
 
 const Login = () => {
+    const location = useLocation();
+    const queryParams = new URLSearchParams(location.search);
+    const initialMode = queryParams.get('mode') === 'signup';
+
+    const [isActive, setIsActive] = useState(initialMode);
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [name, setName] = useState('');
     const [error, setError] = useState('');
-    const { login, signInWithGoogle } = useAuth();
+
+    const { login, signup, signInWithGoogle } = useAuth();
     const navigate = useNavigate();
 
-    const handleSubmit = async (e: React.FormEvent) => {
+    useEffect(() => {
+        if (queryParams.get('mode') === 'signup') {
+            setIsActive(true);
+        } else {
+            setIsActive(false);
+        }
+    }, [location.search]);
+
+    const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
             setError('');
@@ -18,6 +33,18 @@ const Login = () => {
             navigate('/');
         } catch (err) {
             setError('Failed to log in');
+            console.error(err);
+        }
+    };
+
+    const handleSignUp = async (e: React.FormEvent) => {
+        e.preventDefault();
+        try {
+            setError('');
+            await signup(email, password, name);
+            navigate('/');
+        } catch (err) {
+            setError('Failed to create an account');
             console.error(err);
         }
     };
@@ -34,109 +61,436 @@ const Login = () => {
     };
 
     return (
-        <div className="min-h-screen bg-green-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
-            <div className="sm:mx-auto sm:w-full sm:max-w-md">
-                <div className="flex justify-center">
-                    <User className="h-12 w-12 text-green-600" />
-                </div>
-                <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-                    Patient Sign in
-                </h2>
-                <p className="mt-2 text-center text-sm text-gray-600">
-                    Or{' '}
-                    <Link to="/signup" className="font-medium text-green-600 hover:text-green-500">
-                        create a new account
-                    </Link>
-                </p>
-            </div>
+        <div className="login-page-wrapper">
+            <style>{`
+                @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap');
 
-            <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-                <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
-                    <form className="space-y-6" onSubmit={handleSubmit}>
-                        {error && <div className="text-red-500 text-sm text-center">{error}</div>}
-                        <div>
-                            <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                                Email address
-                            </label>
-                            <div className="mt-1 relative rounded-md shadow-sm">
-                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                    <Mail className="h-5 w-5 text-gray-400" aria-hidden="true" />
+                .login-page-wrapper {
+                    margin: 0;
+                    padding: 0;
+                    box-sizing: border-box;
+                    font-family: 'Montserrat', sans-serif;
+                    height: 100vh;
+                    width: 100vw;
+                    overflow: hidden;
+                    background-color: #fff;
+                }
+
+                .page {
+                    display: grid;
+                    grid-template-columns: 1fr 1fr;
+                    height: 100vh;
+                    width: 100vw;
+                }
+
+                .left {
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    background-color: #fff;
+                    padding: 20px;
+                    position: relative;
+                }
+
+                .brand-container {
+                    position: absolute;
+                    top: 30px;
+                    left: 40px;
+                    display: flex;
+                    align-items: center;
+                    gap: 12px;
+                    z-index: 10;
+                }
+
+                .brand-logo {
+                    width: 80px;
+                    height: 80px;
+                    object-fit: contain;
+                }
+
+                .brand-name {
+                    font-size: 32px;
+                    font-weight: 700;
+                    background: linear-gradient(to right, #f5d77c, #c87333);
+                    -webkit-background-clip: text;
+                    background-clip: text;
+                    color: transparent;
+                    letter-spacing: 0.5px;
+                }
+
+                .container {
+                    background-color: #fefffd;
+                    border-radius: 30px;
+                    box-shadow: 0 35px 35px rgba(0, 0, 0, 0.35);
+                    position: relative;
+                    overflow: hidden;
+                    width: 768px;
+                    max-width: 100%;
+                    min-height: 480px;
+                }
+
+                .container p {
+                    font-size: 14px;
+                    line-height: 20px;
+                    letter-spacing: 0.3px;
+                    margin: 20px 0;
+                }
+
+                .container span {
+                    font-size: 12px;
+                }
+
+                .container a {
+                    color: #333;
+                    font-size: 13px;
+                    text-decoration: none;
+                    margin: 15px 0 10px;
+                }
+
+                .container button {
+                    background-color: #c87333;
+                    color: #fff;
+                    font-size: 12px;
+                    padding: 10px 45px;
+                    border: 1px solid transparent;
+                    border-radius: 8px;
+                    font-weight: 600;
+                    letter-spacing: 0.5px;
+                    text-transform: uppercase;
+                    margin-top: 10px;
+                    cursor: pointer;
+                    transition: all 0.3s ease;
+                }
+
+                .container button:hover {
+                    opacity: 0.9;
+                }
+
+                .container button.hidden-toggle-btn {
+                    background-color: transparent;
+                    border: 1px solid #fff;
+                    color: #fff;
+                }
+
+                .container form {
+                    background-color: #fff;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    flex-direction: column;
+                    padding: 0 40px;
+                    height: 100%;
+                }
+
+                .container input {
+                    background-color: #eee;
+                    border: none;
+                    margin: 8px 0;
+                    padding: 10px 15px;
+                    font-size: 13px;
+                    border-radius: 8px;
+                    width: 100%;
+                    outline: none;
+                }
+
+                .form-container {
+                    position: absolute;
+                    top: 0;
+                    height: 100%;
+                    transition: all 0.6s ease-in-out;
+                }
+
+                .sign-in {
+                    left: 0;
+                    width: 50%;
+                    z-index: 2;
+                }
+
+                .container.active .sign-in {
+                    transform: translateX(100%);
+                }
+
+                .sign-up {
+                    left: 0;
+                    width: 50%;
+                    opacity: 0;
+                    z-index: 1;
+                }
+
+                .container.active .sign-up {
+                    transform: translateX(100%);
+                    opacity: 1;
+                    z-index: 5;
+                    animation: move 0.6s;
+                }
+
+                @keyframes move {
+                    0%, 49.99% {
+                        opacity: 0;
+                        z-index: 1;
+                    }
+                    50%, 100% {
+                        opacity: 1;
+                        z-index: 5;
+                    }
+                }
+
+                .social-icons {
+                    margin: 20px 0;
+                }
+
+                .social-icons a {
+                    border: 1px solid #ccc;
+                    border-radius: 20%;
+                    display: inline-flex;
+                    justify-content: center;
+                    align-items: center;
+                    margin: 0 3px;
+                    width: 40px;
+                    height: 40px;
+                    cursor: pointer;
+                    transition: all 0.3s ease;
+                }
+                
+                .social-icons a:hover {
+                    background-color: #eee;
+                }
+
+                .toggle-container {
+                    position: absolute;
+                    top: 0;
+                    left: 50%;
+                    width: 50%;
+                    height: 100%;
+                    overflow: hidden;
+                    transition: all 0.6s ease-in-out;
+                    border-radius: 150px 0 0 100px;
+                    z-index: 1000;
+                }
+
+                .container.active .toggle-container {
+                    transform: translateX(-100%);
+                    border-radius: 0 150px 100px 0;
+                }
+
+                .toggle {
+                    height: 100%;
+                    background: linear-gradient(to right, #f5d77c, #c87333);
+                    color: #fff;
+                    position: relative;
+                    left: -100%;
+                    width: 200%;
+                    transform: translateX(0);
+                    transition: all 0.6s ease-in-out;
+                }
+
+                .container.active .toggle {
+                    transform: translateX(50%);
+                }
+
+                .toggle-panel {
+                    position: absolute;
+                    width: 50%;
+                    height: 100%;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    flex-direction: column;
+                    padding: 0 30px;
+                    text-align: center;
+                    top: 0;
+                    transform: translateX(0);
+                    transition: all 0.6s ease-in-out;
+                }
+
+                .toggle-left {
+                    transform: translateX(-200%);
+                }
+
+                .container.active .toggle-left {
+                    transform: translateX(0);
+                }
+
+                .toggle-right {
+                    right: 0;
+                    transform: translateX(0);
+                }
+
+                .container.active .toggle-right {
+                    transform: translateX(200%);
+                }
+
+                .right {
+                    position: relative;
+                    overflow: hidden;
+                }
+
+                .right video {
+                    width: 100%;
+                    height: 100%;
+                    object-fit: cover;
+                }
+
+                .error-message {
+                    color: #ff4d4d;
+                    font-size: 12px;
+                    margin-bottom: 10px;
+                    text-align: center;
+                }
+
+                .mobile-toggle-btn {
+                    margin-top: 15px;
+                    color: #c87333;
+                    font-size: 13px;
+                    font-weight: 600;
+                    text-decoration: underline;
+                    cursor: pointer;
+                    display: none;
+                }
+
+                @media (max-width: 1024px) {
+                    .container {
+                        width: 90%;
+                    }
+                    .brand-container {
+                        left: 20px;
+                    }
+                }
+
+                @media (max-width: 768px) {
+                    .page {
+                        grid-template-columns: 1fr;
+                    }
+                    .right {
+                        display: none;
+                    }
+                    .toggle-container {
+                        display: none;
+                    }
+                    .form-container {
+                        width: 100%;
+                        left: 0;
+                        transform: none !important;
+                        opacity: 1 !important;
+                        z-index: 10 !important;
+                        display: none;
+                    }
+                    .form-container.active-form {
+                        display: block;
+                    }
+                    .mobile-toggle-btn {
+                        display: block;
+                    }
+                }
+            `}</style>
+
+            <div className="page">
+                {/* LEFT SIDE (CARD) */}
+                <div className="left">
+                    <div className="brand-container">
+                        <img src="/logo.png" alt="AyurSutra Logo" className="brand-logo" />
+                        <span className="brand-name">AyurSutra</span>
+                    </div>
+
+                    <div className={cn("container", isActive && "active")} id="container">
+                        {/* SIGN UP */}
+                        <div className={cn("form-container sign-up", isActive && "active-form")}>
+                            <form onSubmit={handleSignUp}>
+                                <h1>Create Account</h1>
+                                <div className="social-icons">
+                                    <a onClick={handleGoogleSignIn} className="icon"><i className="fa-brands fa-google-plus-g"></i></a>
+                                    <a className="icon"><i className="fa-brands fa-facebook-f"></i></a>
+                                    <a className="icon"><i className="fa-brands fa-github"></i></a>
+                                    <a className="icon"><i className="fa-brands fa-linkedin-in"></i></a>
                                 </div>
+                                <span>or use your email for registration</span>
+                                {error && isActive && <div className="error-message">{error}</div>}
                                 <input
-                                    id="email"
-                                    name="email"
-                                    type="email"
-                                    autoComplete="email"
+                                    type="text"
+                                    placeholder="Name"
+                                    value={name}
+                                    onChange={(e) => setName(e.target.value)}
                                     required
-                                    className="focus:ring-green-500 focus:border-green-500 block w-full pl-10 sm:text-sm border-gray-300 rounded-md py-2 px-3 border"
-                                    placeholder="patient@example.com"
+                                />
+                                <input
+                                    type="email"
+                                    placeholder="Email"
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
-                                />
-                            </div>
-                        </div>
-
-                        <div>
-                            <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-                                Password
-                            </label>
-                            <div className="mt-1 relative rounded-md shadow-sm">
-                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                    <Lock className="h-5 w-5 text-gray-400" aria-hidden="true" />
-                                </div>
-                                <input
-                                    id="password"
-                                    name="password"
-                                    type="password"
-                                    autoComplete="current-password"
                                     required
-                                    className="focus:ring-green-500 focus:border-green-500 block w-full pl-10 sm:text-sm border-gray-300 rounded-md py-2 px-3 border"
-                                    placeholder="********"
+                                />
+                                <input
+                                    type="password"
+                                    placeholder="Password"
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
+                                    required
                                 />
-                            </div>
+                                <button type="submit">Sign Up</button>
+                                <div className="mobile-toggle-btn" onClick={() => setIsActive(false)}>
+                                    Already have an account? Sign In
+                                </div>
+                            </form>
                         </div>
 
-                        <div className="flex items-center justify-between">
-                            <div className="text-sm">
-                                <Link to="/forgot-password" className="font-medium text-green-600 hover:text-green-500">
-                                    Forgot your password?
-                                </Link>
-                            </div>
+                        {/* SIGN IN */}
+                        <div className={cn("form-container sign-in", !isActive && "active-form")}>
+                            <form onSubmit={handleLogin}>
+                                <h1>Sign In</h1>
+                                <div className="social-icons">
+                                    <a onClick={handleGoogleSignIn} className="icon"><i className="fa-brands fa-google-plus-g"></i></a>
+                                    <a className="icon"><i className="fa-brands fa-facebook-f"></i></a>
+                                    <a className="icon"><i className="fa-brands fa-github"></i></a>
+                                    <a className="icon"><i className="fa-brands fa-linkedin-in"></i></a>
+                                </div>
+                                <span>or use your email password</span>
+                                {error && !isActive && <div className="error-message">{error}</div>}
+                                <input
+                                    type="email"
+                                    placeholder="Email"
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
+                                    required
+                                />
+                                <input
+                                    type="password"
+                                    placeholder="Password"
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
+                                    required
+                                />
+                                <a href="#">Forget Your Password?</a>
+                                <button type="submit">Sign In</button>
+                                <div className="mobile-toggle-btn" onClick={() => setIsActive(true)}>
+                                    Don't have an account? Sign Up
+                                </div>
+                            </form>
                         </div>
 
-                        <div>
-                            <button
-                                type="submit"
-                                className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
-                            >
-                                Sign in
-                            </button>
-                        </div>
-                    </form>
-
-                    <div className="mt-6">
-                        <div className="relative">
-                            <div className="absolute inset-0 flex items-center">
-                                <div className="w-full border-t border-gray-300" />
+                        {/* TOGGLE */}
+                        <div className="toggle-container">
+                            <div className="toggle">
+                                <div className="toggle-panel toggle-left">
+                                    <h1>Welcome to AyurSutra!</h1>
+                                    <p>Enter your personal details to use all site features</p>
+                                    <button className="hidden-toggle-btn" id="login" onClick={() => setIsActive(false)}>Sign In</button>
+                                </div>
+                                <div className="toggle-panel toggle-right">
+                                    <h1>NAMASKAR!!</h1>
+                                    <p>Register with your personal details to use all site features</p>
+                                    <button className="hidden-toggle-btn" id="register" onClick={() => setIsActive(true)}>Sign Up</button>
+                                </div>
                             </div>
-                            <div className="relative flex justify-center text-sm">
-                                <span className="px-2 bg-white text-gray-500">
-                                    Or continue with
-                                </span>
-                            </div>
-                        </div>
-
-                        <div className="mt-6">
-                            <button
-                                onClick={handleGoogleSignIn}
-                                className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors duration-200"
-                            >
-                                Sign in with Google
-                            </button>
                         </div>
                     </div>
+                </div>
+
+                {/* RIGHT SIDE (VIDEO) */}
+                <div className="right">
+                    <video autoPlay muted loop playsInline>
+                        <source src="/video.mp4" type="video/mp4" />
+                        Your browser does not support the video tag.
+                    </video>
                 </div>
             </div>
         </div>
