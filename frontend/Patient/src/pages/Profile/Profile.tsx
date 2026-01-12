@@ -261,6 +261,7 @@ export const Profile = () => {
                         service: data.serviceName || 'Healing Session',
                         rawServiceId: data.serviceId, // Added for logic
                         rawProviderId: data.providerId, // Added for logic
+                        rawClinicId: data.clinicId || '1', // Default to Main Center
                         type: serviceType,
                         doctor: doctorName,
                         doctorImage: doctorImage,
@@ -298,6 +299,12 @@ export const Profile = () => {
 
         fetchAppointments();
     }, [currentUser]);
+
+    const handleRate = (id: string, rating: number) => {
+        setPastAppointments(prev => prev.map(apt =>
+            apt.id === id ? { ...apt, rating } : apt
+        ));
+    };
 
     const handleLogout = async () => {
         try {
@@ -425,12 +432,7 @@ export const Profile = () => {
                                     icon={<User size={20} />}
                                     label="Personal Details"
                                 />
-                                <SidebarItem
-                                    active={activeTab === 'settings'}
-                                    onClick={() => setActiveTab('settings')}
-                                    icon={<Settings size={20} />}
-                                    label="Settings"
-                                />
+
                                 <div className="my-4 h-px bg-gradient-to-r from-transparent via-[#C4D7C4]/50 to-transparent" />
                                 <SidebarItem
                                     onClick={handleLogout}
@@ -507,9 +509,19 @@ export const Profile = () => {
                                                         </div>
                                                         <p className="text-[#6B8577] text-sm mb-3">{apt.clinic} • {apt.doctor}</p>
                                                         <div className="flex items-center gap-4">
-                                                            <div className="flex text-amber-400 text-xs">
-                                                                {'★'.repeat(apt.rating)}
-                                                                {'☆'.repeat(5 - apt.rating)}
+                                                            <div className="flex gap-0.5">
+                                                                {[1, 2, 3, 4, 5].map((star) => (
+                                                                    <button
+                                                                        key={star}
+                                                                        onClick={() => handleRate(apt.id, star)}
+                                                                        className={cn(
+                                                                            "text-lg transition-colors duration-200 hover:scale-110 focus:outline-none",
+                                                                            star <= apt.rating ? "text-amber-400" : "text-slate-200 hover:text-amber-200"
+                                                                        )}
+                                                                    >
+                                                                        ★
+                                                                    </button>
+                                                                ))}
                                                             </div>
                                                             <button className="text-xs font-bold text-[#2F5E3D] underline opacity-0 group-hover:opacity-100 transition-opacity">
                                                                 Rate Experience
@@ -517,7 +529,17 @@ export const Profile = () => {
                                                         </div>
                                                     </div>
                                                     <div className="flex justify-end md:justify-start">
-                                                        <Button variant="ghost" className="text-[#6B8577] hover:bg-[#E3F2E1] hover:text-[#2F5E3D] rounded-xl px-4">
+                                                        <Button
+                                                            variant="ghost"
+                                                            onClick={() => navigate('/book', {
+                                                                state: {
+                                                                    serviceId: apt.rawServiceId,
+                                                                    doctorId: apt.rawProviderId,
+                                                                    clinicId: apt.rawClinicId
+                                                                }
+                                                            })}
+                                                            className="text-[#6B8577] hover:bg-[#E3F2E1] hover:text-[#2F5E3D] rounded-xl px-4"
+                                                        >
                                                             Rebook
                                                         </Button>
                                                     </div>
@@ -613,28 +635,7 @@ export const Profile = () => {
                                 </div>
                             )}
 
-                            {activeTab === 'settings' && (
-                                <div className="animate-in fade-in slide-in-from-bottom-8 duration-700 ease-out space-y-6">
-                                    <PageHeader title="Settings" subtitle="Preferences & Privacy" />
 
-                                    <div className="bg-white/60 backdrop-blur-md rounded-[2.5rem] p-8 border border-white/60 shadow-sm space-y-6">
-                                        <SettingToggle label="Email Notifications" description="Receive updates about your appointments" />
-
-                                        <div className="pt-4 border-t border-white/40">
-                                            <h4 className="text-lg font-bold text-[#1A2E25] mb-4">Security</h4>
-                                            <InputGroup
-                                                label="Security Passkey"
-                                                value={formData.passkey}
-                                                onChange={(e: any) => setFormData({ ...formData, passkey: e.target.value })}
-                                                type="password"
-                                                icon={<Lock size={18} className="text-[#8FA893]" />}
-                                                placeholder="Enter 4-digit passkey"
-                                            />
-                                            <p className="text-xs text-[#6B8577] mt-2 italic"> This passkey will be required for session cancellations.</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            )}
 
                         </div>
                     </main>

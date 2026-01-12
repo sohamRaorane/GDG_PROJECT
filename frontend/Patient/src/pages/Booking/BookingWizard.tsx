@@ -43,23 +43,29 @@ export const BookingWizard = () => {
         intakeValues: {}
     });
 
-    // Check for pre-selected service from navigation state
+    // Check for pre-selected service from navigation state (Rebook functionality)
     useEffect(() => {
-        if (location.state && location.state.serviceId) {
-            const serviceId = location.state.serviceId;
-            setBookingData(prev => ({ ...prev, serviceId }));
+        if (location.state) {
+            const { serviceId, clinicId, doctorId } = location.state;
 
-            // Fetch price for pre-selected service
-            getServiceById(serviceId).then(service => {
-                if (service) {
-                    setBookingData(prev => ({ ...prev, servicePrice: service.price }));
-                }
-            });
+            setBookingData(prev => ({
+                ...prev,
+                serviceId: serviceId || prev.serviceId,
+                clinicId: clinicId || prev.clinicId,
+                doctorId: doctorId || prev.doctorId
+            }));
 
-            setCurrentStep('clinic');
+            // Smart Step Navigation
+            if (serviceId && clinicId && doctorId) {
+                setCurrentStep('slot');
+            } else if (serviceId && clinicId) {
+                setCurrentStep('provider');
+            } else if (serviceId) {
+                setCurrentStep('clinic');
+            }
 
-            // Clear the state so refreshing doesn't stick (optional, but good UX)
-            // history.replaceState({}, ''); 
+            // Clear the state so refreshing doesn't stick using history (optional but good)
+            window.history.replaceState({}, '');
         }
     }, [location.state]);
 
@@ -82,6 +88,10 @@ export const BookingWizard = () => {
             alert("Please select a date and time slot.");
             return;
         }
+        if (currentStep === 'intake' && !isIntakeValid) {
+            alert("Please fill in all required fields.");
+            return;
+        }
 
         if (currentStepIndex < STEPS.length - 1) {
             setCurrentStep(STEPS[currentStepIndex + 1].id);
@@ -96,6 +106,7 @@ export const BookingWizard = () => {
 
     const { currentUser } = useAuth();
     const [isProcessing, setIsProcessing] = useState(false);
+    const [isIntakeValid, setIsIntakeValid] = useState(false);
 
     const handlePaymentComplete = async () => {
         if (!currentUser) {
@@ -123,7 +134,8 @@ export const BookingWizard = () => {
                 startDate: bookingData.date,
                 startTime: bookingData.slot,
                 days: daysToBook,
-                durationMinutes: service.durationMinutes
+                durationMinutes: service.durationMinutes,
+                intakeValues: bookingData.intakeValues
             });
 
             // Send Confirmation Email
@@ -243,6 +255,7 @@ export const BookingWizard = () => {
                                 <IntakeForm
                                     data={bookingData.intakeValues}
                                     onChange={(data) => setBookingData(prev => ({ ...prev, intakeValues: data }))}
+                                    onValidityChange={setIsIntakeValid}
                                 />
                             )}
                             {currentStep === 'payment' && (

@@ -78,7 +78,7 @@ export const ChannelView = ({ channel, onBack }: ChannelViewProps) => {
     };
 
     return (
-        <div className="flex flex-col h-[calc(100vh-140px)] bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+        <div className="flex flex-col h-[calc(100vh-140px)] bg-[#FFFCF5] rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
             {/* Header */}
             <div className="flex items-center justify-between p-4 border-b border-slate-100 bg-slate-50/50">
                 <div className="flex items-center gap-3">

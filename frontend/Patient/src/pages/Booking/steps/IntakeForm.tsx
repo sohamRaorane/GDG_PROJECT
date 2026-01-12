@@ -1,17 +1,19 @@
-import React from 'react';
-import { User, Mail, Phone, MessageSquare } from 'lucide-react';
-
+import React, { useEffect, useState } from 'react';
+import { User, Mail, Phone, MessageSquare, Loader2, Info } from 'lucide-react';
+import { getIntakeForm } from '../../../services/db';
+import type { IntakeFormField } from '../../../types/db';
 
 interface IntakeData {
     name?: string;
     email?: string;
     phone?: string;
-    symptoms?: string;
+    [key: string]: any;
 }
 
 interface IntakeFormProps {
     data: IntakeData;
     onChange: (data: IntakeData) => void;
+    onValidityChange?: (isValid: boolean) => void;
 }
 
 interface FormInputProps {
@@ -19,16 +21,17 @@ interface FormInputProps {
     icon: any;
     type: string;
     value: string | undefined;
-    field: keyof IntakeData;
+    field: string;
     placeholder: string;
-    onChange: (field: keyof IntakeData, value: string) => void;
+    required?: boolean;
+    onChange: (field: string, value: string) => void;
 }
 
-const FormInput: React.FC<FormInputProps> = ({ label, icon: Icon, type, value, field, placeholder, onChange }) => (
+const FormInput: React.FC<FormInputProps> = ({ label, icon: Icon, type, value, field, placeholder, required, onChange }) => (
     <div className="space-y-3 group">
         <label className="text-xs font-bold text-primary/70 uppercase tracking-widest flex items-center gap-2">
             <Icon size={14} className="text-accent" />
-            {label}
+            {label} {required && <span className="text-red-400">*</span>}
         </label>
         <div className="relative">
             <input
@@ -36,15 +39,138 @@ const FormInput: React.FC<FormInputProps> = ({ label, icon: Icon, type, value, f
                 value={value || ''}
                 onChange={(e) => onChange(field, e.target.value)}
                 placeholder={placeholder}
+                required={required}
                 className="w-full bg-white border border-secondary/20 rounded-2xl py-4 px-5 focus:border-primary focus:ring-4 focus:ring-secondary/10 outline-none transition-all text-text font-medium placeholder:text-text/30 placeholder:italic shadow-sm"
             />
         </div>
     </div>
 );
 
-export const IntakeForm: React.FC<IntakeFormProps> = ({ data, onChange }) => {
-    const handleChange = (field: keyof IntakeData, value: string) => {
+export const IntakeForm: React.FC<IntakeFormProps> = ({ data, onChange, onValidityChange }) => {
+    const [dynamicFields, setDynamicFields] = useState<IntakeFormField[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchFields = async () => {
+            try {
+                const fields = await getIntakeForm();
+                if (fields) {
+                    setDynamicFields(fields);
+                }
+            } catch (error) {
+                console.error("Failed to load intake questions", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchFields();
+    }, []);
+
+    // Validation Effect
+    useEffect(() => {
+        if (!onValidityChange) return;
+
+        const isPersonalDetailsValid = !!data.name && !!data.email && !!data.phone;
+        if (!isPersonalDetailsValid) {
+            onValidityChange(false);
+            return;
+        }
+
+        const areDynamicFieldsValid = dynamicFields.every(field => {
+            if (!field.required) return true;
+            const val = data[field.label];
+            return val && val.toString().trim() !== '';
+        });
+
+        onValidityChange(areDynamicFieldsValid);
+    }, [data, dynamicFields, onValidityChange]);
+
+    const handleChange = (field: string, value: any) => {
         onChange({ ...data, [field]: value });
+    };
+
+    const renderDynamicField = (field: IntakeFormField) => {
+        const value = data[field.label] || ''; // Use label as key for simplicity, or generate a safe key
+
+        // Common wrapper style
+        const wrapperClass = "space-y-3 group";
+        const labelClass = "text-xs font-bold text-primary/70 uppercase tracking-widest flex items-center gap-2";
+
+        if (field.type === 'select') {
+            return (
+                <div key={field.id} className={wrapperClass}>
+                    <label className={labelClass}>
+                        <Info size={14} className="text-accent" />
+                        {field.label} {field.required && <span className="text-red-400">*</span>}
+                    </label>
+                    <div className="relative">
+                        <select
+                            value={value}
+                            onChange={(e) => handleChange(field.label, e.target.value)}
+                            className="w-full bg-white border border-secondary/20 rounded-2xl py-4 px-5 focus:border-primary focus:ring-4 focus:ring-secondary/10 outline-none transition-all text-text font-medium shadow-sm appearance-none cursor-pointer"
+                            required={field.required}
+                        >
+                            <option value="" disabled>Select an option</option>
+                            {field.options?.map((opt, idx) => (
+                                <option key={idx} value={opt}>{opt}</option>
+                            ))}
+                        </select>
+                        <div className="absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none opacity-50">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        if (field.type === 'textarea') {
+            return (
+                <div key={field.id} className={`${wrapperClass} md:col-span-2`}>
+                    <label className={labelClass}>
+                        <MessageSquare size={14} className="text-accent" />
+                        {field.label} {field.required && <span className="text-red-400">*</span>}
+                    </label>
+                    <textarea
+                        value={value}
+                        onChange={(e) => handleChange(field.label, e.target.value)}
+                        placeholder="Type your answer here..."
+                        className="w-full bg-white border border-secondary/20 rounded-3xl py-4 px-5 focus:border-primary focus:ring-4 focus:ring-secondary/10 outline-none transition-all text-text font-medium placeholder:text-text/30 placeholder:italic min-h-[100px] resize-none shadow-sm"
+                        required={field.required}
+                    />
+                </div>
+            );
+        }
+
+        if (field.type === 'checkbox') {
+            return (
+                <div key={field.id} className={`${wrapperClass} md:col-span-2 flex items-center gap-4`}>
+                    <input
+                        type="checkbox"
+                        checked={!!value}
+                        onChange={(e) => handleChange(field.label, e.target.checked)}
+                        className="w-6 h-6 rounded-md border-secondary/30 text-primary focus:ring-primary/20"
+                    />
+                    <label className="text-sm font-bold text-primary/80 cursor-pointer select-none">
+                        {field.label} {field.required && <span className="text-red-400">*</span>}
+                    </label>
+                </div>
+            );
+        }
+
+        // Default Text
+        return (
+            <FormInput
+                key={field.id}
+                label={field.label}
+                icon={Info}
+                type="text"
+                value={value}
+                field={field.label}
+                placeholder="Type here..."
+                required={field.required}
+                onChange={(f, v) => handleChange(field.label, v)}
+            />
+        );
     };
 
     return (
@@ -63,6 +189,7 @@ export const IntakeForm: React.FC<IntakeFormProps> = ({ data, onChange }) => {
                     field="name"
                     placeholder="Write your name"
                     onChange={handleChange}
+                    required
                 />
                 <FormInput
                     label="Email Address"
@@ -72,6 +199,7 @@ export const IntakeForm: React.FC<IntakeFormProps> = ({ data, onChange }) => {
                     field="email"
                     placeholder="Enter your email address"
                     onChange={handleChange}
+                    required
                 />
                 <FormInput
                     label="Phone Number"
@@ -81,20 +209,17 @@ export const IntakeForm: React.FC<IntakeFormProps> = ({ data, onChange }) => {
                     field="phone"
                     placeholder="Enter your phone number"
                     onChange={handleChange}
+                    required
                 />
 
-                <div className="md:col-span-2 space-y-3 group">
-                    <label className="text-xs font-bold text-primary/70 uppercase tracking-widest flex items-center gap-2">
-                        <MessageSquare size={14} className="text-accent" />
-                        Symptoms / Concerns
-                    </label>
-                    <textarea
-                        value={data.symptoms || ''}
-                        onChange={(e) => handleChange('symptoms', e.target.value)}
-                        placeholder="Describe your health concerns or what you'd like to focus on during the session..."
-                        className="w-full bg-white border border-secondary/20 rounded-3xl py-4 px-5 focus:border-primary focus:ring-4 focus:ring-secondary/10 outline-none transition-all text-text font-medium placeholder:text-text/30 placeholder:italic min-h-[120px] resize-none shadow-sm"
-                    />
-                </div>
+                {/* Render Dynamic Fields */}
+                {loading ? (
+                    <div className="md:col-span-2 flex justify-center py-8">
+                        <Loader2 className="animate-spin text-primary/50" />
+                    </div>
+                ) : (
+                    dynamicFields.map(field => renderDynamicField(field))
+                )}
             </div>
 
             <div className="bg-secondary/20 rounded-3xl p-8 border border-primary/5 relative overflow-hidden">

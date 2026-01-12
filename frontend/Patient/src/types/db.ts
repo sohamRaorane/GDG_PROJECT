@@ -91,6 +91,7 @@ export interface Appointment {
     endAt: Timestamp;
     status: AppointmentStatus;
     notes?: string;
+    intakeValues?: Record<string, any>;
     createdAt: Timestamp;
     updatedAt: Timestamp;
 }
@@ -180,4 +181,12 @@ export interface CommunityMember {
     channelId: string;
     userId: string;
     joinedAt: Timestamp;
+}
+
+export interface IntakeFormField {
+    id: string;
+    type: "text" | "textarea" | "select" | "checkbox";
+    label: string;
+    required: boolean;
+    options?: string[];
 }

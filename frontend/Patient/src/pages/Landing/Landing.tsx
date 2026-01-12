@@ -5,29 +5,7 @@ import {
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 
-const EXPERTS = [
-    {
-        id: '1',
-        name: 'Dr. Sarah Smith',
-        role: 'Senior Wellness Practitioner',
-        image: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&q=80&w=800',
-        rating: 4.9,
-    },
-    {
-        id: '2',
-        name: 'Dr. John Doe',
-        role: 'Detox Specialist',
-        image: 'https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?auto=format&fit=crop&q=80&w=800',
-        rating: 4.8,
-    },
-    {
-        id: '3',
-        name: 'Dr. Emily Brown',
-        role: 'Holistic Health Coach',
-        image: 'https://images.unsplash.com/photo-1594824476967-48c8b964273f?auto=format&fit=crop&q=80&w=800',
-        rating: 4.9,
-    },
-];
+import { DOCTORS } from '../../utils/doctors';
 
 const FAQS = [
     {
@@ -216,19 +194,7 @@ export const Landing = () => {
                             </p>
                         </div>
 
-                        <div className="grid grid-cols-2 gap-10 pt-10 border-t border-slate-100">
-                            {[
-                                { val: '250+', label: 'Certified Vaidyas' },
-                                { val: '1M+', label: 'Community Members' },
-                                { val: '24/7', label: 'Online Assistance' },
-                                { val: '100%', label: 'Safe & Private' }
-                            ].map((stat, i) => (
-                                <div key={i}>
-                                    <h3 className="font-display font-bold text-4xl md:text-5xl text-text mb-1">{stat.val}</h3>
-                                    <p className="text-sm text-text/50 uppercase tracking-widest font-semibold">{stat.label}</p>
-                                </div>
-                            ))}
-                        </div>
+
                     </motion.div>
                 </div>
             </section>
@@ -250,7 +216,7 @@ export const Landing = () => {
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                        {EXPERTS.map((expert, idx) => (
+                        {DOCTORS.map((expert, idx) => (
                             <motion.div
                                 key={expert.id}
                                 initial={{ opacity: 0, y: 50 }}
@@ -269,7 +235,7 @@ export const Landing = () => {
                                 </div>
                                 <div className="absolute bottom-0 left-0 right-0 p-8 text-white transform translate-y-2 group-hover:translate-y-0 transition-transform duration-300">
                                     <h3 className="font-display font-bold text-2xl mb-1">{expert.name}</h3>
-                                    <p className="text-white/80 font-medium mb-3">{expert.role}</p>
+                                    <p className="text-white/80 font-medium mb-3">{expert.specialization}</p>
                                     <div className="flex items-center gap-2 bg-white/20 backdrop-blur-md rounded-full px-3 py-1 w-fit">
                                         <Star size={14} fill="currentColor" className="text-amber-400" />
                                         <span className="text-xs font-bold">{expert.rating} Rating</span>
@@ -281,59 +247,7 @@ export const Landing = () => {
                 </div>
             </section>
 
-            {/* Testimonials */}
-            <section className="py-32 px-6 md:px-12 bg-white">
-                <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
-                    <motion.div
-                        initial={{ opacity: 0, x: -50 }}
-                        whileInView={{ opacity: 1, x: 0 }}
-                        viewport={{ once: true }}
-                        className="space-y-10"
-                    >
-                        <div className="flex items-center gap-3 text-primary uppercase tracking-widest text-xs font-bold">
-                            <span className="w-8 h-[2px] bg-primary" />
-                            Testimonials
-                        </div>
-                        <h2 className="font-serif text-4xl md:text-5xl text-text leading-tight">Real Stories From Our Patients</h2>
 
-                        <div className="space-y-8">
-                            <blockquote className="text-3xl font-serif text-text/80 leading-relaxed">
-                                "I struggled with chronic stress for two years. AyurSutra's program and <span className="text-primary bg-secondary/30 px-2 rounded-lg decoration-clone box-decoration-clone">incredible Vaidyas</span> guided me through a healing process and helped me feel whole again."
-                            </blockquote>
-                            <div className="flex items-center gap-4">
-                                <div className="w-12 h-12 rounded-full bg-slate-200 overflow-hidden">
-                                    <img src="https://i.pravatar.cc/100?img=33" alt="Aaron" />
-                                </div>
-                                <div>
-                                    <h4 className="font-bold text-text text-lg">Aaron Mitchell</h4>
-                                    <p className="text-sm text-text/50 font-medium">Mumbai, India</p>
-                                </div>
-                            </div>
-                        </div>
-                    </motion.div>
-
-                    <motion.div
-                        initial={{ opacity: 0, scale: 0.95 }}
-                        whileInView={{ opacity: 1, scale: 1 }}
-                        viewport={{ once: true }}
-                        className="relative"
-                    >
-                        <div className="rounded-[3rem] overflow-hidden h-[600px] shadow-2xl shadow-primary/10">
-                            <img
-                                src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=1000"
-                                alt="Happy Patient"
-                                className="w-full h-full object-cover"
-                            />
-                        </div>
-                        <div className="absolute -bottom-10 -left-10 bg-white p-10 rounded-[2rem] shadow-xl border border-slate-100 max-w-sm hidden md:block">
-                            <p className="font-serif text-xl italic text-text mb-6">"The best decision I've made for my health."</p>
-                            <div className="flex gap-1 text-amber-400">
-                                {[1, 2, 3, 4, 5].map(i => <Star key={i} size={20} fill="currentColor" />)}
-                            </div>
-                        </div>
-                    </motion.div>
-                </div>
-            </section>
 
             {/* FAQ */}
             <section className="py-32 px-6 md:px-12 bg-secondary/10">

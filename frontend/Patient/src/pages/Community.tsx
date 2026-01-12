@@ -38,7 +38,7 @@ export const Community = () => {
                         <p className="text-slate-500 text-sm">Connect with others on the same journey</p>
                     </div>
 
-                    <div className="bg-white rounded-2xl shadow-sm border border-slate-200 flex-1 overflow-hidden flex flex-col">
+                    <div className="bg-[#FFFCF5] rounded-2xl shadow-sm border border-slate-200 flex-1 overflow-hidden flex flex-col">
                         <div className="p-4 border-b border-slate-100">
                             <div className="relative">
                                 <Search className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
@@ -80,17 +80,7 @@ export const Community = () => {
                             )}
                         </div>
 
-                        <div className="p-4 bg-slate-50 border-t border-slate-100">
-                            <div className="flex items-center gap-3 p-3 bg-white rounded-xl border border-slate-200 shadow-sm">
-                                <div className="w-8 h-8 bg-amber-100 rounded-full flex items-center justify-center text-amber-600">
-                                    <Star size={14} fill="currentColor" />
-                                </div>
-                                <div>
-                                    <p className="text-xs font-bold text-slate-800">Premium Members</p>
-                                    <p className="text-[10px] text-slate-500">Access exclusive expert talks</p>
-                                </div>
-                            </div>
-                        </div>
+
                     </div>
                 </div>
 

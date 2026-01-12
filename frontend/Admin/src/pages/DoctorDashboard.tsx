@@ -4,15 +4,56 @@ import { useState, useEffect } from 'react';
 import { subscribeToRedFlags, resolveRedFlag, clearAllRedFlags } from '../services/dashboard';
 import type { DailyHealthLog } from '../types/db';
 
-import { useState, useEffect } from 'react';
+
 import { collection, query, where, onSnapshot, limit } from 'firebase/firestore';
 import { db } from '../firebase';
 import type { Appointment } from '../types/db';
 import { getDoctorName } from '../utils/doctors';
 
 const DoctorDashboard = () => {
+    // Incoming Sessions Data (Live from Firestore - Appointments)
+    const [incomingSessions, setIncomingSessions] = useState<{
+        id: string;
+        patient: string;
+        doctor: string;
+        therapy: string;
+        time: string;
+        status: string;
+        room: string;
+    }[]>([]);
+
     // Red Flags data - integrated with Firestore
     const [redFlags, setRedFlags] = useState<DailyHealthLog[]>([]);
+
+    useEffect(() => {
+        // Fetch upcoming confirmed appointments
+        const q = query(
+            collection(db, 'appointments'),
+            where('status', '==', 'confirmed'),
+            limit(10)
+        );
+
+        const unsubscribe = onSnapshot(q, (snapshot) => {
+            const sessions = snapshot.docs.map(doc => {
+                const data = doc.data() as Appointment;
+                const date = data.startAt.toDate();
+                return {
+                    id: doc.id,
+                    patient: data.customerName,
+                    doctor: getDoctorName(data.providerId),
+                    therapy: data.serviceName,
+                    time: date.toLocaleString('en-US', { weekday: 'short', hour: 'numeric', minute: 'numeric', hour12: true }),
+                    status: 'Confirmed', // Default for now
+                    room: data.roomId || 'Room 1'
+                };
+            });
+            setIncomingSessions(sessions);
+        }, (error) => {
+            console.error("Error fetching sessions:", error);
+        });
+
+        return () => unsubscribe();
+    }, []);
 
     useEffect(() => {
         const unsubscribe = subscribeToRedFlags((flags) => {
@@ -160,7 +201,7 @@ const DoctorDashboard = () => {
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-slate-100">
-                                    {INCOMING_SESSIONS.map((session) => (
+                                    {incomingSessions.map((session) => (
                                         <tr
                                             key={session.id}
                                             className="hover:bg-gradient-to-r hover:from-slate-50/50 hover:to-transparent transition-all group"
@@ -212,7 +253,7 @@ const DoctorDashboard = () => {
                             </h3>
                         </div>
 
-                        <ResponsiveContainer width="100%" height="90%">
+                        <ResponsiveContainer width="100%" height={350}>
                             <LineChart data={VITALS_DATA}>
                                 <defs>
                                     <linearGradient id="painGradient" x1="0" y1="0" x2="0" y2="1">
