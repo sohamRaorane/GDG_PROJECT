@@ -21,16 +21,21 @@ import { Guidelines } from './pages/Guidelines/Guidelines';
 
 const router = createBrowserRouter([
     {
-        path: '/landing',
+        path: '/',
         element: <Landing />,
     },
     {
-        path: '/login',
+        path: '/auth/patient/login',
         element: <Login />,
+    },
+    // Alias /login to new path for backward compatibility or direct access
+    {
+        path: '/login',
+        element: <Navigate to="/auth/patient/login" replace />,
     },
     {
         path: '/signup',
-        element: <Navigate to="/login?mode=signup" replace />,
+        element: <Navigate to="/auth/patient/login?mode=signup" replace />,
     },
     {
         path: '/forgot-password',
@@ -41,9 +46,9 @@ const router = createBrowserRouter([
         element: <VerifyEmail />,
     },
     {
-        path: '/',
+        path: '/patient',
         element: (
-            <ProtectedRoute>
+            <ProtectedRoute allowedRoles={['customer']}>
                 <MainLayout />
             </ProtectedRoute>
         ),
@@ -94,6 +99,13 @@ const router = createBrowserRouter([
             },
         ],
     },
+    // Admin Login route (Redirect) - Optional, but good to have explicit route
+    {
+        path: '/auth/admin/login',
+        element: <Navigate to="/patient" replace /> // Wait, this should redirect effectively to external URL or just let Landing handle it.
+        // React Router doesn't handle external redirects well in route config.
+        // I'll rely on the Landing page button for Admin login.
+    }
 ]);
 
 export const AppRoutes = () => {

@@ -30,7 +30,7 @@ const Login = () => {
         try {
             setError('');
             await login(email, password);
-            navigate('/');
+            navigate('/patient');
         } catch (err) {
             setError('Failed to log in');
             console.error(err);
@@ -42,7 +42,7 @@ const Login = () => {
         try {
             setError('');
             await signup(email, password, name);
-            navigate('/');
+            navigate('/patient');
         } catch (err) {
             setError('Failed to create an account');
             console.error(err);
@@ -53,7 +53,7 @@ const Login = () => {
         try {
             setError('');
             await signInWithGoogle();
-            navigate('/');
+            navigate('/patient');
         } catch (err) {
             setError('Failed to log in with Google');
             console.error(err);

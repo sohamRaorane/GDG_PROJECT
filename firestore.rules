@@ -1,0 +1,76 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function getUserData() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+    }
+    
+    function isOwner(uid) {
+      return isAuthenticated() && request.auth.uid == uid;
+    }
+    
+    function hasRole(role) {
+      return isAuthenticated() && getUserData().role == role;
+    }
+    
+    function isAdmin() {
+      return hasRole('admin');
+    }
+    
+    function isDoctor() {
+      return hasRole('doctor');
+    }
+    
+    function isStaff() {
+      return isAdmin() || isDoctor();
+    }
+
+    // Users Collection
+    match /users/{userId} {
+      allow read: if isAuthenticated() && (request.auth.uid == userId || isStaff());
+      allow write: if isAuthenticated() && request.auth.uid == userId;
+    }
+    
+    // Appointments
+    match /appointments/{appointmentId} {
+      allow read: if isAuthenticated() && (resource.data.customerId == request.auth.uid || isStaff());
+      allow write: if isAuthenticated() && (request.resource.data.customerId == request.auth.uid || isStaff());
+      allow create: if isAuthenticated();
+    }
+    
+    // Services
+    match /services/{serviceId} {
+      allow read: if true;
+      allow write: if isStaff();
+    }
+    
+    // Community Channels
+    match /community_channels/{channelId} {
+        allow read: if isAuthenticated();
+        allow write: if isStaff();
+    }
+
+    // Community Posts
+    match /community_posts/{postId} {
+        allow read: if isAuthenticated();
+        allow write: if isAuthenticated(); 
+    }
+    
+    // Community Members
+     match /community_members/{memberId} {
+        allow read: if isAuthenticated();
+        allow write: if isAuthenticated();
+    }
+    
+    // Default deny
+    match /{document=**} {
+      allow read, write: if false; // Deny by default
+    }
+  }
+}
