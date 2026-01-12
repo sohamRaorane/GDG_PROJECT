@@ -4,6 +4,11 @@ import { useState, useEffect } from 'react';
 import { subscribeToRedFlags, resolveRedFlag, clearAllRedFlags } from '../services/dashboard';
 import type { DailyHealthLog } from '../types/db';
 
+import { useState, useEffect } from 'react';
+import { collection, query, where, onSnapshot, limit } from 'firebase/firestore';
+import { db } from '../firebase';
+import type { Appointment } from '../types/db';
+
 const DoctorDashboard = () => {
     // Red Flags data - integrated with Firestore
     const [redFlags, setRedFlags] = useState<DailyHealthLog[]>([]);
@@ -14,16 +19,6 @@ const DoctorDashboard = () => {
         });
         return () => unsubscribe();
     }, []);
-
-    // Incoming Therapy Sessions data - ready for database integration
-    const INCOMING_SESSIONS: {
-        id: string;
-        patient: string;
-        therapy: string;
-        time: string;
-        status: string;
-        room: string;
-    }[] = [];
 
     // Vitals Trends data - ready for database integration
     const VITALS_DATA: { day: string; pain: number; sleep: number; appetite: number }[] = [];

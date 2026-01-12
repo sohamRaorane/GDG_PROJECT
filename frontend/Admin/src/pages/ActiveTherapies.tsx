@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from 'react';
-import { collection, query, where, getDocs } from 'firebase/firestore';
+import { collection, query, where, onSnapshot } from 'firebase/firestore';
 import { db } from '../firebase'; // Adjust if needed
 import { Link } from 'react-router-dom';
 import { Users, Calendar, Activity, ArrowRight } from 'lucide-react';
@@ -11,27 +11,25 @@ const ActiveTherapies = () => {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        const fetchTherapies = async () => {
-            try {
-                const q = query(
-                    collection(db, 'active_therapies'),
-                    where('status', '==', 'IN_PROGRESS')
-                );
-                const snapshot = await getDocs(q);
-                const data = snapshot.docs.map(doc => ({
-                    id: doc.id,
-                    ...doc.data()
-                })) as ActiveTherapy[];
+        const q = query(
+            collection(db, 'active_therapies'),
+            where('status', '==', 'IN_PROGRESS')
+        );
 
-                setTherapies(data);
-            } catch (error) {
-                console.error("Error fetching therapies:", error);
-            } finally {
-                setLoading(false);
-            }
-        };
+        const unsubscribe = onSnapshot(q, (snapshot) => {
+            const data = snapshot.docs.map(doc => ({
+                id: doc.id,
+                ...doc.data()
+            })) as ActiveTherapy[];
 
-        fetchTherapies();
+            setTherapies(data);
+            setLoading(false);
+        }, (error) => {
+            console.error("Error fetching therapies:", error);
+            setLoading(false);
+        });
+
+        return () => unsubscribe();
     }, []);
 
     if (loading) {
