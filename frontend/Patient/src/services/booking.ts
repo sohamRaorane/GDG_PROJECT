@@ -208,12 +208,32 @@ const createActiveTherapyRecord = async (params: {
     durationDays: number;
 }) => {
     // Generate default timeline
-    const timeline = Array.from({ length: params.durationDays }, (_, i) => ({
-        day: i + 1,
-        title: `Day ${i + 1}`,
-        subTitle: i === 0 ? "Preparation Phase" : "Treatment Phase",
-        description: "Follow standard daily protocol. Consult your doctor for specific instructions."
-    }));
+    const timeline = Array.from({ length: params.durationDays }, (_, i) => {
+        const dayNum = i + 1;
+        let subTitle = "Standard Treatment";
+        let description = "Follow standard daily protocol. Consult your doctor for specific instructions.";
+
+        if (dayNum === 1) {
+            subTitle = "Preparation Phase";
+            description = "Initial detox and preparation for intensive treatment.";
+        } else if (dayNum >= 2 && dayNum <= 4) {
+            subTitle = "Intensive Therapy";
+            description = "Active phase of the treatment. Primary healing protocols applied.";
+        } else if (dayNum >= 5 && dayNum <= 7) {
+            subTitle = "Stabilization";
+            description = "Focus on balancing and consolidating treatment results.";
+        } else if (dayNum >= 8) {
+            subTitle = "Rejuvenation";
+            description = "Final stage focusing on recovery and long-term vitality.";
+        }
+
+        return {
+            day: dayNum,
+            title: `Day ${dayNum}`,
+            subTitle,
+            description
+        };
+    });
 
     const docRef = await addDoc(collection(db, 'active_therapies'), {
         patientId: params.customerId,

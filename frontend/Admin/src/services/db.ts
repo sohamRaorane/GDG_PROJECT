@@ -289,3 +289,23 @@ export const subscribeToChannelPosts = (channelId: string, callback: (posts: Com
         callback(posts);
     });
 };
+// --- Active Therapy Management ---
+
+export const createActiveTherapyRecord = async (params: {
+    patientId: string;
+    therapyName: string;
+    startDate: string;
+    totalDays: number;
+}) => {
+    const docRef = await addDoc(collection(db, 'active_therapies'), {
+        patientId: params.patientId,
+        therapyName: params.therapyName,
+        startDate: params.startDate,
+        totalDays: params.totalDays,
+        currentDay: 1,
+        status: 'IN_PROGRESS',
+        logs: {},
+        updatedAt: Timestamp.now()
+    });
+    return docRef.id;
+};

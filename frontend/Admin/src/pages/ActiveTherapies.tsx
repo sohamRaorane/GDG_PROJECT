@@ -22,7 +22,16 @@ const ActiveTherapies = () => {
                 ...doc.data()
             })) as ActiveTherapy[];
 
-            setTherapies(data);
+            // Filter out test/dummy data
+            const DUMMY_NAMES = ['kITKAT', 'Dental Care', 'Tennis Court', 'Abhyanga Snan', 'Abhyanga Therapy', 'Full Panchakarma Detox'];
+            const filteredData = data.filter(t =>
+                !t.therapyName.toLowerCase().includes('test') &&
+                !t.therapyName.toLowerCase().includes('demo') &&
+                !t.therapyName.toLowerCase().includes('dummy') &&
+                !DUMMY_NAMES.includes(t.therapyName)
+            );
+
+            setTherapies(filteredData);
             setLoading(false);
         }, (error) => {
             console.error("Error fetching therapies:", error);

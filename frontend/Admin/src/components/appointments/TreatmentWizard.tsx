@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from 'react';
 import { X, Calendar, User, CheckCircle, AlertTriangle, ChevronRight } from 'lucide-react';
-import { getAllUsers, getAllServices, checkConflicts, createAppointmentBatch } from '../../services/db';
+import { getAllUsers, getAllServices, checkConflicts, createAppointmentBatch, createActiveTherapyRecord } from '../../services/db';
 import type { UserProfile, Service } from '../../types/db';
 import { Timestamp } from 'firebase/firestore';
 
@@ -109,6 +109,15 @@ export const TreatmentWizard = ({ isOpen, onClose, onSuccess }: TreatmentWizardP
             }
 
             await createAppointmentBatch(appointments);
+
+            // Create corresponding Active Therapy record
+            await createActiveTherapyRecord({
+                patientId: user.uid,
+                therapyName: selectedService.name,
+                startDate: startDate,
+                totalDays: durationDays
+            });
+
             onSuccess();
             onClose();
         } catch (error) {
@@ -193,7 +202,13 @@ export const TreatmentWizard = ({ isOpen, onClose, onSuccess }: TreatmentWizardP
                                 <label className="text-sm font-medium text-gray-700">Therapy Type</label>
                                 <select
                                     className="w-full p-3 border rounded-xl"
-                                    onChange={(e) => setSelectedService(services.find(s => s.id === e.target.value) || null)}
+                                    onChange={(e) => {
+                                        const svc = services.find(s => s.id === e.target.value) || null;
+                                        setSelectedService(svc);
+                                        if (svc && svc.durationDays) {
+                                            setDurationDays(svc.durationDays);
+                                        }
+                                    }}
                                 >
                                     <option value="">Select Therapy...</option>
                                     {services.map(s => (

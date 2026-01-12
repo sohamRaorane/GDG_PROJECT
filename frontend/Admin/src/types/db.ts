@@ -52,6 +52,7 @@ export interface Service {
     name: string;
     description: string;
     durationMinutes: number;
+    durationDays?: number; // Treatment cycle (e.g. 3 days)
     price: number;
     currency: string;
     isActive: boolean;
