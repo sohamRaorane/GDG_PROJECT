@@ -11,6 +11,7 @@ import { Button } from '../components/ui/Button';
 import type { Notification } from '../types/db';
 import { format } from 'date-fns';
 import { FloatingNav } from '../components/ui/floating-navbar';
+import { BackgroundMusic } from '../components/ui/BackgroundMusic';
 
 export const MainLayout = () => {
     const { currentUser } = useAuth();
@@ -57,17 +58,17 @@ export const MainLayout = () => {
     };
 
     const navItems = [
-        { name: 'Home', link: '/', icon: <Home className="w-4 h-4" /> },
-        { name: 'Therapies', link: '/services', icon: <Sparkles className="w-4 h-4" /> },
-        { name: 'Doctors', link: '/doctors', icon: <Stethoscope className="w-4 h-4" /> },
-        { name: 'Community', link: '/community', icon: <User className="w-4 h-4" /> },
-        { name: 'Clinics', link: '/clinics', icon: <MapPin className="w-4 h-4" /> }
+        { name: 'Home', link: '/patient', icon: <Home className="w-4 h-4" /> },
+        { name: 'Therapies', link: '/patient/services', icon: <Sparkles className="w-4 h-4" /> },
+        { name: 'Doctors', link: '/patient/doctors', icon: <Stethoscope className="w-4 h-4" /> },
+        { name: 'Community', link: '/patient/community', icon: <User className="w-4 h-4" /> },
+        { name: 'Clinics', link: '/patient/clinics', icon: <MapPin className="w-4 h-4" /> }
     ];
 
     const Actions = () => (
         <div className="flex items-center gap-2">
             <NotificationBell />
-            <Link to="/profile">
+            <Link to="/patient/profile">
                 <button className="p-2 rounded-full hover:bg-gray-100 transition-colors text-text/80 hover:text-primary active:scale-95">
                     <User size={20} />
                 </button>
@@ -147,6 +148,7 @@ export const MainLayout = () => {
                 therapyName="Shirodhara"
             />
             <AIChatbot />
+            <BackgroundMusic />
         </div>
     );
 };
