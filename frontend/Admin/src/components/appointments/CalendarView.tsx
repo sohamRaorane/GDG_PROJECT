@@ -19,6 +19,8 @@ interface Event {
 
 const CalendarView = () => {
     const [events, setEvents] = useState<Event[]>([]);
+    const [view, setView] = useState<any>(Views.WEEK);
+    const [date, setDate] = useState(new Date());
 
     useEffect(() => {
         let mounted = true;
@@ -99,7 +101,10 @@ const CalendarView = () => {
                 startAccessor="start"
                 endAccessor="end"
                 style={{ height: "100%" }}
-                defaultView={Views.WEEK}
+                view={view}
+                onView={setView}
+                date={date}
+                onNavigate={setDate}
                 views={['month', 'week', 'day', 'agenda']}
                 step={30}
                 timeslots={2}

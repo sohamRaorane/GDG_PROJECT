@@ -22,33 +22,7 @@ export const TherapyDashboard = () => {
     }
 
     // DEBUG: Function to seed data for testing
-    const seedData = async () => {
-        try {
-            if (!id) return;
-            // Dynamic import to avoid bundling seed logic in prod if we wanted to be strict, 
-            // but for this prototype direct usage is fine.
-            const { doc, setDoc, Timestamp } = await import('firebase/firestore');
-            const { db } = await import('../../firebase'); // Ensure this path is correct relative to this file
-
-            await setDoc(doc(db, 'active_therapies', id), {
-                patientId: 'user_123',
-                therapyName: 'Panchakarma Detox',
-                startDate: new Date().toISOString().split('T')[0],
-                totalDays: 7,
-                status: 'IN_PROGRESS',
-                currentDay: 3,
-                logs: {
-                    day_1: { painLevel: 8, status: 'Done', notes: 'Heavy headache, cleared by evening.' },
-                    day_2: { painLevel: 6, status: 'Done', notes: 'Better sleep.' },
-                    day_3: { painLevel: 5, status: 'In_Progress', notes: 'Nausea during treatment.' }
-                }
-            });
-            alert('Data seeded! You should see the graphs update instantly.');
-        } catch (e) {
-            console.error(e);
-            alert('Error seeding data. Check console.');
-        }
-    };
+    // Seed function removed to clean up dummy data
 
     if (error || !therapy) {
         return (
@@ -56,13 +30,7 @@ export const TherapyDashboard = () => {
                 <div className="text-center">
                     <h2 className="text-xl font-bold">Unable to load therapy</h2>
                     <p className="text-sm mt-2">{error || "Therapy plan not found."}</p>
-                    {/* DEBUG BUTTON FOR EMPTY STATE */}
-                    <button
-                        onClick={seedData}
-                        className="mt-4 px-4 py-2 bg-teal-600 text-white rounded-lg shadow hover:bg-teal-700 transition"
-                    >
-                        Debug: Create Test Data for ID "{id}"
-                    </button>
+                    {/* DEBUG BUTTON REMOVED */}
                 </div>
             </div>
         );

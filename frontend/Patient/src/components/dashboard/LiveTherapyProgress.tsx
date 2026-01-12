@@ -13,31 +13,7 @@ export const LiveTherapyProgress = ({ therapyId }: LiveTherapyProgressProps) => 
     const { data: therapy, loading, error } = useTherapyLive(therapyId);
 
     // DEBUG: Function to seed data for testing
-    const seedData = async () => {
-        try {
-            if (!therapyId) return;
-            const { doc, setDoc } = await import('firebase/firestore');
-            const { db } = await import('../../firebase');
-
-            await setDoc(doc(db, 'active_therapies', therapyId), {
-                patientId: 'user_123',
-                therapyName: 'Panchakarma Detox',
-                startDate: new Date().toISOString().split('T')[0],
-                totalDays: 7,
-                status: 'IN_PROGRESS',
-                currentDay: 3,
-                logs: {
-                    day_1: { painLevel: 8, status: 'Done', notes: 'Heavy headache, cleared by evening.' },
-                    day_2: { painLevel: 6, status: 'Done', notes: 'Better sleep.' },
-                    day_3: { painLevel: 5, status: 'In_Progress', notes: 'Nausea during treatment.' }
-                }
-            });
-            alert('Data seeded! You should see the graphs update instantly.');
-        } catch (e) {
-            console.error(e);
-            alert('Error seeding data. Check console.');
-        }
-    };
+    // Seed function removed to clean up dummy data
 
     if (loading) {
         return (
@@ -57,12 +33,7 @@ export const LiveTherapyProgress = ({ therapyId }: LiveTherapyProgressProps) => 
                 <div className="text-center p-6">
                     <h2 className="text-xl font-bold">Unable to load therapy</h2>
                     <p className="text-sm mt-2">{error || "Therapy plan not found."}</p>
-                    <button
-                        onClick={seedData}
-                        className="mt-4 px-4 py-2 bg-teal-600 text-white rounded-lg shadow hover:bg-teal-700 transition"
-                    >
-                        Debug: Create Test Data for ID "{therapyId}"
-                    </button>
+                    {/* DEBUG BUTTON REMOVED */}
                 </div>
             </div>
         );

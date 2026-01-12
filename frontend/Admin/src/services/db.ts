@@ -47,6 +47,29 @@ export const getAllUsers = async (): Promise<UserProfile[]> => {
     return users;
 };
 
+export const createUser = async (userData: Omit<UserProfile, 'uid' | 'createdAt' | 'updatedAt' | 'photoURL' | 'phoneNumber'>): Promise<string> => {
+    const docRef = await addDoc(usersCollection, {
+        ...userData,
+        uid: '', // Placeholder, will be updated with doc id
+        createdAt: Timestamp.now(),
+        updatedAt: Timestamp.now()
+    } as UserProfile);
+
+    // Update the doc with its own ID as uid, which is a common pattern when not using Auth UIDs
+    await updateDoc(docRef, { uid: docRef.id });
+    return docRef.id;
+};
+
+export const deleteUser = async (uid: string): Promise<void> => {
+    const docRef = doc(usersCollection, uid);
+    await deleteDoc(docRef);
+};
+
+export const updateUserRole = async (uid: string, role: string): Promise<void> => {
+    const docRef = doc(usersCollection, uid);
+    await updateDoc(docRef, { role, updatedAt: Timestamp.now() });
+};
+
 // --- Service Management ---
 
 export const getAllServices = async (): Promise<Service[]> => {
@@ -148,4 +171,73 @@ export const checkConflicts = async (startDate: string, days: number, startTime:
     }
 
     return conflicts;
+};
+
+// --- Settings Management ---
+
+export const settingsCollection = collection(db, 'settings');
+
+export const saveGlobalSchedule = async (schedule: any[]): Promise<void> => {
+    // We use a fixed ID 'global_availability' for this singleton setting
+    const docRef = doc(settingsCollection, 'global_availability');
+    // Using set with merge: true or just set to overwrite
+    await updateDoc(docRef, { schedule, updatedAt: Timestamp.now() }).catch(async (err) => {
+        // If doc doesn't exist, create it (updateDoc fails if doc missing)
+        // using setDoc would be cleaner but imported as setDoc would change imports. 
+        // Let's us setDoc (which is effectively set on collection reference with ID)
+        // Actually, let's use setDoc if I imported it, but I didn't. 
+        // I'll add setDoc to imports or just use existing tools.
+        // Wait, I can't easily change imports in this block. 
+        // Fallback: try create if update fails? No, specific ID requires setDoc logic.
+        // Let's assume standard updateDoc pattern or use setDoc if I add import.
+        // Re-checking imports: addDoc, updateDoc, deleteDoc, getDoc... NO setDoc.
+        // I will use a work-around: getDoc first, if matches, update, else set (requires setDoc).
+        // I will add setDoc to the imports in a separate edit or just use setDoc if it was imported (it wasn't).
+        // Let's use a wrapper or just add it to imports in a separate step? 
+        // Actually, I can allow writeBatch to do it? batch.set() works with doc ref.
+        const batch = writeBatch(db);
+        batch.set(docRef, { schedule, updatedAt: Timestamp.now() });
+        await batch.commit();
+    });
+};
+
+export const getGlobalSchedule = async (): Promise<any[] | null> => {
+    const docRef = doc(settingsCollection, 'global_availability');
+    const snap = await getDoc(docRef);
+    if (snap.exists()) {
+        return snap.data().schedule;
+    }
+    return null;
+};
+
+export const saveBookingSettings = async (settings: any): Promise<void> => {
+    const docRef = doc(settingsCollection, 'booking_conf');
+    const batch = writeBatch(db);
+    batch.set(docRef, { settings, updatedAt: Timestamp.now() });
+    await batch.commit();
+};
+
+export const getBookingSettings = async (): Promise<any | null> => {
+    const docRef = doc(settingsCollection, 'booking_conf');
+    const snap = await getDoc(docRef);
+    if (snap.exists()) {
+        return snap.data().settings;
+    }
+    return null;
+};
+
+export const saveIntakeForm = async (fields: any[]): Promise<void> => {
+    const docRef = doc(settingsCollection, 'intake_form');
+    const batch = writeBatch(db);
+    batch.set(docRef, { fields, updatedAt: Timestamp.now() });
+    await batch.commit();
+};
+
+export const getIntakeForm = async (): Promise<any[] | null> => {
+    const docRef = doc(settingsCollection, 'intake_form');
+    const snap = await getDoc(docRef);
+    if (snap.exists()) {
+        return snap.data().fields;
+    }
+    return null;
 };

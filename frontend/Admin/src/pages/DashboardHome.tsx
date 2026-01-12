@@ -2,8 +2,6 @@ import {
     Users,
     Calendar,
     UserCheck,
-    TrendingUp,
-    TrendingDown,
     DollarSign,
     Activity,
     Clock,
@@ -18,97 +16,40 @@ import {
 import {
     AreaChart,
     Area,
-    LineChart,
-    Line,
-    BarChart,
-    Bar,
     XAxis,
     YAxis,
     CartesianGrid,
     Tooltip,
-    ResponsiveContainer,
-    Legend
+    ResponsiveContainer
 } from "recharts";
 
 const DashboardHome = () => {
-    // Revenue data for the last 6 months
-    const revenueData = [
-        { month: "Jul", revenue: 45000, appointments: 320, patients: 280 },
-        { month: "Aug", revenue: 52000, appointments: 380, patients: 310 },
-        { month: "Sep", revenue: 48000, appointments: 350, patients: 295 },
-        { month: "Oct", revenue: 61000, appointments: 420, patients: 340 },
-        { month: "Nov", revenue: 73000, appointments: 480, patients: 385 },
-        { month: "Dec", revenue: 124000, appointments: 650, patients: 520 },
-    ];
+    // Revenue data for the last 6 months - ready for database integration
+    const revenueData: { month: string; revenue: number; appointments: number; patients: number }[] = [];
 
     // Sparkline data for revenue card
-    const sparklineData = [
-        { value: 45 }, { value: 52 }, { value: 48 }, { value: 61 }, { value: 73 }, { value: 124 }
-    ];
+    const sparklineData: { value: number }[] = [];
 
     // Provider performance data
-    const providerData = [
-        { name: "Dr. Sharma", patients: 85, rating: 4.9 },
-        { name: "Dr. Patel", patients: 72, rating: 4.8 },
-        { name: "Dr. Kumar", patients: 68, rating: 4.7 },
-        { name: "Dr. Singh", patients: 91, rating: 4.9 },
-    ];
+    const providerData: { name: string; patients: number; rating: number }[] = [];
 
     // Recent activity with avatars
-    const recentActivity = [
-        {
-            id: 1,
-            type: "booking",
-            title: "New appointment booked",
-            description: "Panchakarma Therapy - Dr. Sharma",
-            time: "2 minutes ago",
-            avatar: "PS",
-            color: "bg-teal-500"
-        },
-        {
-            id: 2,
-            type: "user",
-            title: "New patient registered",
-            description: "Rajesh Kumar joined the platform",
-            time: "15 minutes ago",
-            avatar: "RK",
-            color: "bg-blue-500"
-        },
-        {
-            id: 3,
-            type: "payment",
-            title: "Payment received",
-            description: "₹5,400 from appointment #1023",
-            time: "1 hour ago",
-            avatar: "₹",
-            color: "bg-emerald-500"
-        },
-        {
-            id: 4,
-            type: "verification",
-            title: "Provider verified",
-            description: "Dr. Anjali Mehta - Ayurvedic Specialist",
-            time: "2 hours ago",
-            avatar: "AM",
-            color: "bg-purple-500"
-        },
-        {
-            id: 5,
-            type: "therapy",
-            title: "Therapy completed",
-            description: "21-day Detox Program - Patient #892",
-            time: "3 hours ago",
-            avatar: "TC",
-            color: "bg-orange-500"
-        },
-    ];
+    const recentActivity: {
+        id: number;
+        type: string;
+        title: string;
+        description: string;
+        time: string;
+        avatar: string;
+        color: string;
+    }[] = [];
 
     const stats = [
         {
             title: "Total Users",
-            value: "1,240",
+            value: "0",
             icon: Users,
-            change: "+12.5%",
+            change: "0%",
             trend: "up",
             iconBg: "bg-teal-50",
             iconColor: "text-teal-600",
@@ -116,9 +57,9 @@ const DashboardHome = () => {
         },
         {
             title: "Service Providers",
-            value: "48",
+            value: "0",
             icon: UserCheck,
-            change: "+4.2%",
+            change: "0%",
             trend: "up",
             iconBg: "bg-blue-50",
             iconColor: "text-blue-600",
@@ -126,9 +67,9 @@ const DashboardHome = () => {
         },
         {
             title: "Total Appointments",
-            value: "3,892",
+            value: "0",
             icon: Calendar,
-            change: "+28.4%",
+            change: "0%",
             trend: "up",
             iconBg: "bg-purple-50",
             iconColor: "text-purple-600",
@@ -136,9 +77,9 @@ const DashboardHome = () => {
         },
         {
             title: "Revenue",
-            value: "₹124k",
+            value: "₹0",
             icon: DollarSign,
-            change: "+8.1%",
+            change: "0%",
             trend: "up",
             iconBg: "bg-emerald-50",
             iconColor: "text-emerald-600",
@@ -356,7 +297,7 @@ const DashboardHome = () => {
                                     <p className="text-xs text-slate-600">Awaiting approval</p>
                                 </div>
                             </div>
-                            <span className="text-lg font-bold text-amber-600">3</span>
+                            <span className="text-lg font-bold text-amber-600">0</span>
                         </div>
 
                         <div className="flex items-center justify-between p-3 bg-blue-50 rounded-xl border border-blue-100">
@@ -367,7 +308,7 @@ const DashboardHome = () => {
                                     <p className="text-xs text-slate-600">Needs confirmation</p>
                                 </div>
                             </div>
-                            <span className="text-lg font-bold text-blue-600">12</span>
+                            <span className="text-lg font-bold text-blue-600">0</span>
                         </div>
 
                         <div className="flex items-center justify-between p-3 bg-emerald-50 rounded-xl border border-emerald-100">
@@ -378,7 +319,7 @@ const DashboardHome = () => {
                                     <p className="text-xs text-slate-600">In progress</p>
                                 </div>
                             </div>
-                            <span className="text-lg font-bold text-emerald-600">28</span>
+                            <span className="text-lg font-bold text-emerald-600">0</span>
                         </div>
                     </div>
                 </div>
@@ -387,25 +328,25 @@ const DashboardHome = () => {
                 <div className="bg-gradient-to-br from-[#1C4E46] to-[#0F766E] rounded-2xl p-6 text-white shadow-lg">
                     <div className="flex items-center justify-between mb-6">
                         <h2 className="text-lg font-bold">Today's Summary</h2>
-                        <TrendingUp className="h-5 w-5 opacity-80" />
+                        <Activity className="h-5 w-5 opacity-80" />
                     </div>
 
                     <div className="space-y-4">
                         <div className="flex items-center justify-between pb-3 border-b border-white/20">
                             <span className="text-sm opacity-90">New Appointments</span>
-                            <span className="text-2xl font-bold">24</span>
+                            <span className="text-2xl font-bold">0</span>
                         </div>
                         <div className="flex items-center justify-between pb-3 border-b border-white/20">
                             <span className="text-sm opacity-90">Completed Sessions</span>
-                            <span className="text-2xl font-bold">18</span>
+                            <span className="text-2xl font-bold">0</span>
                         </div>
                         <div className="flex items-center justify-between pb-3 border-b border-white/20">
                             <span className="text-sm opacity-90">New Patients</span>
-                            <span className="text-2xl font-bold">7</span>
+                            <span className="text-2xl font-bold">0</span>
                         </div>
                         <div className="flex items-center justify-between">
                             <span className="text-sm opacity-90">Revenue Today</span>
-                            <span className="text-2xl font-bold">₹8.2k</span>
+                            <span className="text-2xl font-bold">₹0</span>
                         </div>
                     </div>
                 </div>

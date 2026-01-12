@@ -20,10 +20,31 @@ export interface WorkingHour {
     isAvailable: boolean;
 }
 
+export interface DaySchedule {
+    day: string;
+    enabled: boolean;
+    slots: { start: string; end: string }[];
+}
+
 export interface BookingRules {
     maxAdvanceBookingDays: number; // e.g., 30 days
     minAdvanceBookingHours: number; // e.g., 2 hours
     requiresManualConfirmation: boolean;
+}
+
+export interface BookingSettings {
+    maxBookingsPerSlot: number;
+    cutOffTime: number; // hours
+    requiresManualConfirmation: boolean;
+    requiresAdvancePayment: boolean;
+}
+
+export interface IntakeFormField {
+    id: string;
+    type: "text" | "textarea" | "select" | "checkbox";
+    label: string;
+    required: boolean;
+    options?: string[];
 }
 
 export interface Service {
