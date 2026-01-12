@@ -8,7 +8,8 @@ import {
     Settings,
     LogOut,
     Activity,
-    AlertTriangle
+    AlertTriangle,
+    MessageSquare
 } from "lucide-react";
 import { auth } from "../firebase";
 import { signOut, onAuthStateChanged, type User } from "firebase/auth";
@@ -53,6 +54,7 @@ const Sidebar = () => {
         { name: "Appointments & Services", path: "/appointments", icon: Calendar },
         { name: "Reports & Insights", path: "/reports", icon: BarChart3 },
         { name: "Active Therapies", path: "/active-therapies", icon: Activity },
+        { name: "Community Lobbies", path: "/community", icon: MessageSquare },
         { name: "User Management", path: "/users", icon: Users },
     ];
 

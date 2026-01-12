@@ -137,8 +137,33 @@ export interface ActiveTherapy {
     patientId: string;
     therapyName: string;
     startDate: string;
-    totalDays: number;
     currentDay: number;
     status: string;
     logs: Record<string, TherapyLog>;
+}
+
+export interface CommunityChannel {
+    id: string;
+    name: string;
+    description: string;
+    icon: string; // lucide icon name or emoji
+    participantCount?: number;
+}
+
+export interface CommunityPost {
+    id: string;
+    channelId: string;
+    userId: string;
+    userName: string;
+    userAvatar?: string;
+    content: string;
+    createdAt: Timestamp;
+    likes: number;
+}
+
+export interface CommunityMember {
+    id: string; // composite: channelId_userId
+    channelId: string;
+    userId: string;
+    joinedAt: Timestamp;
 }

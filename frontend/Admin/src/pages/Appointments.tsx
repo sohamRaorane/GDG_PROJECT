@@ -512,7 +512,7 @@ const Appointments = () => {
                         </div>
 
                         <div className="flex items-center gap-3 p-4 bg-slate-50 rounded-xl border border-slate-100">
-                            <div className="relative flex h-6 w-11 items-center">
+                            <label htmlFor="published-status" className="relative flex h-6 w-11 items-center cursor-pointer">
                                 <input
                                     type="checkbox"
                                     id="published-status"
@@ -522,7 +522,7 @@ const Appointments = () => {
                                 />
                                 <span className="absolute left-0 top-0 h-6 w-11 cursor-pointer rounded-full bg-slate-200 transition-colors duration-300 ease-in-out peer-checked:bg-emerald-500"></span>
                                 <span className="absolute left-[2px] top-[2px] h-5 w-5 translate-x-0 rounded-full bg-white shadow-sm transition-transform duration-300 ease-in-out peer-checked:translate-x-5"></span>
-                            </div>
+                            </label>
                             <label htmlFor="published-status" className="cursor-pointer">
                                 <p className="text-sm font-semibold text-slate-700">Publish Immediately</p>
                                 <p className="text-xs text-slate-500">Service will be visible for booking</p>

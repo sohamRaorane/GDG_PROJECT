@@ -11,10 +11,11 @@ import {
     Timestamp,
     type DocumentData,
     type QueryDocumentSnapshot,
-    type SnapshotOptions
+    type SnapshotOptions,
+    onSnapshot
 } from 'firebase/firestore';
 import { db } from '../firebase';
-import type { UserProfile, Service, Appointment, DailyTask, DailyHealthLog } from '../types/db';
+import type { UserProfile, Service, Appointment, DailyTask, DailyHealthLog, CommunityChannel, CommunityPost, CommunityMember } from '../types/db';
 
 // Firestore Data Converter
 const converter = <T>() => ({
@@ -29,6 +30,9 @@ const converter = <T>() => ({
 export const usersCollection = collection(db, 'users').withConverter(converter<UserProfile>());
 export const servicesCollection = collection(db, 'services').withConverter(converter<Service>());
 export const appointmentsCollection = collection(db, 'appointments').withConverter(converter<Appointment>());
+export const channelsCollection = collection(db, 'community_channels').withConverter(converter<CommunityChannel>());
+export const postsCollection = collection(db, 'community_posts').withConverter(converter<CommunityPost>());
+export const membersCollection = collection(db, 'community_members').withConverter(converter<CommunityMember>());
 
 // --- User Services ---
 
@@ -68,6 +72,23 @@ export const getServiceById = async (id: string): Promise<Service | null> => {
 
 export const createAppointment = async (appointment: Omit<Appointment, 'id'>): Promise<string> => {
     const docRef = await addDoc(appointmentsCollection, appointment as Appointment);
+
+    // Auto-join community channel logic
+    try {
+        const channels = await getChannels();
+        // Simple matching logic: find a channel with same name as service or 'General'
+        const targetChannel = channels.find(c => c.name.toLowerCase() === appointment.serviceName.toLowerCase())
+            || channels.find(c => c.id === 'general');
+
+        if (targetChannel) {
+            await joinChannel(targetChannel.id, appointment.customerId);
+            console.log(`Auto-joined user ${appointment.customerId} to channel ${targetChannel.name}`);
+        }
+    } catch (err) {
+        console.error("Failed to auto-join channel:", err);
+        // Don't fail the appointment creation if this fails
+    }
+
     return docRef.id;
 };
 
@@ -150,4 +171,67 @@ export const getHealthLogs = async (userId: string): Promise<DailyHealthLog[]> =
 export const createHealthLog = async (log: Omit<DailyHealthLog, 'id'>): Promise<string> => {
     const docRef = await addDoc(healthLogsCollection, log as DailyHealthLog);
     return docRef.id;
+};
+
+// --- Community Services ---
+
+export const getChannels = async (): Promise<CommunityChannel[]> => {
+    const snapshot = await getDocs(channelsCollection);
+    const channels = snapshot.docs.map(doc => doc.data());
+
+    // If no channels exist, seed a few default ones
+    if (channels.length === 0) {
+        const defaults = [
+            { id: 'general', name: 'General Wellness', description: 'Share your wellness journey with others.', icon: 'Users' },
+            { id: 'panchakarma', name: 'Panchakarma Support', description: 'Discussions for those undergoing detox.', icon: 'Sparkles' },
+            { id: 'diet', name: 'Ayurvedic Diet', description: 'Recipes, tips, and diet questions.', icon: 'Utensils' },
+            { id: 'yoga', name: 'Yoga & Meditation', description: 'Daily practices and mindfulness.', icon: 'Sun' }
+        ];
+
+        for (const c of defaults) {
+            await setDoc(doc(channelsCollection, c.id), c);
+        }
+        return defaults as CommunityChannel[];
+    }
+
+    return channels;
+};
+
+export const getChannelPosts = async (channelId: string): Promise<CommunityPost[]> => {
+    const q = query(postsCollection, where('channelId', '==', channelId)); // orderBy needs index, doing client sort for now
+    const snapshot = await getDocs(q);
+    return snapshot.docs.map(doc => doc.data()).sort((a, b) => a.createdAt.toMillis() - b.createdAt.toMillis());
+};
+
+export const subscribeToChannelPosts = (channelId: string, callback: (posts: CommunityPost[]) => void) => {
+    const q = query(postsCollection, where('channelId', '==', channelId));
+    return onSnapshot(q, (snapshot) => {
+        const posts = snapshot.docs
+            .map(doc => doc.data())
+            .sort((a, b) => a.createdAt.toMillis() - b.createdAt.toMillis());
+        callback(posts);
+    });
+};
+
+export const createPost = async (post: Omit<CommunityPost, 'id'>): Promise<string> => {
+    const docRef = await addDoc(postsCollection, post as CommunityPost);
+    return docRef.id;
+};
+
+export const joinChannel = async (channelId: string, userId: string): Promise<void> => {
+    const memberId = `${channelId}_${userId}`;
+    const memberRef = doc(membersCollection, memberId);
+
+    await setDoc(memberRef, {
+        id: memberId,
+        channelId,
+        userId,
+        joinedAt: Timestamp.now()
+    });
+};
+
+export const isChannelMember = async (channelId: string, userId: string): Promise<boolean> => {
+    const memberId = `${channelId}_${userId}`;
+    const snap = await getDoc(doc(membersCollection, memberId));
+    return snap.exists();
 };

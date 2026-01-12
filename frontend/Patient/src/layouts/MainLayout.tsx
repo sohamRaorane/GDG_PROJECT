@@ -59,6 +59,7 @@ export const MainLayout = () => {
         { name: 'Home', link: '/', icon: <Home className="w-4 h-4" /> },
         { name: 'Therapies', link: '/services', icon: <Sparkles className="w-4 h-4" /> },
         { name: 'Doctors', link: '/doctors', icon: <Stethoscope className="w-4 h-4" /> },
+        { name: 'Community', link: '/community', icon: <User className="w-4 h-4" /> },
         { name: 'Clinics', link: '/clinics', icon: <MapPin className="w-4 h-4" /> }
     ];
 
