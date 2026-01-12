@@ -102,10 +102,18 @@ export const getMyAppointments = async (userId: string): Promise<Appointment[]> 
 
 export const cancelAppointment = async (appointmentId: string): Promise<void> => {
     const docRef = doc(appointmentsCollection, appointmentId);
+    const snap = await getDoc(docRef);
+
     await updateDoc(docRef, {
         status: 'cancelled',
         updatedAt: Timestamp.now()
     });
+
+    if (snap.exists()) {
+        const data = snap.data() as Appointment;
+        // Trigger Email Notification (mocked)
+        console.log(`[MOCK EMAIL] Appointment Cancelled for ${data.customerEmail}. Service: ${data.serviceName}`);
+    }
 };
 
 // --- Daily Task Services ---
