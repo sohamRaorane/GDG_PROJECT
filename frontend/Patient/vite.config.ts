@@ -12,6 +12,10 @@ export default defineConfig(({ mode }) => {
   return {
     plugins: [react(), tailwindcss()],
     server: {
+      headers: {
+        'Cross-Origin-Opener-Policy': 'unsafe-none',
+        'Cross-Origin-Embedder-Policy': 'unsafe-none',
+      },
       proxy: {
         '/api': {
           target: 'http://127.0.0.1:5001/gdg-project/us-central1/aiProxy',

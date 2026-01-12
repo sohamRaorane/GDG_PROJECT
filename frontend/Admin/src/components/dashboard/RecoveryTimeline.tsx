@@ -10,29 +10,38 @@ export const RecoveryTimeline = ({ therapy }: RecoveryTimelineProps) => {
     const { totalDays, currentDay } = therapy;
 
     // Generate timeline items
-    const items = Array.from({ length: totalDays }, (_, i) => {
-        const dayNum = i + 1;
-        const isCompleted = dayNum < currentDay;
-        const isCurrent = dayNum === currentDay;
+    let timelineData = therapy.timeline || [];
 
-        // Titles and Descriptions
-        let title = `Day ${dayNum}`;
-        let subTitle = "Standard Treatment";
-        let description = "Follow the standard diet and rest protocols today to ensure maximum benefit.";
+    // Fallback if no specific timeline is set
+    if (timelineData.length === 0) {
+        timelineData = Array.from({ length: totalDays }, (_, i) => {
+            const dayNum = i + 1;
+            let title = `Day ${dayNum}`;
+            let subTitle = "Standard Treatment";
+            let description = "Follow the standard diet and rest protocols today to ensure maximum benefit.";
 
-        if (dayNum === 1) {
-            subTitle = "Initial Phase";
-            description = "Beginning of the treatment cycle. Follow prescribed protocols.";
-        } else if (dayNum === Math.floor(totalDays / 2)) {
-            subTitle = "Core Treatment";
-            description = "Mid-point of the therapy. Ensure all parameters are within normal range.";
-        } else if (dayNum === totalDays) {
-            subTitle = "Completion Phase";
-            description = "Final day of treatment. Review progress and plan next steps.";
-        }
+            if (dayNum === 1) {
+                subTitle = "Initial Phase";
+                description = "Beginning of the treatment cycle. Follow prescribed protocols.";
+            } else if (dayNum === Math.floor(totalDays / 2)) {
+                subTitle = "Core Treatment";
+                description = "Mid-point of the therapy. Ensure all parameters are within normal range.";
+            } else if (dayNum === totalDays) {
+                subTitle = "Completion Phase";
+                description = "Final day of treatment. Review progress and plan next steps.";
+            }
+            return { day: dayNum, title, subTitle, description };
+        });
+    }
 
-        return { dayNum, title, subTitle, description, isCompleted, isCurrent };
-    });
+    const items = timelineData.map(t => ({
+        dayNum: t.day,
+        title: t.title,
+        subTitle: t.subTitle,
+        description: t.description,
+        isCompleted: t.day < currentDay,
+        isCurrent: t.day === currentDay
+    })).sort((a, b) => a.dayNum - b.dayNum);
 
     return (
         <div className="relative pl-4 sm:pl-0">

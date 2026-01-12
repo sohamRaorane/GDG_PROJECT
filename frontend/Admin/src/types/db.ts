@@ -135,4 +135,10 @@ export interface ActiveTherapy {
     status: 'IN_PROGRESS' | 'PAUSED' | 'COMPLETED';
     currentDay: number;
     logs: Record<string, TherapyLog>; // Keyed by "day_1", "day_2", etc.
+    timeline?: {
+        day: number;
+        title: string;
+        subTitle: string;
+        description: string;
+    }[];
 }

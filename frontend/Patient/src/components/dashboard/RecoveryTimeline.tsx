@@ -11,29 +11,39 @@ export const RecoveryTimeline = ({ therapy }: RecoveryTimelineProps) => {
 
     // Generate timeline items (Limit to 7 days as requested)
     const displayDays = Math.min(totalDays, 7);
-    const items = Array.from({ length: displayDays }, (_, i) => {
-        const dayNum = i + 1;
-        const isCompleted = dayNum < currentDay;
-        const isCurrent = dayNum === currentDay;
 
-        // Titles and Descriptions
-        let title = `Day ${dayNum}`;
-        let subTitle = "Standard Treatment";
-        let description = "Follow the standard diet and rest protocols today to ensure maximum benefit.";
+    let timelineData = therapy.timeline || [];
 
-        if (dayNum === 1) {
-            subTitle = "Preparation (Poorvakarma)";
-            description = "Start with intake of medicated ghee (Snehapana) and maintain a light, warm diet.";
-        } else if (dayNum === Math.floor(totalDays / 2)) {
-            subTitle = "Main Procedure (Pradhana Karma)";
-            description = "The core purification therapy session. Complete rest is strictly required.";
-        } else if (dayNum === totalDays) {
-            subTitle = "Recovery (Paschat Karma)";
-            description = "Gradual reintroduction of normal diet (Samsarjana Krama). Avoid heavy activity.";
-        }
+    // Fallback if no specific timeline is set
+    if (timelineData.length === 0) {
+        timelineData = Array.from({ length: displayDays }, (_, i) => {
+            const dayNum = i + 1;
+            let title = `Day ${dayNum}`;
+            let subTitle = "Standard Treatment";
+            let description = "Follow the standard diet and rest protocols today to ensure maximum benefit.";
 
-        return { dayNum, title, subTitle, description, isCompleted, isCurrent };
-    });
+            if (dayNum === 1) {
+                subTitle = "Preparation (Poorvakarma)";
+                description = "Start with intake of medicated ghee (Snehapana) and maintain a light, warm diet.";
+            } else if (dayNum === Math.floor(totalDays / 2)) {
+                subTitle = "Main Procedure (Pradhana Karma)";
+                description = "The core purification therapy session. Complete rest is strictly required.";
+            } else if (dayNum === totalDays) {
+                subTitle = "Recovery (Paschat Karma)";
+                description = "Gradual reintroduction of normal diet (Samsarjana Krama). Avoid heavy activity.";
+            }
+            return { day: dayNum, title, subTitle, description };
+        });
+    }
+
+    const items = timelineData.map(t => ({
+        dayNum: t.day,
+        title: t.title,
+        subTitle: t.subTitle,
+        description: t.description,
+        isCompleted: t.day < currentDay,
+        isCurrent: t.day === currentDay
+    })).sort((a, b) => a.dayNum - b.dayNum);
 
     return (
         <div className="relative pl-4 sm:pl-0">
