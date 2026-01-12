@@ -13,6 +13,8 @@ interface Therapy {
     image: string;
     price: string;
     description: string;
+    detailedDescription?: string;
+    benefits?: string[];
     angle: number;
 }
 
@@ -23,6 +25,8 @@ const THERAPIES: Therapy[] = [
         image: '/nasya_therapy.png',
         price: 'Rs. 800',
         description: 'Administration of herbal oils through the nasal passage for head ailments.',
+        detailedDescription: 'Nasya involves the controlled administration of medicated oils or powders through the nostrils. It clears the head region, improves voice quality, and is highly effective for sinus congestion, migraines, and neck stiffness.',
+        benefits: ['Clears sinus congestion', 'Relieves headaches & migraines', 'Improves voice quality', 'Enhances mental clarity'],
         angle: 0
     },
     {
@@ -31,6 +35,8 @@ const THERAPIES: Therapy[] = [
         image: oilTexture,
         price: 'Rs. 1,200',
         description: 'Internal oleation therapy with medicated ghee for deep tissue nourishment.',
+        detailedDescription: 'Snehapan is a preparatory procedure where medicated ghee is consumed in increasing doses. This internal oleation lubricates body channels, loosens toxins, and prepares the body for main detox treatments like Vamana or Virechana.',
+        benefits: ['Lubricates body channels', 'Loosens deep-seated toxins', 'Improves digestive fire', 'Nourishes internal organs'],
         angle: 51.43
     },
     {
@@ -39,6 +45,8 @@ const THERAPIES: Therapy[] = [
         image: '/abhyanga_therapy.jpg',
         price: 'Rs. 1,500',
         description: 'Full body massage with warm medicated herbal oils to improve circulation.',
+        detailedDescription: 'Abhyanga is a traditional synchronized full-body massage using warm herbal oils. It is designed to deeply penetrate the skin, relax muscles, improve lymphatic drainage, and restore energy flow throughout the body.',
+        benefits: ['Relieves muscle fatigue', 'Improves blood circulation', 'Promotes deep sleep', 'Anti-aging effects on skin'],
         angle: 102.86
     },
     {
@@ -47,6 +55,8 @@ const THERAPIES: Therapy[] = [
         image: '/swedan_therapy.jpg',
         price: 'Rs. 1,000',
         description: 'Herbal steam therapy to open channels and eliminate toxins.',
+        detailedDescription: 'Swedan is a therapeutic herbal steam bath that induces sweating. It dilates the channels of the body (srotas), allowing liquefied toxins (ama) to move towards the digestive tract for elimination. It is excellent for stiffness and pain.',
+        benefits: ['Eliminates toxins through sweat', 'Relieves joint stiffness', 'Reduces body aches', 'Improves skin texture'],
         angle: 154.29
     },
     {
@@ -55,6 +65,8 @@ const THERAPIES: Therapy[] = [
         image: '/shirodhara_therapy.webp',
         price: 'Rs. 2,200',
         description: 'Continuous pouring of warm medicated oil on the forehead to relieve stress.',
+        detailedDescription: 'Shirodhara involves gently pouring liquids over the forehead (the third eye). The name comes from "Shiro" (head) and "Dhara" (flow). It creates a profound state of relaxation and is a premier treatment for mental stress and neurological conditions.',
+        benefits: ['Reduces anxiety & stress', 'Treats insomnia', 'Improves concentration', 'Relieves hypertension'],
         angle: 205.71
     },
     {
@@ -63,6 +75,8 @@ const THERAPIES: Therapy[] = [
         image: '/virechan_therapy.jpg',
         price: 'Rs. 2,800',
         description: 'Therapeutic purgation to eliminate excess Pitta dosha.',
+        detailedDescription: 'Virechan is a controlled purgation therapy that eliminates Pitta-related toxins from the liver and gallbladder. It cleanses the gastrointestinal tract and is highly effective for skin disorders, acidity, and digestive issues.',
+        benefits: ['Detoxifies liver & blood', 'Treats skin disorders', 'Relieves acidity & heartburn', 'Boosts metabolism'],
         angle: 257.14
     },
     {
@@ -71,6 +85,8 @@ const THERAPIES: Therapy[] = [
         image: '/vasti_therapy.jpg',
         price: 'Rs. 1,200',
         description: 'Medicated enema therapy to eliminate toxins and balance Vata dosha.',
+        detailedDescription: 'Vasti involves introducing medicated decoctions or oils into the colon. Considered the "Mother of all treatments" in Ayurveda, it is the primary remedy for Vata disorders and affects the overall health of the body significantly.',
+        benefits: ['Balances Vata dosha', 'Treats chronic constipation', 'Relieves lower back pain', 'Rejuvenates the body'],
         angle: 308.57
     }
 ];
@@ -78,6 +94,7 @@ const THERAPIES: Therapy[] = [
 export const OrbitalTherapies = () => {
     const navigate = useNavigate();
     const [selectedTherapy, setSelectedTherapy] = useState<Therapy | null>(null);
+    const [showDetails, setShowDetails] = useState(false);
     const [isPaused, setIsPaused] = useState(false);
 
     return (
@@ -227,7 +244,10 @@ export const OrbitalTherapies = () => {
                 {selectedTherapy && (
                     <div
                         className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-md animate-fade-in"
-                        onClick={() => setSelectedTherapy(null)}
+                        onClick={() => {
+                            setSelectedTherapy(null);
+                            setShowDetails(false);
+                        }}
                     >
                         <div
                             className="relative bg-gradient-to-br from-amber-50 to-orange-50 rounded-3xl shadow-2xl max-w-lg w-full overflow-hidden border-4 border-amber-600 animate-scale-in"
@@ -235,7 +255,10 @@ export const OrbitalTherapies = () => {
                         >
                             {/* Close Button */}
                             <button
-                                onClick={() => setSelectedTherapy(null)}
+                                onClick={() => {
+                                    setSelectedTherapy(null);
+                                    setShowDetails(false);
+                                }}
                                 className="absolute top-4 right-4 z-10 bg-amber-900 text-white rounded-full p-2 hover:bg-amber-800 transition-colors shadow-lg"
                             >
                                 <X size={24} />
@@ -261,26 +284,49 @@ export const OrbitalTherapies = () => {
                                     <span className="text-3xl font-bold text-amber-900">{selectedTherapy.price}</span>
                                 </div>
 
-                                <p className="text-amber-900 leading-relaxed text-lg">
-                                    {selectedTherapy.description}
-                                </p>
+                                {showDetails && selectedTherapy.detailedDescription ? (
+                                    <div className="animate-fade-in space-y-4">
+                                        <p className="text-amber-900 leading-relaxed text-sm md:text-base font-medium">
+                                            {selectedTherapy.detailedDescription}
+                                        </p>
+                                        {selectedTherapy.benefits && (
+                                            <div>
+                                                <h4 className="font-bold text-amber-800 mb-2 text-sm">Key Benefits:</h4>
+                                                <ul className="grid grid-cols-2 gap-x-2 gap-y-1">
+                                                    {selectedTherapy.benefits.map((benefit, i) => (
+                                                        <li key={i} className="flex items-start gap-1.5 text-xs text-amber-900/80">
+                                                            <span className="mt-1 w-1.5 h-1.5 rounded-full bg-amber-600 shrink-0" />
+                                                            {benefit}
+                                                        </li>
+                                                    ))}
+                                                </ul>
+                                            </div>
+                                        )}
+                                    </div>
+                                ) : (
+                                    <p className="text-amber-900 leading-relaxed text-lg">
+                                        {selectedTherapy.description}
+                                    </p>
+                                )}
 
                                 {/* Buttons */}
                                 <div className="flex gap-4 pt-4">
                                     <Button
                                         variant="outline"
-                                        className="flex-1 border-2 border-amber-700 text-amber-900 hover:bg-amber-100 font-semibold py-3 text-lg"
-                                        onClick={() => {
-                                            setSelectedTherapy(null);
-                                        }}
+                                        className={cn(
+                                            "flex-1 border-2 border-amber-700 text-amber-900 hover:bg-amber-100 font-semibold py-3 text-lg transition-colors",
+                                            showDetails ? "bg-amber-100" : ""
+                                        )}
+                                        onClick={() => setShowDetails(!showDetails)}
                                     >
-                                        Details
+                                        {showDetails ? "Show Less" : "Details"}
                                     </Button>
                                     <Button
                                         className="flex-1 bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 text-white font-semibold py-3 text-lg shadow-lg"
                                         onClick={() => {
                                             setSelectedTherapy(null);
-                                            navigate('/book');
+                                            setShowDetails(false);
+                                            navigate('/book', { state: { serviceId: selectedTherapy.id } });
                                         }}
                                     >
                                         Book Now

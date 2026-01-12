@@ -146,7 +146,7 @@ export const Services = () => {
                                                 </Button>
                                                 <Button
                                                     className="flex-1 bg-gradient-to-r from-amber-600 to-orange-600 text-white hover:from-amber-700 hover:to-orange-700"
-                                                    onClick={() => navigate('/book')}
+                                                    onClick={() => navigate('/book', { state: { serviceId: service.id } })}
                                                 >
                                                     Book Now
                                                 </Button>
@@ -219,7 +219,7 @@ export const Services = () => {
                                     className="flex-1 group bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700"
                                     onClick={() => {
                                         setSelectedService(null);
-                                        navigate('/book');
+                                        navigate('/book', { state: { serviceId: selectedService.id } });
                                     }}
                                 >
                                     Book Appointment

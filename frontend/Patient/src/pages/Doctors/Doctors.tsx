@@ -75,19 +75,19 @@ export const Doctors = () => {
     const [selectedDoctor, setSelectedDoctor] = useState<Doctor | null>(null);
 
     return (
-        <div className="container mx-auto px-4 py-8">
+        <div className="container mx-auto px-4 py-8 bg-[#FFF9F2] min-h-screen">
             <div className="mb-12 text-center max-w-2xl mx-auto">
-                <h1 className="text-4xl font-display font-bold text-text mb-4">Our Expert Healers</h1>
-                <p className="text-gray-500 font-serif text-lg">
+                <h1 className="text-4xl font-display font-bold text-amber-900 mb-4">Our Expert Healers</h1>
+                <p className="text-amber-800 font-serif text-lg">
                     Meet our team of witnessed Ayurvedic practitioners dedicated to guiding you on your path to wellness.
                 </p>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 {DOCTORS.map((doctor) => (
-                    <div key={doctor.id} className="group bg-white rounded-2xl border border-slate-200 overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col">
+                    <div key={doctor.id} className="group bg-white rounded-2xl border border-amber-200 overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col hover:border-amber-400">
                         {/* Image Section */}
-                        <div className="h-64 overflow-hidden relative bg-slate-100">
+                        <div className="h-64 overflow-hidden relative bg-amber-50">
                             <img
                                 src={doctor.image}
                                 alt={doctor.name}
@@ -98,8 +98,8 @@ export const Doctors = () => {
                                 <div className="text-white">
                                     <p className="font-semibold text-sm opacity-90">{doctor.specialization}</p>
                                 </div>
-                                <div className="flex items-center gap-1 bg-secondary text-primary px-2 py-1 rounded-md shadow-sm border border-primary/10">
-                                    <Star size={12} className="fill-primary" />
+                                <div className="flex items-center gap-1 bg-amber-100 text-amber-900 px-2 py-1 rounded-md shadow-sm border border-amber-200">
+                                    <Star size={12} className="fill-amber-600 text-amber-600" />
                                     <span className="text-xs font-bold">{doctor.rating}</span>
                                 </div>
                             </div>
@@ -108,17 +108,17 @@ export const Doctors = () => {
                         {/* Content Section */}
                         <div className="p-6 flex flex-col flex-1">
                             <div className="mb-4">
-                                <h2 className="text-2xl font-serif font-bold text-text mb-2 group-hover:text-primary transition-colors">
+                                <h2 className="text-2xl font-serif font-bold text-amber-900 mb-2 group-hover:text-amber-700 transition-colors">
                                     {doctor.name}
                                 </h2>
-                                <p className="text-gray-600 text-sm leading-relaxed font-body">
+                                <p className="text-amber-800/80 text-sm leading-relaxed font-body">
                                     {doctor.bio}
                                 </p>
                             </div>
 
-                            <div className="flex items-center gap-3 text-xs text-slate-500 mb-6 font-medium uppercase tracking-wider">
+                            <div className="flex items-center gap-3 text-xs text-amber-700 mb-6 font-medium uppercase tracking-wider">
                                 <span className='flex items-center gap-1'>
-                                    <Award size={14} className="text-primary" />
+                                    <Award size={14} className="text-amber-600" />
                                     {doctor.experience} Exp
                                 </span>
                                 <span className="w-1 h-1 bg-stone-300 rounded-full" />
@@ -130,13 +130,13 @@ export const Doctors = () => {
                             <div className="mt-auto flex gap-3">
                                 <Button
                                     variant="outline"
-                                    className="flex-1 border-stone-300 text-stone-600 hover:bg-stone-50"
+                                    className="flex-1 border-amber-300 text-amber-800 hover:bg-amber-50"
                                     onClick={() => setSelectedDoctor(doctor)}
                                 >
                                     View Profile
                                 </Button>
                                 <Button
-                                    className="flex-1 bg-primary text-white hover:bg-primary/90"
+                                    className="flex-1 bg-gradient-to-r from-amber-600 to-orange-600 text-white hover:from-amber-700 hover:to-orange-700"
                                     onClick={() => navigate('/book')}
                                 >
                                     Book
@@ -150,8 +150,8 @@ export const Doctors = () => {
             {/* Doctor Details Modal */}
             <Modal isOpen={!!selectedDoctor} onClose={() => setSelectedDoctor(null)}>
                 {selectedDoctor && (
-                    <div className="flex flex-col md:flex-row h-full max-h-[80vh]">
-                        <div className="w-full md:w-2/5 h-64 md:h-auto relative bg-stone-100 shrink-0">
+                    <div className="flex flex-col md:flex-row h-full max-h-[80vh] bg-[#FFF9F2] rounded-3xl overflow-hidden">
+                        <div className="w-full md:w-2/5 h-64 md:h-auto relative bg-amber-100 shrink-0">
                             <img
                                 src={selectedDoctor.image}
                                 alt={selectedDoctor.name}
@@ -166,39 +166,39 @@ export const Doctors = () => {
 
                         <div className="p-6 md:p-8 flex-1 overflow-y-auto">
                             <div className="hidden md:block mb-6">
-                                <h2 className="text-3xl font-serif font-bold text-gray-900 mb-1">{selectedDoctor.name}</h2>
-                                <p className="text-primary font-medium">{selectedDoctor.specialization}</p>
+                                <h2 className="text-3xl font-serif font-bold text-amber-900 mb-1">{selectedDoctor.name}</h2>
+                                <p className="text-amber-700 font-medium">{selectedDoctor.specialization}</p>
                             </div>
 
                             <div className="space-y-6">
                                 <div>
-                                    <h3 className="text-sm font-bold uppercase tracking-wider text-gray-400 mb-2">About</h3>
-                                    <p className="text-gray-700 font-body leading-relaxed">
+                                    <h3 className="text-sm font-bold uppercase tracking-wider text-amber-400 mb-2">About</h3>
+                                    <p className="text-amber-900/80 font-body leading-relaxed">
                                         {selectedDoctor.detailedBio}
                                     </p>
                                 </div>
 
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <div>
-                                        <h3 className="text-sm font-bold uppercase tracking-wider text-gray-400 mb-3 flex items-center gap-2">
+                                        <h3 className="text-sm font-bold uppercase tracking-wider text-amber-400 mb-3 flex items-center gap-2">
                                             <Award size={16} /> Specialties
                                         </h3>
                                         <ul className="space-y-2">
                                             {selectedDoctor.expertise.map((exp, idx) => (
-                                                <li key={idx} className="flex items-center gap-2 text-sm text-gray-600">
-                                                    <CheckCircle size={14} className="text-primary shrink-0" />
+                                                <li key={idx} className="flex items-center gap-2 text-sm text-amber-800">
+                                                    <CheckCircle size={14} className="text-amber-600 shrink-0" />
                                                     {exp}
                                                 </li>
                                             ))}
                                         </ul>
                                     </div>
                                     <div>
-                                        <h3 className="text-sm font-bold uppercase tracking-wider text-gray-400 mb-3 flex items-center gap-2">
+                                        <h3 className="text-sm font-bold uppercase tracking-wider text-amber-400 mb-3 flex items-center gap-2">
                                             <GraduationCap size={16} /> Education
                                         </h3>
                                         <ul className="space-y-2">
                                             {selectedDoctor.education.map((edu, idx) => (
-                                                <li key={idx} className="text-sm text-gray-600 border-l-2 border-stone-200 pl-3">
+                                                <li key={idx} className="text-sm text-amber-800 border-l-2 border-amber-200 pl-3">
                                                     {edu}
                                                 </li>
                                             ))}
@@ -207,12 +207,12 @@ export const Doctors = () => {
                                 </div>
 
                                 <div>
-                                    <h3 className="text-sm font-bold uppercase tracking-wider text-gray-400 mb-2 flex items-center gap-2">
+                                    <h3 className="text-sm font-bold uppercase tracking-wider text-amber-400 mb-2 flex items-center gap-2">
                                         <Languages size={16} /> Languages Spoken
                                     </h3>
                                     <div className="flex flex-wrap gap-2">
                                         {selectedDoctor.languages.map(lang => (
-                                            <span key={lang} className="text-xs bg-stone-100 text-stone-600 px-2 py-1 rounded-md border border-stone-200">
+                                            <span key={lang} className="text-xs bg-amber-50 text-amber-800 px-2 py-1 rounded-md border border-amber-100">
                                                 {lang}
                                             </span>
                                         ))}
@@ -220,9 +220,9 @@ export const Doctors = () => {
                                 </div>
                             </div>
 
-                            <div className="mt-8 pt-6 border-t border-gray-100">
+                            <div className="mt-8 pt-6 border-t border-amber-100">
                                 <Button
-                                    className="w-full group text-lg h-12"
+                                    className="w-full group text-lg h-12 bg-gradient-to-r from-amber-600 to-orange-600 text-white hover:from-amber-700 hover:to-orange-700"
                                     onClick={() => {
                                         setSelectedDoctor(null);
                                         navigate('/book');
