@@ -19,6 +19,7 @@ interface AppointmentType {
     id: string | number;
     name: string;
     duration: number; // minutes
+    durationDays: number; // days
     type: "User" | "Resource";
     price: number;
     status: "Published" | "Unpublished";
@@ -44,6 +45,7 @@ const Appointments = () => {
     const [newType, setNewType] = useState<Partial<AppointmentType>>({
         name: "",
         duration: 30,
+        durationDays: 3,
         type: "User",
         price: 0,
         status: "Unpublished",
@@ -60,6 +62,7 @@ const Appointments = () => {
                 const updates: Partial<Service> = {
                     name: newType.name,
                     durationMinutes: newType.duration,
+                    durationDays: newType.durationDays,
                     price: newType.price,
                     isActive: newType.status === "Published",
                     prePrecautions: newType.prePrecautions,
@@ -73,6 +76,7 @@ const Appointments = () => {
                     ...t,
                     name: newType.name!,
                     duration: newType.duration!,
+                    durationDays: newType.durationDays!,
                     type: newType.type!,
                     price: newType.price!,
                     status: newType.status!,
@@ -86,6 +90,7 @@ const Appointments = () => {
                     id: Date.now(),
                     name: newType.name as string,
                     duration: newType.duration || 30,
+                    durationDays: newType.durationDays || 3,
                     type: newType.type || "User",
                     price: newType.price || 0,
                     status: newType.status || "Unpublished",
@@ -97,6 +102,7 @@ const Appointments = () => {
                     name: type.name,
                     description: type.name,
                     durationMinutes: type.duration,
+                    durationDays: type.durationDays,
                     price: type.price,
                     currency: "USD",
                     isActive: type.status === "Published",
@@ -113,7 +119,7 @@ const Appointments = () => {
             }
 
             setIsModalOpen(false);
-            setNewType({ name: "", duration: 30, type: "User", price: 0, status: "Unpublished", prePrecautions: "", postPrecautions: "" });
+            setNewType({ name: "", duration: 30, durationDays: 3, type: "User", price: 0, status: "Unpublished", prePrecautions: "", postPrecautions: "" });
             setEditingId(null);
         } catch (err) {
             console.error("Failed to save service", err);
@@ -124,6 +130,7 @@ const Appointments = () => {
         setNewType({
             name: type.name,
             duration: type.duration,
+            durationDays: type.durationDays || 3,
             type: type.type,
             price: type.price,
             status: type.status,
@@ -229,6 +236,7 @@ const Appointments = () => {
                     id: s.id,
                     name: s.name,
                     duration: s.durationMinutes,
+                    durationDays: s.durationDays || 3,
                     type: "User",
                     price: s.price,
                     status: s.isActive ? "Published" : "Unpublished",
@@ -474,7 +482,7 @@ const Appointments = () => {
                     onClose={() => {
                         setIsModalOpen(false);
                         setEditingId(null);
-                        setNewType({ name: "", duration: 30, type: "User", price: 0, status: "Unpublished", prePrecautions: "", postPrecautions: "" });
+                        setNewType({ name: "", duration: 30, durationDays: 3, type: "User", price: 0, status: "Unpublished", prePrecautions: "", postPrecautions: "" });
                     }}
                     title={editingId ? "Edit Service" : "Create New Service"}
                 >
@@ -495,7 +503,7 @@ const Appointments = () => {
                         <div className="grid grid-cols-2 gap-5">
                             <div className="group">
                                 <label className="mb-2 block text-sm font-semibold text-slate-700 group-focus-within:text-emerald-600 transition-colors">
-                                    Duration
+                                    Duration (Minutes)
                                 </label>
                                 <div className="relative">
                                     <Clock className="absolute left-3.5 top-3.5 h-4 w-4 text-slate-400 group-focus-within:text-emerald-500 transition-colors" />
@@ -526,6 +534,24 @@ const Appointments = () => {
                                         onChange={(e) => setNewType({ ...newType, price: Number(e.target.value) })}
                                     />
                                 </div>
+                            </div>
+                        </div>
+
+                        <div className="group">
+                            <label className="mb-2 block text-sm font-semibold text-slate-700 group-focus-within:text-emerald-600 transition-colors">
+                                Duration (Days) - Total treatment cycle
+                            </label>
+                            <div className="relative">
+                                <Calendar className="absolute left-3.5 top-3.5 h-4 w-4 text-slate-400 group-focus-within:text-emerald-500 transition-colors" />
+                                <input
+                                    type="number"
+                                    min="1"
+                                    max="30"
+                                    className="w-full rounded-xl border border-slate-200 pl-10 pr-4 py-3 text-slate-700 transition-all focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 focus:outline-none placeholder:text-slate-400"
+                                    value={newType.durationDays}
+                                    onChange={(e) => setNewType({ ...newType, durationDays: Number(e.target.value) })}
+                                />
+                                <p className="text-[10px] text-slate-400 mt-1 ml-1">For single sessions, set to 1. For multi-day therapies, set the total days.</p>
                             </div>
                         </div>
 

@@ -121,7 +121,7 @@ export const BookingWizard = () => {
             if (!service) return;
 
             // Use the atomic multi-day booking service
-            const daysToBook = service.durationDays || 1;
+            const daysToBook = service.durationDays || 3;
 
             await bookMultiDayAppointment({
                 customerId: currentUser.uid,

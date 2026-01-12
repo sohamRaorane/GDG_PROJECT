@@ -21,14 +21,20 @@ export const RecoveryTimeline = ({ therapy }: RecoveryTimelineProps) => {
             let description = "Follow the standard diet and rest protocols today to ensure maximum benefit.";
 
             if (dayNum === 1) {
-                subTitle = "Initial Phase";
-                description = "Beginning of the treatment cycle. Follow prescribed protocols.";
-            } else if (dayNum === Math.floor(totalDays / 2)) {
-                subTitle = "Core Treatment";
-                description = "Mid-point of the therapy. Ensure all parameters are within normal range.";
-            } else if (dayNum === totalDays) {
-                subTitle = "Completion Phase";
-                description = "Final day of treatment. Review progress and plan next steps.";
+                subTitle = "Preparation Phase";
+                description = "Beginning of the treatment cycle. Preparing the body for intensive therapy.";
+            } else if (dayNum >= 2 && dayNum <= 4) {
+                subTitle = "Intensive Therapy Phase";
+                description = "Deep detoxification and core treatment. Follow all dietary restrictions strictly.";
+            } else if (dayNum >= 5 && dayNum <= 7) {
+                subTitle = "Stabilization Phase";
+                description = "Consolidating the benefits. Gradual return to balanced activity.";
+            } else if (dayNum >= 8) {
+                subTitle = "Rejuvenation & Recovery";
+                description = "Final healing phase. Focusing on long-term wellness and vitality.";
+            } else {
+                subTitle = "Standard Treatment";
+                description = "Follow the standard diet and rest protocols today to ensure maximum benefit.";
             }
             return { day: dayNum, title, subTitle, description };
         });
