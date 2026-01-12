@@ -5,11 +5,13 @@ import { useState, useEffect } from 'react';
 import { collection, query, where, onSnapshot, limit } from 'firebase/firestore';
 import { db } from '../firebase';
 import type { Appointment } from '../types/db';
+import { getDoctorName } from '../utils/doctors';
 
 const DoctorDashboard = () => {
     const [incomingSessions, setIncomingSessions] = useState<{
         id: string;
         patient: string;
+        doctor: string;
         therapy: string;
         time: string;
         status: string;
@@ -33,6 +35,7 @@ const DoctorDashboard = () => {
                 return {
                     id: doc.id,
                     patient: data.customerName,
+                    doctor: getDoctorName(data.providerId),
                     therapy: data.serviceName,
                     time: date.toLocaleString('en-US', { weekday: 'short', hour: 'numeric', minute: 'numeric', hour12: true }),
                     status: 'Confirmed', // Default for now
@@ -177,6 +180,7 @@ const DoctorDashboard = () => {
                                 <thead className="bg-gradient-to-r from-slate-50 to-slate-100 border-b border-slate-200">
                                     <tr>
                                         <th className="px-6 py-4 text-xs uppercase text-admin-muted font-bold tracking-wider">Patient</th>
+                                        <th className="px-6 py-4 text-xs uppercase text-admin-muted font-bold tracking-wider">Doctor</th>
                                         <th className="px-6 py-4 text-xs uppercase text-admin-muted font-bold tracking-wider">Therapy</th>
                                         <th className="px-6 py-4 text-xs uppercase text-admin-muted font-bold tracking-wider">Time</th>
                                         <th className="px-6 py-4 text-xs uppercase text-admin-muted font-bold tracking-wider">Room</th>
@@ -184,12 +188,13 @@ const DoctorDashboard = () => {
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-slate-100">
-                                    {incomingSessions.map((session, index) => (
+                                    {incomingSessions.map((session) => (
                                         <tr
                                             key={session.id}
                                             className="hover:bg-gradient-to-r hover:from-slate-50/50 hover:to-transparent transition-all group"
                                         >
                                             <td className="px-6 py-4 font-bold text-admin-sidebar group-hover:text-admin-active transition-colors">{session.patient}</td>
+                                            <td className="px-6 py-4 font-medium text-slate-700">{session.doctor}</td>
                                             <td className="px-6 py-4 text-slate-600">{session.therapy}</td>
                                             <td className="px-6 py-4 font-semibold text-admin-sidebar flex items-center gap-2">
                                                 <Clock size={14} className="text-admin-muted" />

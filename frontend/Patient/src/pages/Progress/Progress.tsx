@@ -52,7 +52,7 @@ export const Progress = () => {
             mentalState: formData.mentalState,
             notes: formData.notes,
             isFlagged,
-            flaggedReason,
+            ...(flaggedReason ? { flaggedReason } : {}),
             createdAt: Timestamp.now()
         };
 
@@ -129,8 +129,8 @@ export const Progress = () => {
                                             type="button"
                                             onClick={() => setFormData({ ...formData, digestionQuality: status as any })}
                                             className={`flex-1 py-3 px-4 rounded-xl text-sm font-semibold transition-all border ${formData.digestionQuality === status
-                                                    ? 'bg-amber-500 text-white border-amber-500 shadow-lg shadow-amber-200 scale-105'
-                                                    : 'bg-white text-slate-600 border-slate-200 hover:border-amber-500 hover:text-amber-500'
+                                                ? 'bg-amber-500 text-white border-amber-500 shadow-lg shadow-amber-200 scale-105'
+                                                : 'bg-white text-slate-600 border-slate-200 hover:border-amber-500 hover:text-amber-500'
                                                 }`}
                                         >
                                             {status}
@@ -150,8 +150,8 @@ export const Progress = () => {
                                             type="button"
                                             onClick={() => setFormData({ ...formData, mentalState: state as any })}
                                             className={`flex-1 py-3 px-4 rounded-xl text-sm font-semibold transition-all border ${formData.mentalState === state
-                                                    ? 'bg-purple-500 text-white border-purple-500 shadow-lg shadow-purple-200 scale-105'
-                                                    : 'bg-white text-slate-600 border-slate-200 hover:border-purple-500 hover:text-purple-500'
+                                                ? 'bg-purple-500 text-white border-purple-500 shadow-lg shadow-purple-200 scale-105'
+                                                : 'bg-white text-slate-600 border-slate-200 hover:border-purple-500 hover:text-purple-500'
                                                 }`}
                                         >
                                             {state}
