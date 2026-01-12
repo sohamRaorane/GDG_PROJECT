@@ -41,3 +41,31 @@ export const sendAppointmentEmail = async (details: EmailAppointmentDetails) => 
         return null;
     }
 };
+
+export const sendOtpEmail = async (email: string, otp: string, purpose: string = 'Verification') => {
+    try {
+        const templateParams = {
+            to_email: email,
+            to_name: "Valued Member",
+            subject: `${purpose} Code`,
+            message: `Your ${purpose} code is: ${otp}. Do not share this with anyone.`,
+        };
+
+        console.log(`[MOCK EMAIL SERVICE] Sending OTP ${otp} to ${email}`, templateParams);
+
+        // Uncomment to actually try sending if a generic template is available
+        /*
+        const response = await emailjs.send(
+            EMAILJS_SERVICE_ID,
+            "template_otp_generic", // Placeholder
+            templateParams,
+            EMAILJS_PUBLIC_KEY
+        );
+        return response;
+        */
+        return { status: 200, text: "Sent (Mock)" };
+    } catch (error) {
+        console.error('OTP Email Failed:', error);
+        return null;
+    }
+};

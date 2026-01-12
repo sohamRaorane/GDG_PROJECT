@@ -58,7 +58,7 @@ export const Services = () => {
                 <div className="container mx-auto px-4 py-12">
                     <div className="mb-8 text-center max-w-3xl mx-auto">
                         <h1 className="text-5xl font-display font-bold text-amber-900 mb-4">Our Ayurvedic Therapies</h1>
-                        <p className="text-gray-600 font-serif text-xl">
+                        <p className="text-gray-800 font-serif text-xl font-medium">
                             Experience authentic healing through time-tested Ayurvedic treatments designed to restore balance and harmony.
                         </p>
                     </div>
@@ -69,12 +69,7 @@ export const Services = () => {
 
                 {/* Additional Services Section */}
                 <div className="container mx-auto px-4 py-16">
-                    <div className="mb-12 text-center">
-                        <h2 className="text-4xl font-display font-bold text-amber-900 mb-4">Featured Treatments</h2>
-                        <p className="text-gray-600 font-serif text-lg">
-                            Specialized programs for comprehensive wellness
-                        </p>
-                    </div>
+                    {/* Header removed as requested */}
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto">
                         {ADDITIONAL_SERVICES.map((service) => (

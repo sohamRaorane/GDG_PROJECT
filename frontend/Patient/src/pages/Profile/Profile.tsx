@@ -6,9 +6,14 @@ import { Button } from '../../components/ui/Button';
 import { useAuth } from '../../context/AuthContext';
 import { useAudio } from '../../context/AudioContext';
 import { useNavigate } from 'react-router-dom';
-import { collection, query, where, getDocs, orderBy, Timestamp } from 'firebase/firestore';
+import { collection, query, where, getDocs, Timestamp } from 'firebase/firestore';
 import { db } from '../../firebase';
-import { getUserProfile, getServiceById } from '../../services/db';
+import { getUserProfile, getServiceById, createUserProfile, cancelAppointment } from '../../services/db';
+import { rescheduleAppointment } from '../../services/booking';
+import { updateProfile } from 'firebase/auth';
+import { sendOtpEmail } from '../../services/email';
+import { Modal } from '../../components/ui/Modal';
+import { SelectSlot } from '../Booking/steps/SelectSlot';
 
 export const Profile = () => {
     const { currentUser, logout } = useAuth();
@@ -20,6 +25,199 @@ export const Profile = () => {
     const [upcomingAppointments, setUpcomingAppointments] = useState<any[]>([]);
     const [pastAppointments, setPastAppointments] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
+
+    // State for Profile Form
+    const [formData, setFormData] = useState({
+        displayName: '',
+        email: '',
+        phoneNumber: '',
+        dob: '', // Add dob field to UserProfile type if needed or store in others
+        address: '',
+        city: '',
+        state: '',
+        postalCode: ''
+    });
+
+    // State for Actions (Cancel/Reschedule)
+    const [selectedApt, setSelectedApt] = useState<any | null>(null);
+    const [showCancelModal, setShowCancelModal] = useState(false);
+    const [otp, setOtp] = useState('');
+    const [inputOtp, setInputOtp] = useState('');
+    const [verifying, setVerifying] = useState(false);
+
+    // Details Modal State
+    const [showDetailsModal, setShowDetailsModal] = useState(false);
+
+    // Reschedule State
+    const [showRescheduleModal, setShowRescheduleModal] = useState(false);
+    const [rescheduleData, setRescheduleData] = useState<{ date: string, slot: string, peopleCount: number, roomId: string }>({
+        date: '',
+        slot: '',
+        peopleCount: 1,
+        roomId: ''
+    });
+
+    useEffect(() => {
+        if (currentUser) {
+            setFormData(prev => ({
+                ...prev,
+                displayName: currentUser.displayName || '',
+                email: currentUser.email || '',
+                phoneNumber: currentUser.phoneNumber || ''
+                // We would need to fetch address/dob from Firestore extra fields if they exist
+            }));
+
+            // Fetch extra profile details
+            getUserProfile(currentUser.uid).then(profile => {
+                if (profile) {
+                    setFormData(prev => ({
+                        ...prev,
+                        phoneNumber: profile.phoneNumber || prev.phoneNumber,
+                        dob: profile.dob || '',
+                        address: profile.address || '',
+                        city: profile.city || '',
+                        state: profile.state || '',
+                        postalCode: profile.postalCode || ''
+                    }));
+                }
+            });
+        }
+    }, [currentUser]);
+
+    const handleStartReschedule = (apt: any) => {
+        setSelectedApt(apt);
+        // Initialize with default or current?
+        // Ideally we start fresh or show current. Let's start fresh for simplicity, or pre-select today.
+        setRescheduleData({
+            date: '', // Force user to pick
+            slot: '',
+            peopleCount: 1,
+            roomId: ''
+        });
+        setShowRescheduleModal(true);
+    };
+
+    const handleConfirmReschedule = async () => {
+        if (!selectedApt || !rescheduleData.date || !rescheduleData.slot) return;
+
+        try {
+            setVerifying(true);
+
+            // We need serviceId and doctorId from the appointment.
+            // apt object in UI has 'doctor' name but maybe not ID easily unless we stored it.
+            // Wait, we mapped it. Let's verify 'apt' struct.
+            // 'appointments' mapping stored 'id', 'service', etc.
+            // We need to fetch the underlying raw doc or store ids in the 'apt' object.
+            // I will update the map function to include raw ids.
+
+            await rescheduleAppointment(
+                selectedApt.id,
+                rescheduleData.date,
+                rescheduleData.slot,
+                selectedApt.rawProviderId, // Need to add this
+                rescheduleData.roomId || 'room1', // Default or from logic
+                selectedApt.rawServiceId   // Need to add this
+            );
+
+            alert("Rescheduled Successfully!");
+            setShowRescheduleModal(false);
+            window.location.reload();
+        } catch (error) {
+            console.error("Reschedule failed", error);
+            alert("Failed to reschedule. Slot might be taken.");
+        } finally {
+            setVerifying(false);
+        }
+    };
+
+    const handleStartCancel = async (apt: any) => {
+        if (!currentUser?.email) {
+            alert("No email found for verification.");
+            return;
+        }
+        setSelectedApt(apt);
+        setShowCancelModal(true);
+        setInputOtp('');
+
+        // Generate OTP
+        const newOtp = Math.floor(100000 + Math.random() * 900000).toString();
+        setOtp(newOtp);
+
+        // Send Email
+        setLoading(true);
+        await sendOtpEmail(currentUser.email, newOtp, "Cancellation Verification");
+        setLoading(false);
+    };
+
+    const handleViewDetails = (apt: any) => {
+        setSelectedApt(apt);
+        setShowDetailsModal(true);
+    };
+
+    const handleVerifyAndCancel = async () => {
+        if (inputOtp !== otp) {
+            alert("Invalid OTP. Please try again.");
+            return;
+        }
+
+        if (!selectedApt) return;
+
+        try {
+            setVerifying(true);
+            await cancelAppointment(selectedApt.id);
+            alert("Appointment Cancelled Successfully.");
+
+            // Refund Logic would go here (Stripe webhook or manual trigger)
+
+            setShowCancelModal(false);
+
+            // Refresh List
+            setUpcomingAppointments(prev => prev.filter(p => p.id !== selectedApt.id));
+            setPastAppointments(prev => [selectedApt, ...prev]); // Move to past/cancelled visually or just reload
+            // Actually, best to reload or just update status:
+            window.location.reload(); // Simple refresh to fetch everything clean
+        } catch (error) {
+            console.error("Cancellation failed", error);
+            alert("Failed to cancel appointment.");
+        } finally {
+            setVerifying(false);
+        }
+    };
+
+    const handleSaveProfile = async () => {
+        if (!currentUser) return;
+        try {
+            setLoading(true);
+
+            // 1. Update Auth Profile
+            if (formData.displayName !== currentUser.displayName) {
+                await updateProfile(currentUser, { displayName: formData.displayName });
+            }
+
+            // 2. Update Firestore Document
+            await createUserProfile({
+                uid: currentUser.uid,
+                email: currentUser.email || '', // Email usually readable only
+                displayName: formData.displayName,
+                role: 'customer', // Default or preserve
+                createdAt: Timestamp.now(), // Should preserve original 
+                updatedAt: Timestamp.now(),
+                phoneNumber: formData.phoneNumber,
+                dob: formData.dob,
+                address: formData.address,
+                city: formData.city,
+                state: formData.state,
+                postalCode: formData.postalCode
+            });
+
+            alert("Profile updated successfully!");
+        } catch (error) {
+            console.error("Error updating profile:", error);
+            alert("Failed to update profile.");
+        } finally {
+            setLoading(false);
+        }
+    };
 
     useEffect(() => {
         const fetchAppointments = async () => {
@@ -65,6 +263,8 @@ export const Profile = () => {
                     return {
                         id: doc.id,
                         service: data.serviceName || 'Healing Session',
+                        rawServiceId: data.serviceId, // Added for logic
+                        rawProviderId: data.providerId, // Added for logic
                         type: serviceType,
                         doctor: doctorName,
                         doctorImage: doctorImage,
@@ -264,7 +464,12 @@ export const Profile = () => {
                                         <div className="grid grid-cols-1 gap-8">
                                             {upcomingAppointments.map((apt, index) => (
                                                 <div key={apt.id} className="animate-in slide-in-from-bottom-4 fade-in duration-700" style={{ animationDelay: `${index * 150}ms` }}>
-                                                    <AppointmentCard apt={apt} />
+                                                    <AppointmentCard
+                                                        apt={apt}
+                                                        onCancel={() => handleStartCancel(apt)}
+                                                        onReschedule={() => handleStartReschedule(apt)}
+                                                        onViewDetails={() => handleViewDetails(apt)}
+                                                    />
                                                 </div>
                                             ))}
                                         </div>
@@ -340,10 +545,31 @@ export const Profile = () => {
                                                 Basic Information
                                             </h3>
                                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                                <InputGroup label="Full Name" defaultValue="Aditya User" />
-                                                <InputGroup label="Email" defaultValue="aditya@example.com" type="email" icon={<Mail className="text-[#8FA893]" size={18} />} />
-                                                <InputGroup label="Phone" defaultValue="+91 98765 43210" type="tel" icon={<Phone className="text-[#8FA893]" size={18} />} />
-                                                <InputGroup label="Date of Birth" type="date" />
+                                                <InputGroup
+                                                    label="Full Name"
+                                                    value={formData.displayName}
+                                                    onChange={(e: any) => setFormData({ ...formData, displayName: e.target.value })}
+                                                />
+                                                <InputGroup
+                                                    label="Email"
+                                                    value={formData.email}
+                                                    type="email"
+                                                    icon={<Mail className="text-[#8FA893]" size={18} />}
+                                                    readOnly
+                                                />
+                                                <InputGroup
+                                                    label="Phone"
+                                                    value={formData.phoneNumber}
+                                                    onChange={(e: any) => setFormData({ ...formData, phoneNumber: e.target.value })}
+                                                    type="tel"
+                                                    icon={<Phone className="text-[#8FA893]" size={18} />}
+                                                />
+                                                <InputGroup
+                                                    label="Date of Birth"
+                                                    value={formData.dob}
+                                                    onChange={(e: any) => setFormData({ ...formData, dob: e.target.value })}
+                                                    type="date"
+                                                />
                                             </div>
                                         </div>
 
@@ -353,19 +579,39 @@ export const Profile = () => {
                                                 Address Details
                                             </h3>
                                             <div className="space-y-6">
-                                                <InputGroup label="Street Address" defaultValue="123, Wellness Ave, Bandra West" />
+                                                <InputGroup
+                                                    label="Street Address"
+                                                    value={formData.address}
+                                                    onChange={(e: any) => setFormData({ ...formData, address: e.target.value })}
+                                                />
                                                 <div className="grid grid-cols-2 gap-4">
-                                                    <InputGroup label="City" defaultValue="Mumbai" />
-                                                    <InputGroup label="State" defaultValue="Maharashtra" />
+                                                    <InputGroup
+                                                        label="City"
+                                                        value={formData.city}
+                                                        onChange={(e: any) => setFormData({ ...formData, city: e.target.value })}
+                                                    />
+                                                    <InputGroup
+                                                        label="State"
+                                                        value={formData.state}
+                                                        onChange={(e: any) => setFormData({ ...formData, state: e.target.value })}
+                                                    />
                                                 </div>
-                                                <InputGroup label="Postal Code" defaultValue="400050" />
+                                                <InputGroup
+                                                    label="Postal Code"
+                                                    value={formData.postalCode}
+                                                    onChange={(e: any) => setFormData({ ...formData, postalCode: e.target.value })}
+                                                />
                                             </div>
                                         </div>
                                     </div>
 
                                     <div className="sticky bottom-4 flex justify-end">
-                                        <Button className="bg-[#2F5E3D] hover:bg-[#1A2E25] text-white rounded-2xl px-10 py-4 text-lg font-bold shadow-xl shadow-[#2F5E3D]/20 hover:scale-105 active:scale-95 transition-all">
-                                            Save Changes
+                                        <Button
+                                            onClick={handleSaveProfile}
+                                            disabled={loading}
+                                            className="bg-[#2F5E3D] hover:bg-[#1A2E25] text-white rounded-2xl px-10 py-4 text-lg font-bold shadow-xl shadow-[#2F5E3D]/20 hover:scale-105 active:scale-95 transition-all disabled:opacity-70 disabled:scale-100"
+                                        >
+                                            {loading ? "Saving..." : "Save Changes"}
                                         </Button>
                                     </div>
                                 </div>
@@ -377,12 +623,6 @@ export const Profile = () => {
 
                                     <div className="bg-white/60 backdrop-blur-md rounded-[2.5rem] p-8 border border-white/60 shadow-sm space-y-2">
                                         <SettingToggle label="Email Notifications" description="Receive updates about your appointments" />
-                                        <div className="h-px bg-gradient-to-r from-transparent via-gray-200 to-transparent" />
-                                        <SettingToggle label="SMS Reminders" description="Get reminders 1 hour before sessions" />
-                                        <div className="h-px bg-gradient-to-r from-transparent via-gray-200 to-transparent" />
-                                        <SettingToggle label="Marketing Updates" description="Receive offers and wellness tips" />
-                                        <div className="h-px bg-gradient-to-r from-transparent via-gray-200 to-transparent" />
-                                        <SettingToggle label="Two-Factor Authentication" description="Secure your account" />
                                     </div>
                                 </div>
                             )}
@@ -391,6 +631,135 @@ export const Profile = () => {
                     </main>
                 </div>
             </div>
+            {/* View Details Modal */}
+            <Modal isOpen={showDetailsModal} onClose={() => setShowDetailsModal(false)}>
+                {selectedApt && (
+                    <div className="p-6 space-y-6">
+                        <div className="flex items-center gap-4 border-b border-gray-100 pb-6">
+                            <div className="w-16 h-16 rounded-2xl bg-[#E3F2E1] flex flex-col items-center justify-center text-[#2F5E3D] font-bold">
+                                <span className="text-[10px] uppercase">{selectedApt.month}</span>
+                                <span className="text-2xl">{selectedApt.day}</span>
+                            </div>
+                            <div>
+                                <h3 className="text-2xl font-bold text-[#1A2E25]">{selectedApt.service}</h3>
+                                <p className="text-[#6B8577]">{selectedApt.status} • {selectedApt.type}</p>
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-6">
+                            <div className="space-y-1">
+                                <p className="text-xs font-bold text-[#8FA893] uppercase">Practitioner</p>
+                                <div className="flex items-center gap-2">
+                                    <img src={selectedApt.doctorImage} className="w-6 h-6 rounded-full" alt="" />
+                                    <p className="font-semibold text-[#1A2E25]">{selectedApt.doctor}</p>
+                                </div>
+                            </div>
+                            <div className="space-y-1">
+                                <p className="text-xs font-bold text-[#8FA893] uppercase">Time</p>
+                                <p className="font-semibold text-[#1A2E25]">{selectedApt.time}</p>
+                            </div>
+                            <div className="space-y-1">
+                                <p className="text-xs font-bold text-[#8FA893] uppercase">Location</p>
+                                <p className="font-semibold text-[#1A2E25]">{selectedApt.clinic}</p>
+                            </div>
+                            <div className="space-y-1">
+                                <p className="text-xs font-bold text-[#8FA893] uppercase">Duration</p>
+                                <p className="font-semibold text-[#1A2E25]">{selectedApt.duration}</p>
+                            </div>
+                        </div>
+
+                        <div className="bg-[#F8FAF9] p-4 rounded-2xl border border-[#E3F2E1]/50">
+                            <h4 className="text-sm font-bold text-[#2F5E3D] mb-2">Patient Notes</h4>
+                            <p className="text-sm text-[#6B8577] italic line-clamp-3">
+                                No specific notes provided for this session. Please bring your previous records if any.
+                            </p>
+                        </div>
+
+                        <div className="flex justify-end pt-4">
+                            <Button onClick={() => setShowDetailsModal(false)} className="bg-[#2F5E3D] text-white rounded-xl px-8">
+                                Close
+                            </Button>
+                        </div>
+                    </div>
+                )}
+            </Modal>
+            {/* Cancel OTP Modal */}
+            <Modal isOpen={showCancelModal} onClose={() => setShowCancelModal(false)}>
+                <div className="p-4 space-y-6 text-center">
+                    <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto text-red-600">
+                        <LogOut size={32} className="ml-1" />
+                    </div>
+                    <div>
+                        <h3 className="text-2xl font-bold text-[#1A2E25] mb-2">Cancel Appointment?</h3>
+                        <p className="text-gray-600">
+                            We've sent a verification code to <b>{currentUser?.email}</b>.
+                            Please enter it below to confirm cancellation for <b>{selectedApt?.service}</b>.
+                        </p>
+                    </div>
+
+                    <div className="max-w-xs mx-auto">
+                        <input
+                            type="text"
+                            placeholder="Enter 6-digit OTP"
+                            className="w-full text-center text-2xl tracking-[0.5em] font-bold border-2 border-[#E3F2E1] rounded-xl py-3 focus:border-[#2F5E3D] focus:outline-none transition-all uppercase"
+                            maxLength={6}
+                            value={inputOtp}
+                            onChange={(e) => setInputOtp(e.target.value)}
+                        />
+                    </div>
+
+                    <div className="flex gap-3 justify-center pt-2">
+                        <Button variant="ghost" onClick={() => setShowCancelModal(false)}>
+                            Keep It
+                        </Button>
+                        <Button
+                            onClick={handleVerifyAndCancel}
+                            disabled={verifying || inputOtp.length !== 6}
+                            className="bg-red-500 hover:bg-red-600 text-white min-w-[140px]"
+                        >
+                            {verifying ? "Cancelling..." : "Confirm Cancel"}
+                        </Button>
+                    </div>
+                    <p className="text-xs text-gray-400">Can't find the email? Check spam or <button className="underline text-[#2F5E3D]" onClick={() => handleStartCancel(selectedApt)}>Resend</button></p>
+                </div>
+            </Modal>
+            {/* Reschedule Modal */}
+            <Modal isOpen={showRescheduleModal} onClose={() => setShowRescheduleModal(false)}>
+                <div className="space-y-6 max-w-4xl mx-auto w-full"> {/* Increased width */}
+                    <div className="text-center">
+                        <h3 className="text-2xl font-bold text-[#1A2E25]">Reschedule Session</h3>
+                        <p className="text-gray-500">Pick a new time for {selectedApt?.service}</p>
+                    </div>
+
+                    <div className="max-h-[60vh] overflow-y-auto px-2">
+                        {selectedApt && (
+                            <SelectSlot
+                                bookingData={{
+                                    date: rescheduleData.date,
+                                    slot: rescheduleData.slot,
+                                    peopleCount: 1,
+                                    serviceId: selectedApt.rawServiceId,
+                                    doctorId: selectedApt.rawProviderId
+                                }}
+                                onChange={(data) => setRescheduleData(prev => ({ ...prev, ...data }))}
+                            />
+                        )}
+                    </div>
+
+                    <div className="flex gap-4 justify-end pt-4 border-t border-gray-100">
+                        <Button variant="ghost" onClick={() => setShowRescheduleModal(false)}>
+                            Cancel
+                        </Button>
+                        <Button
+                            onClick={handleConfirmReschedule}
+                            disabled={!rescheduleData.date || !rescheduleData.slot || verifying}
+                            className="bg-[#2F5E3D] hover:bg-[#1A2E25] text-white"
+                        >
+                            {verifying ? "Updating..." : "Confirm New Time"}
+                        </Button>
+                    </div>
+                </div>
+            </Modal>
         </div>
     );
 };
@@ -439,7 +808,7 @@ const PageHeader = ({ title, subtitle }: { title: string, subtitle: string }) =>
     </div>
 );
 
-const AppointmentCard = ({ apt }: { apt: any }) => (
+const AppointmentCard = ({ apt, onCancel, onReschedule, onViewDetails }: { apt: any, onCancel?: () => void, onReschedule?: () => void, onViewDetails?: () => void }) => (
     <div className="bg-white/80 backdrop-blur-xl rounded-[2.5rem] p-8 md:p-10 shadow-[0_8px_30px_rgba(0,0,0,0.04)] border border-white/60 hover:shadow-[0_20px_50px_rgba(47,94,61,0.1)] transition-all duration-500 group relative overflow-hidden transform hover:-translate-y-1">
 
         {/* Soft Background Gradient */}
@@ -495,13 +864,16 @@ const AppointmentCard = ({ apt }: { apt: any }) => (
 
                 {/* Actions */}
                 <div className="flex flex-wrap items-center gap-4 pt-2">
-                    <Button className="flex-1 md:flex-none bg-[#2F5E3D] hover:bg-[#1A2E25] text-white rounded-xl px-8 py-3.5 text-sm font-bold tracking-wide shadow-lg shadow-[#2F5E3D]/20 hover:scale-[1.02] active:scale-95 transition-all">
+                    <Button
+                        onClick={onViewDetails}
+                        className="flex-1 md:flex-none bg-[#2F5E3D] hover:bg-[#1A2E25] text-white rounded-xl px-8 py-3.5 text-sm font-bold tracking-wide shadow-lg shadow-[#2F5E3D]/20 hover:scale-[1.02] active:scale-95 transition-all"
+                    >
                         View Details
                     </Button>
-                    <Button variant="outline" className="flex-1 md:flex-none border-[#C4D7C4] text-[#2F5E3D] hover:bg-[#E3F2E1] rounded-xl px-6 py-3.5 text-sm font-bold bg-transparent">
+                    <Button onClick={onReschedule} variant="outline" className="flex-1 md:flex-none border-[#C4D7C4] text-[#2F5E3D] hover:bg-[#E3F2E1] rounded-xl px-6 py-3.5 text-sm font-bold bg-transparent">
                         Reschedule
                     </Button>
-                    <button className="px-6 py-2 text-sm font-bold text-[#E57373] hover:text-red-600 transition-colors ml-auto md:ml-0 hover:underline decoration-2 underline-offset-4 decoration-red-200">
+                    <button onClick={onCancel} className="px-6 py-2 text-sm font-bold text-[#E57373] hover:text-red-600 transition-colors ml-auto md:ml-0 hover:underline decoration-2 underline-offset-4 decoration-red-200">
                         Cancel
                     </button>
                 </div>
@@ -510,17 +882,20 @@ const AppointmentCard = ({ apt }: { apt: any }) => (
     </div>
 );
 
-const InputGroup = ({ label, defaultValue, type = "text", icon }: any) => (
+const InputGroup = ({ label, value, onChange, type = "text", icon, readOnly }: any) => (
     <div className="space-y-2.5">
         <label className="text-xs font-bold text-[#6B8577] uppercase tracking-widest pl-1">{label}</label>
         <div className="relative group">
             {icon && <div className="absolute left-5 top-1/2 -translate-y-1/2 pointer-events-none transition-colors group-hover:text-[#2F5E3D] opacity-60">{icon}</div>}
             <input
                 type={type}
-                defaultValue={defaultValue}
+                value={value}
+                onChange={onChange}
+                readOnly={readOnly}
                 className={cn(
                     "w-full bg-[#F4F9F5]/50 border border-[#E3F2E1] rounded-2xl py-4 focus:outline-none focus:ring-4 focus:ring-[#2F5E3D]/10 focus:border-[#2F5E3D] transition-all font-semibold text-[#1A2E25] shadow-sm hover:bg-white/80",
-                    icon ? "pl-12 pr-6" : "px-6"
+                    icon ? "pl-12 pr-6" : "px-6",
+                    readOnly ? "opacity-60 cursor-not-allowed bg-gray-50" : ""
                 )}
             />
         </div>
