@@ -131,6 +131,7 @@ export const OrbitalTherapies = () => {
                     </p>
                 </div>
 
+
                 {/* Orbital Container - Desktop Only */}
                 <div className="hidden md:block relative w-full max-w-4xl mx-auto px-4">
                     <div
