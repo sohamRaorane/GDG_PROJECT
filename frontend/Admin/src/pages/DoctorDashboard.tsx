@@ -1,17 +1,19 @@
-import { AlertTriangle, Phone, Check, User, AlertCircle, Clock, Activity as ActivityIcon, TrendingUp, Calendar, MapPin } from 'lucide-react';
+import { AlertTriangle, Phone, Check, User, AlertCircle, Clock, TrendingUp, Calendar, MapPin } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
+import { useState, useEffect } from 'react';
+import { subscribeToRedFlags, resolveRedFlag, clearAllRedFlags } from '../services/dashboard';
+import type { DailyHealthLog } from '../types/db';
 
 const DoctorDashboard = () => {
-    // Red Flags data - ready for database integration
-    const RED_FLAGS: {
-        id: string;
-        patientId: string;
-        sessionDate: string;
-        alert: string;
-        painLevel: string;
-        digestion: string;
-        isUrgent: boolean;
-    }[] = [];
+    // Red Flags data - integrated with Firestore
+    const [redFlags, setRedFlags] = useState<DailyHealthLog[]>([]);
+
+    useEffect(() => {
+        const unsubscribe = subscribeToRedFlags((flags) => {
+            setRedFlags(flags);
+        });
+        return () => unsubscribe();
+    }, []);
 
     // Incoming Therapy Sessions data - ready for database integration
     const INCOMING_SESSIONS: {
@@ -43,9 +45,19 @@ const DoctorDashboard = () => {
                             <AlertTriangle size={24} className="text-red-400" />
                             <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full animate-ping"></span>
                         </div>
-                        <span className="text-lg">{RED_FLAGS.length} Active Alerts</span>
+                        <span className="text-lg">{redFlags.length} Active Alerts</span>
                     </div>
                 </div>
+                {redFlags.length > 0 && (
+                    <div className="flex justify-end mt-2">
+                        <button
+                            onClick={() => clearAllRedFlags()}
+                            className="text-xs text-red-400 hover:text-red-500 underline cursor-pointer"
+                        >
+                            Clear All Test Alerts
+                        </button>
+                    </div>
+                )}
             </div>
 
             {/* Red Flag Cards Grid */}
@@ -57,7 +69,7 @@ const DoctorDashboard = () => {
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {RED_FLAGS.map((flag, index) => (
+                    {redFlags.map((flag, index) => (
                         <div
                             key={flag.id}
                             className="bg-white rounded-2xl shadow-lg border border-slate-100 overflow-hidden hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 group"
@@ -74,28 +86,27 @@ const DoctorDashboard = () => {
                                             <User size={22} strokeWidth={2.5} />
                                         </div>
                                         <div>
-                                            <h3 className="text-xl font-bold text-admin-sidebar leading-tight">{flag.patientId}</h3>
+                                            <h3 className="text-xl font-bold text-admin-sidebar leading-tight">{flag.userName || `Patient #${flag.userId.slice(0, 4)}`}</h3>
                                             <p className="text-xs text-admin-muted font-semibold mt-0.5 flex items-center gap-1">
                                                 <Calendar size={11} />
-                                                {flag.sessionDate}
+                                                {flag.date}
                                             </p>
                                         </div>
                                     </div>
-                                    {flag.isUrgent && (
-                                        <span className="bg-gradient-to-r from-red-50 to-red-100 text-red-600 text-[10px] font-bold px-3 py-1 rounded-full border border-red-200 uppercase tracking-wider shadow-sm">
-                                            Urgent
-                                        </span>
-                                    )}
+                                    <span className="bg-gradient-to-r from-red-50 to-red-100 text-red-600 text-[10px] font-bold px-3 py-1 rounded-full border border-red-200 uppercase tracking-wider shadow-sm">
+                                        Urgent
+                                    </span>
                                 </div>
 
                                 {/* Alert Box */}
-                                <div className="bg-gradient-to-br from-red-50 to-orange-50 rounded-xl p-4 mb-5 border border-red-100/50 shadow-sm">
+                                <div className="bg-gradient-to-br from-red-50 to-orange-50 rounded-xl p-4 mb-5 border border-red-100/50 shadow-sm relative overflow-hidden">
+                                    <div className="absolute top-0 right-0 w-12 h-12 bg-red-500/5 rounded-bl-xl pointer-events-none"></div>
                                     <div className="flex items-center gap-2 text-red-600 mb-2">
                                         <AlertCircle size={16} strokeWidth={2.5} />
-                                        <span className="text-[11px] font-bold uppercase tracking-wide">Issue Reported</span>
+                                        <span className="text-[11px] font-bold uppercase tracking-wide">SOS Reported</span>
                                     </div>
                                     <p className="text-sm text-slate-700 font-medium leading-relaxed italic">
-                                        "{flag.alert}"
+                                        "{flag.flaggedReason || 'Emergency assistance requested'}"
                                     </p>
                                 </div>
 
@@ -103,11 +114,11 @@ const DoctorDashboard = () => {
                                 <div className="grid grid-cols-2 gap-3 mb-5">
                                     <div className="bg-gradient-to-br from-slate-50 to-slate-100 rounded-xl p-3 border border-slate-200">
                                         <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wide mb-1">Pain Level</p>
-                                        <p className="text-2xl font-bold bg-gradient-to-r from-red-600 to-red-500 bg-clip-text text-transparent">{flag.painLevel}</p>
+                                        <p className="text-2xl font-bold bg-gradient-to-r from-red-600 to-red-500 bg-clip-text text-transparent">{flag.painLevel}/10</p>
                                     </div>
                                     <div className="bg-gradient-to-br from-slate-50 to-slate-100 rounded-xl p-3 border border-slate-200">
-                                        <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wide mb-1">Digestion</p>
-                                        <p className="text-2xl font-bold text-slate-700">{flag.digestion}</p>
+                                        <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wide mb-1">Mental State</p>
+                                        <p className="text-2xl font-bold text-slate-700">{flag.mentalState || 'N/A'}</p>
                                     </div>
                                 </div>
 
@@ -115,9 +126,12 @@ const DoctorDashboard = () => {
                                 <div className="flex gap-3">
                                     <button className="flex-1 bg-gradient-to-r from-slate-900 to-slate-800 hover:from-slate-800 hover:to-slate-700 text-white py-3 rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition-all shadow-lg shadow-slate-900/20 hover:shadow-xl hover:shadow-slate-900/30">
                                         <Phone size={16} />
-                                        Call Now
+                                        Call Patient
                                     </button>
-                                    <button className="px-4 bg-white border-2 border-slate-200 text-slate-600 rounded-xl hover:border-green-500 hover:text-green-600 hover:bg-green-50 transition-all flex items-center justify-center group">
+                                    <button
+                                        onClick={() => resolveRedFlag(flag.id)}
+                                        className="px-4 bg-white border-2 border-slate-200 text-slate-600 rounded-xl hover:border-green-500 hover:text-green-600 hover:bg-green-50 transition-all flex items-center justify-center group"
+                                    >
                                         <Check size={18} className="group-hover:scale-110 transition-transform" />
                                     </button>
                                 </div>
@@ -149,7 +163,7 @@ const DoctorDashboard = () => {
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-slate-100">
-                                    {INCOMING_SESSIONS.map((session, index) => (
+                                    {INCOMING_SESSIONS.map((session) => (
                                         <tr
                                             key={session.id}
                                             className="hover:bg-gradient-to-r hover:from-slate-50/50 hover:to-transparent transition-all group"
