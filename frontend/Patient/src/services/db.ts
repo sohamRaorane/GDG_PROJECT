@@ -89,33 +89,7 @@ export const createAppointment = async (appointment: Omit<Appointment, 'id'>): P
         // Don't fail the appointment creation if this fails
     }
 
-    // Auto-create Active Therapy record
-    try {
-        console.log("DEBUG: Attempting to auto-create active therapy for serviceId:", appointment.serviceId);
-        const service = await getServiceById(appointment.serviceId);
-        console.log("DEBUG: Service found:", service ? "Yes" : "No");
-
-        if (service) {
-            console.log("DEBUG: Creating active therapy with duration:", service.durationDays);
-            const activeTherapyData = {
-                patientId: appointment.customerId,
-                therapyName: appointment.serviceName,
-                startDate: appointment.startAt.toDate().toISOString().split('T')[0],
-                totalDays: service.durationDays || 14,
-                currentDay: 1,
-                status: 'IN_PROGRESS',
-                logs: {},
-                timeline: []
-            };
-
-            const ref = await addDoc(collection(db, 'active_therapies'), activeTherapyData);
-            console.log(`DEBUG: Auto-created active therapy successfully. ID: ${ref.id}`);
-        } else {
-            console.error("DEBUG: Failed to find service details, skipping active therapy creation.");
-        }
-    } catch (err) {
-        console.error("DEBUG: Failed to create active therapy:", err);
-    }
+    // Active Therapy creation is now handled by the backend Cloud Function 'onAppointmentCreated'
 
     return docRef.id;
 };
