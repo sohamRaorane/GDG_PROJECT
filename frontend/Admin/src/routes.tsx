@@ -18,7 +18,7 @@ const AppRoutes = () => {
         <Routes>
             <Route path="/login" element={<Login />} />
             <Route path="/" element={
-                <ProtectedRoute>
+                <ProtectedRoute allowedRoles={['admin', 'doctor']}>
                     <DashboardLayout />
                 </ProtectedRoute>
             }>

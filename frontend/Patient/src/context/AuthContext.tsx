@@ -13,10 +13,12 @@ import {
 } from 'firebase/auth';
 import { Timestamp } from 'firebase/firestore';
 import { auth } from '../firebase';
-import { createUserProfile } from '../services/db';
+import { createUserProfile, getUserProfile } from '../services/db';
+import type { UserProfile, UserRole } from '../types/db';
 
 interface AuthContextType {
     currentUser: User | null;
+    userRole: UserRole | null;
     loading: boolean;
     login: (email: string, password: string) => Promise<void>;
     signup: (email: string, password: string, name: string) => Promise<void>;
@@ -42,11 +44,28 @@ interface AuthProviderProps {
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const [currentUser, setCurrentUser] = useState<User | null>(null);
+    const [userRole, setUserRole] = useState<UserRole | null>(null);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        const unsubscribe = onAuthStateChanged(auth, (user) => {
+
+        const unsubscribe = onAuthStateChanged(auth, async (user) => {
             setCurrentUser(user);
+            if (user) {
+                try {
+                    const profile = await getUserProfile(user.uid);
+                    if (profile) {
+                        setUserRole(profile.role);
+                    } else {
+                        setUserRole(null);
+                    }
+                } catch (error) {
+                    console.error("Error fetching user profile:", error);
+                    setUserRole(null);
+                }
+            } else {
+                setUserRole(null);
+            }
             setLoading(false);
         });
 
@@ -127,6 +146,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
     const value = {
         currentUser,
+        userRole,
         loading,
         login,
         signup,
