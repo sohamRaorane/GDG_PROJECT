@@ -38,7 +38,7 @@ export const Community = () => {
                         <p className="text-slate-500 text-sm">Connect with others on the same journey</p>
                     </div>
 
-                    <div className="bg-white rounded-2xl shadow-sm border border-slate-200 flex-1 overflow-hidden flex flex-col">
+                    <div className="bg-[#FFFCF5] rounded-2xl shadow-sm border border-slate-200 flex-1 overflow-hidden flex flex-col">
                         <div className="p-4 border-b border-slate-100">
                             <div className="relative">
                                 <Search className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
@@ -59,8 +59,8 @@ export const Community = () => {
                                         key={channel.id}
                                         onClick={() => setSelectedChannel(channel)}
                                         className={`w-full text-left p-3 rounded-xl transition-all flex items-center gap-3 group ${selectedChannel?.id === channel.id
-                                                ? 'bg-emerald-50 border-emerald-100 ring-1 ring-emerald-200/50 shadow-sm'
-                                                : 'hover:bg-slate-50 border border-transparent'
+                                            ? 'bg-emerald-50 border-emerald-100 ring-1 ring-emerald-200/50 shadow-sm'
+                                            : 'hover:bg-slate-50 border border-transparent'
                                             }`}
                                     >
                                         <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 transition-colors ${selectedChannel?.id === channel.id ? 'bg-emerald-100 text-emerald-600' : 'bg-slate-100 text-slate-500 group-hover:bg-white group-hover:shadow-sm'
@@ -80,17 +80,7 @@ export const Community = () => {
                             )}
                         </div>
 
-                        <div className="p-4 bg-slate-50 border-t border-slate-100">
-                            <div className="flex items-center gap-3 p-3 bg-white rounded-xl border border-slate-200 shadow-sm">
-                                <div className="w-8 h-8 bg-amber-100 rounded-full flex items-center justify-center text-amber-600">
-                                    <Star size={14} fill="currentColor" />
-                                </div>
-                                <div>
-                                    <p className="text-xs font-bold text-slate-800">Premium Members</p>
-                                    <p className="text-[10px] text-slate-500">Access exclusive expert talks</p>
-                                </div>
-                            </div>
-                        </div>
+
                     </div>
                 </div>
 
