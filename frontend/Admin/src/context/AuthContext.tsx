@@ -3,11 +3,14 @@ import {
     type User,
     onAuthStateChanged,
     signInWithEmailAndPassword,
+    createUserWithEmailAndPassword,
     signOut,
     signInWithPopup,
-    GoogleAuthProvider
+    GoogleAuthProvider,
+    updateProfile
 } from 'firebase/auth';
-import { auth } from '../firebase';
+import { auth, db } from '../firebase';
+import { doc, setDoc, Timestamp } from 'firebase/firestore';
 import { getUserProfile } from '../services/db';
 import type { UserProfile } from '../types/db';
 
@@ -16,6 +19,7 @@ interface AuthContextType {
     userProfile: UserProfile | null;
     loading: boolean;
     login: (email: string, password: string) => Promise<void>;
+    register: (email: string, password: string, displayName: string) => Promise<void>;
     logout: () => Promise<void>;
     signInWithGoogle: () => Promise<void>;
 }
@@ -67,6 +71,29 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         }
     };
 
+    const register = async (email: string, password: string, displayName: string) => {
+        try {
+            const { user } = await createUserWithEmailAndPassword(auth, email, password);
+            await updateProfile(user, { displayName });
+
+            // Create user profile in Firestore
+            const profile: UserProfile = {
+                uid: user.uid,
+                email: user.email!,
+                displayName: displayName,
+                role: 'admin', // Default role for admin portal registrations
+                createdAt: Timestamp.now(),
+                updatedAt: Timestamp.now()
+            };
+
+            await setDoc(doc(db, 'users', user.uid), profile);
+            setUserProfile(profile);
+        } catch (error) {
+            console.error("Registration failed", error);
+            throw error;
+        }
+    };
+
     const logout = async () => {
         try {
             await signOut(auth);
@@ -92,6 +119,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         userProfile,
         loading,
         login,
+        register,
         logout,
         signInWithGoogle
     };

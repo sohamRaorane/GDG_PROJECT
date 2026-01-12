@@ -1,8 +1,7 @@
 import { useState, useEffect } from 'react';
-import { getChannels, getChannelPosts, subscribeToChannelPosts } from '../services/db';
+import { getChannels, subscribeToChannelPosts } from '../services/db';
 import type { CommunityChannel, CommunityPost } from '../services/db';
-import { Users, Hash, Search, ArrowRight, MessageSquare, Loader2 } from 'lucide-react';
-import Card from '../components/ui/Card';
+import { Users, Hash, ArrowRight, MessageSquare, Loader2 } from 'lucide-react';
 import Modal from '../components/ui/Modal';
 
 const CommunityManagement = () => {

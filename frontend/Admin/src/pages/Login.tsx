@@ -1,14 +1,16 @@
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import { ShieldCheck, Mail, Lock, ArrowRight, Loader2 } from 'lucide-react';
+import { ShieldCheck, Mail, Lock, ArrowRight, Loader2, User } from 'lucide-react';
 
 const Login = () => {
+    const [isSignUpMode, setIsSignUpMode] = useState(false);
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [displayName, setDisplayName] = useState('');
     const [error, setError] = useState('');
     const [isLoading, setIsLoading] = useState(false);
-    const { login, signInWithGoogle } = useAuth();
+    const { login, register, signInWithGoogle } = useAuth();
     const navigate = useNavigate();
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -16,10 +18,18 @@ const Login = () => {
         setIsLoading(true);
         try {
             setError('');
-            await login(email, password);
+            if (isSignUpMode) {
+                if (!displayName.trim()) {
+                    setError('Please enter your full name');
+                    return;
+                }
+                await register(email, password, displayName);
+            } else {
+                await login(email, password);
+            }
             navigate('/');
-        } catch (err) {
-            setError('Failed to log in. Please check your credentials.');
+        } catch (err: any) {
+            setError(err.message || 'Failed to authenticate. Please check your credentials.');
             console.error(err);
         } finally {
             setIsLoading(false);
@@ -100,9 +110,11 @@ const Login = () => {
                                 <ShieldCheck className="h-8 w-8 text-indigo-600" />
                             </div>
                         </div>
-                        <h2 className="text-3xl font-bold text-slate-900 mb-2">Welcome back</h2>
+                        <h2 className="text-3xl font-bold text-slate-900 mb-2">
+                            {isSignUpMode ? 'Create an account' : 'Welcome back'}
+                        </h2>
                         <p className="text-slate-500">
-                            Please enter your details to sign in.
+                            {isSignUpMode ? 'Enter your details to register as an admin.' : 'Please enter your details to sign in.'}
                         </p>
                     </div>
 
@@ -116,7 +128,7 @@ const Login = () => {
                                 <svg className="h-5 w-5 mr-3" aria-hidden="true" viewBox="0 0 24 24">
                                     <path d="M12.0003 20.45c4.6667 0 8.45-3.7833 8.45-8.45 0-.6083-.0583-1.2083-.1667-1.7917H12.0003v3.3917h4.7917c-.2083 1.1583-1.6333 3.4167-4.7917 3.4167-2.8917 0-5.25-2.3583-5.25-5.25s2.3583-5.25 5.25-5.25c1.2917 0 2.4583.4583 3.375 1.3333l2.5417-2.5417c-1.5833-1.475-3.625-2.375-5.9167-2.375-4.6667 0-8.45 3.7833-8.45 8.45s3.7833 8.45 8.45 8.45z" fill="currentColor" className="text-slate-600 group-hover:text-red-500 transition-colors" />
                                 </svg>
-                                {isLoading ? 'Connecting...' : 'Continue with Google'}
+                                {isLoading ? 'Connecting...' : `Continue with Google`}
                             </button>
                         </div>
 
@@ -125,7 +137,9 @@ const Login = () => {
                                 <div className="w-full border-t border-slate-200" />
                             </div>
                             <div className="relative flex justify-center text-sm">
-                                <span className="px-4 bg-white text-slate-500">Or sign in with email</span>
+                                <span className="px-4 bg-white text-slate-500">
+                                    {isSignUpMode ? 'Or register with email' : 'Or sign in with email'}
+                                </span>
                             </div>
                         </div>
 
@@ -138,6 +152,28 @@ const Login = () => {
                             )}
 
                             <div className="space-y-4">
+                                {isSignUpMode && (
+                                    <div>
+                                        <label htmlFor="name" className="block text-sm font-medium text-slate-700 mb-1.5">
+                                            Full Name
+                                        </label>
+                                        <div className="relative group">
+                                            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                                <User className="h-5 w-5 text-slate-400 group-focus-within:text-indigo-500 transition-colors" />
+                                            </div>
+                                            <input
+                                                id="name"
+                                                name="name"
+                                                type="text"
+                                                required
+                                                className="block w-full pl-10 pr-3 py-3 border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all duration-200 sm:text-sm bg-slate-50/50 focus:bg-white"
+                                                placeholder="John Doe"
+                                                value={displayName}
+                                                onChange={(e) => setDisplayName(e.target.value)}
+                                            />
+                                        </div>
+                                    </div>
+                                )}
                                 <div>
                                     <label htmlFor="email" className="block text-sm font-medium text-slate-700 mb-1.5">
                                         Email address
@@ -211,16 +247,31 @@ const Login = () => {
                                 {isLoading ? (
                                     <>
                                         <Loader2 className="animate-spin -ml-1 mr-2 h-4 w-4" />
-                                        Signing in...
+                                        {isSignUpMode ? 'Creating account...' : 'Signing in...'}
                                     </>
                                 ) : (
                                     <>
-                                        Sign in
+                                        {isSignUpMode ? 'Create account' : 'Sign in'}
                                         <ArrowRight className="ml-2 h-4 w-4" />
                                     </>
                                 )}
                             </button>
                         </form>
+
+                        <div className="text-center">
+                            <p className="text-sm text-slate-600">
+                                {isSignUpMode ? 'Already have an account?' : "Don't have an account?"}
+                                <button
+                                    onClick={() => {
+                                        setIsSignUpMode(!isSignUpMode);
+                                        setError('');
+                                    }}
+                                    className="ml-2 font-bold text-indigo-600 hover:text-indigo-500 hover:underline transition-all"
+                                >
+                                    {isSignUpMode ? 'Sign in' : 'Sign up now'}
+                                </button>
+                            </p>
+                        </div>
                     </div>
                 </div>
             </div>

@@ -90,6 +90,7 @@ export interface Appointment {
     startAt: Timestamp;
     endAt: Timestamp;
     status: AppointmentStatus;
+    price: number;
     notes?: string;
     intakeValues?: Record<string, any>;
     createdAt: Timestamp;

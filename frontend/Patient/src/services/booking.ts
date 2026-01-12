@@ -15,6 +15,7 @@ export const bookMultiDayAppointment = async (
         startTime: string; // HH:MM
         days: number;
         durationMinutes: number;
+        price: number;
         intakeValues?: Record<string, any>;
     }
 ): Promise<string> => {
@@ -62,6 +63,7 @@ export const bookMultiDayAppointment = async (
                 startAt: Timestamp.fromDate(startDateTime),
                 endAt: Timestamp.fromDate(endDateTime),
                 status: 'confirmed',
+                price: params.price,
                 intakeValues: params.intakeValues,
                 createdAt: Timestamp.now(),
                 updatedAt: Timestamp.now()
