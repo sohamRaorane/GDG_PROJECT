@@ -399,9 +399,6 @@ const Login = () => {
                                 <h1>Create Account</h1>
                                 <div className="social-icons">
                                     <a onClick={handleGoogleSignIn} className="icon"><i className="fa-brands fa-google-plus-g"></i></a>
-                                    <a className="icon"><i className="fa-brands fa-facebook-f"></i></a>
-                                    <a className="icon"><i className="fa-brands fa-github"></i></a>
-                                    <a className="icon"><i className="fa-brands fa-linkedin-in"></i></a>
                                 </div>
                                 <span>or use your email for registration</span>
                                 {error && isActive && <div className="error-message">{error}</div>}
@@ -439,9 +436,6 @@ const Login = () => {
                                 <h1>Sign In</h1>
                                 <div className="social-icons">
                                     <a onClick={handleGoogleSignIn} className="icon"><i className="fa-brands fa-google-plus-g"></i></a>
-                                    <a className="icon"><i className="fa-brands fa-facebook-f"></i></a>
-                                    <a className="icon"><i className="fa-brands fa-github"></i></a>
-                                    <a className="icon"><i className="fa-brands fa-linkedin-in"></i></a>
                                 </div>
                                 <span>or use your email password</span>
                                 {error && !isActive && <div className="error-message">{error}</div>}
