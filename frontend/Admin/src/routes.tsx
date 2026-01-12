@@ -8,6 +8,7 @@ import Login from "./pages/Login";
 import ActiveTherapies from "./pages/ActiveTherapies";
 import TherapyControl from "./pages/TherapyControl";
 import DoctorDashboard from "./pages/DoctorDashboard";
+import CommunityManagement from "./pages/CommunityManagement";
 import Settings from "./pages/Settings";
 import ProtectedRoute from "./components/ProtectedRoute";
 
@@ -27,6 +28,7 @@ const AppRoutes = () => {
                 <Route path="users" element={<UserManagement />} />
                 <Route path="active-therapies" element={<ActiveTherapies />} />
                 <Route path="active-therapies/:id" element={<TherapyControl />} />
+                <Route path="community" element={<CommunityManagement />} />
                 <Route path="settings" element={<Settings />} />
             </Route>
         </Routes>
