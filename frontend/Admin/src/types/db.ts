@@ -32,12 +32,56 @@ export interface BookingRules {
     requiresManualConfirmation: boolean;
 }
 
+// --- Settings Interfaces ---
+
+export interface GeneralSettings {
+    platformName: string;
+    contactEmail: string;
+    timezone: string;
+    language: string;
+    dateFormat: string;
+    currency: string;
+
+}
+
 export interface BookingSettings {
     maxBookingsPerSlot: number;
-    cutOffTime: number; // hours
+    slotDurationMinutes: number;
+    bookingCutoffHours: number;
+    allowSameDayBooking: boolean;
     requiresManualConfirmation: boolean;
     requiresAdvancePayment: boolean;
+    advancePaymentPercent: number;
+    cancellationWindowHours: number;
+    rescheduleAllowed: boolean;
+    noShowPenaltyEnabled: boolean;
 }
+
+export interface NotificationSettings {
+    emailNotifications: boolean;
+    smsNotifications: boolean;
+    pushNotifications: boolean;
+    appointmentReminders: boolean;
+    reminderTimingHours: number[]; // e.g. [24, 2]
+    criticalAlerts: boolean; // Red Flags / SOS
+}
+
+export interface SecuritySettings {
+    enable2FA: boolean;
+    sessionTimeoutMinutes: number;
+    passwordExpiryDays: number;
+    ipRestrictionEnabled: boolean;
+    auditLoggingEnabled: boolean;
+}
+
+export interface SystemSettings {
+    maintenanceMode: boolean;
+    maintenanceMessage: string;
+    automaticBackup: boolean;
+    apiRateLimitPerHour: number;
+    dataRetentionDays: number;
+}
+
 
 export interface IntakeFormField {
     id: string;
