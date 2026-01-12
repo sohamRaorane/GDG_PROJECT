@@ -92,51 +92,51 @@ const ClinicLocator = () => {
     const [selectedClinic, setSelectedClinic] = useState<Clinic | null>(null);
 
     return (
-        <div className="h-[calc(100vh-4rem)] w-full relative flex flex-col md:flex-row bg-slate-50 dark:bg-slate-900">
+        <div className="h-[calc(100vh-4rem)] w-full relative flex flex-col md:flex-row bg-[#FFF9F2]">
             {/* Sidebar List */}
-            <div className="w-full md:w-96 bg-white dark:bg-slate-800 shadow-xl z-10 flex flex-col h-1/3 md:h-full overflow-hidden border-r border-slate-200 dark:border-slate-700">
-                <div className="p-4 border-b border-slate-200 dark:border-slate-700 bg-white/50 dark:bg-slate-800/50 backdrop-blur-sm">
-                    <h1 className="text-2xl font-bold text-emerald-800 dark:text-emerald-400">Clinic Locator</h1>
-                    <p className="text-sm text-slate-600 dark:text-slate-400 flex items-center gap-2 mt-1">
+            <div className="w-full md:w-96 bg-[#FFF9F2] shadow-xl z-10 flex flex-col h-1/3 md:h-full overflow-hidden border-r border-amber-200">
+                <div className="p-4 border-b border-amber-200 bg-[#FFF9F2]">
+                    <h1 className="text-2xl font-bold text-amber-900">Clinic Locator</h1>
+                    <p className="text-sm text-amber-800/70 flex items-center gap-2 mt-1">
                         <span className="relative flex h-3 w-3">
-                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                            <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
+                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-orange-400 opacity-75"></span>
+                            <span className="relative inline-flex rounded-full h-3 w-3 bg-orange-500"></span>
                         </span>
                         Realtime Availability
                     </p>
                 </div>
 
-                <div className="flex-1 overflow-y-auto p-4 space-y-4">
+                <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-[#FFF9F2]">
                     {MOCK_CLINICS.map((clinic) => (
                         <div
                             key={clinic.id}
                             onClick={() => setSelectedClinic(clinic)}
                             className={`p-4 rounded-xl border cursor-pointer transition-all duration-300 hover:shadow-md ${selectedClinic?.id === clinic.id
-                                ? 'border-emerald-500 bg-emerald-50 dark:bg-emerald-900/20 dark:border-emerald-500'
-                                : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:border-emerald-300 dark:hover:border-emerald-700'
+                                ? 'border-amber-500 bg-amber-100'
+                                : 'border-amber-200 bg-white hover:border-amber-300'
                                 }`}
                         >
                             <div className="flex justify-between items-start">
-                                <h3 className="font-semibold text-slate-900 dark:text-slate-100">{clinic.name}</h3>
+                                <h3 className="font-semibold text-amber-900">{clinic.name}</h3>
                                 {clinic.isOpen ? (
-                                    <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
+                                    <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 border border-green-200">
                                         Open
                                     </span>
                                 ) : (
-                                    <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-800 dark:bg-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-600">
+                                    <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800 border border-red-200">
                                         Closed
                                     </span>
                                 )}
                             </div>
-                            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 line-clamp-2">{clinic.address}</p>
+                            <p className="text-xs text-amber-800/70 mt-1 line-clamp-2">{clinic.address}</p>
 
                             <div className="mt-3 flex items-center justify-between text-sm">
-                                <div className="flex items-center gap-1 text-amber-500">
+                                <div className="flex items-center gap-1 text-amber-600">
                                     <Star size={14} fill="currentColor" />
                                     <span className="font-medium">{clinic.rating}</span>
                                 </div>
                                 {clinic.isOpen && (
-                                    <div className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400">
+                                    <div className="flex items-center gap-1 text-orange-600">
                                         <Clock size={14} />
                                         <span className="text-xs font-medium">{clinic.waitTime} min wait</span>
                                     </div>
@@ -173,13 +173,13 @@ const ClinicLocator = () => {
                         >
                             <Popup className="custom-popup">
                                 <div className="p-1 min-w-[200px]">
-                                    <h3 className="font-bold text-slate-800">{clinic.name}</h3>
-                                    <p className="text-xs text-slate-600 mt-1">{clinic.address}</p>
+                                    <h3 className="font-bold text-amber-900">{clinic.name}</h3>
+                                    <p className="text-xs text-amber-800/80 mt-1">{clinic.address}</p>
                                     <div className="flex items-center gap-2 mt-2">
-                                        <button className="flex-1 bg-emerald-600 text-white text-xs py-1.5 px-3 rounded-lg hover:bg-emerald-700 transition-colors flex items-center justify-center gap-1">
+                                        <button className="flex-1 bg-amber-600 text-white text-xs py-1.5 px-3 rounded-lg hover:bg-amber-700 transition-colors flex items-center justify-center gap-1">
                                             <Navigation size={12} /> Directions
                                         </button>
-                                        <a href={`tel:${clinic.phone}`} className="p-1.5 text-emerald-600 bg-emerald-50 rounded-lg hover:bg-emerald-100">
+                                        <a href={`tel:${clinic.phone}`} className="p-1.5 text-amber-600 bg-amber-50 rounded-lg hover:bg-amber-100">
                                             <Phone size={14} />
                                         </a>
                                     </div>
@@ -191,25 +191,25 @@ const ClinicLocator = () => {
 
                 {/* Floating Info Overlay for Mobile/Quick View */}
                 {selectedClinic && (
-                    <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 md:translate-x-0 md:left-6 md:bottom-6 w-[90%] md:w-80 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md p-4 rounded-2xl shadow-2xl border border-white/20 z-[400] transition-all duration-300 animate-in slide-in-from-bottom-5">
+                    <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 md:translate-x-0 md:left-6 md:bottom-6 w-[90%] md:w-80 bg-white/95 backdrop-blur-md p-4 rounded-2xl shadow-2xl border border-amber-100 z-[400] transition-all duration-300 animate-in slide-in-from-bottom-5">
                         <div className="flex justify-between items-start">
                             <div>
-                                <h2 className="font-bold text-lg text-slate-900 dark:text-white">{selectedClinic.name}</h2>
-                                <p className="text-slate-500 dark:text-slate-400 text-sm mt-0.5">{selectedClinic.address}</p>
+                                <h2 className="font-bold text-lg text-amber-900">{selectedClinic.name}</h2>
+                                <p className="text-amber-800/80 text-sm mt-0.5">{selectedClinic.address}</p>
                             </div>
                             <button
                                 onClick={() => setSelectedClinic(null)}
-                                className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+                                className="text-amber-400 hover:text-amber-600"
                             >
                                 ✕
                             </button>
                         </div>
 
                         <div className="grid grid-cols-2 gap-3 mt-4">
-                            <button className="bg-emerald-600 hover:bg-emerald-700 text-white py-2 rounded-xl text-sm font-medium flex items-center justify-center gap-2 transition-colors shadow-lg shadow-emerald-600/20">
+                            <button className="bg-amber-600 hover:bg-amber-700 text-white py-2 rounded-xl text-sm font-medium flex items-center justify-center gap-2 transition-colors shadow-lg shadow-amber-600/20">
                                 <Navigation size={16} /> Navigate
                             </button>
-                            <button className="bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-900 dark:text-white py-2 rounded-xl text-sm font-medium flex items-center justify-center gap-2 transition-colors">
+                            <button className="bg-amber-50 hover:bg-amber-100 text-amber-900 py-2 rounded-xl text-sm font-medium flex items-center justify-center gap-2 transition-colors border border-amber-200">
                                 <Phone size={16} /> Call
                             </button>
                         </div>

@@ -32,7 +32,7 @@ interface Clinic {
 const MUMBAI_CENTER: [number, number] = [19.0760, 72.8777];
 
 // Augmented Mock Clinics List
-const MOCK_CLINICS: Clinic[] = [
+export const MOCK_CLINICS: Clinic[] = [
     {
         id: '1',
         name: 'AyurSutra Wellness Center',
@@ -155,7 +155,7 @@ export const SelectClinic = ({ selectedClinicId, onSelect }: SelectClinicProps) 
     return (
         <div className="space-y-6 h-full flex flex-col w-full">
             <div className="flex flex-col items-center text-center mb-6">
-                <h3 className="text-2xl font-display font-medium text-text mb-2 italic">Select a Sanctuary</h3>
+                <h3 className="text-2xl font-display font-medium text-text mb-2 italic">Select a Clinic</h3>
                 <div className="flex items-center gap-2 text-primary/60">
                     <span className="relative flex h-2.5 w-2.5">
                         <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-30"></span>
@@ -274,7 +274,7 @@ export const SelectClinic = ({ selectedClinicId, onSelect }: SelectClinicProps) 
                                 onClick={() => onSelect(activeClinic.id)}
                                 className="w-full mt-4 bg-primary hover:bg-primary/90 text-white text-sm font-bold py-3.5 rounded-2xl transition-colors shadow-lg shadow-primary/10"
                             >
-                                Select This Sanctuary
+                                Select This Clinic
                             </button>
                         )}
                     </div>

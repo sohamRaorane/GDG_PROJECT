@@ -2,10 +2,12 @@ import { useNavigate } from 'react-router-dom';
 import { CheckCircle, Calendar, Clock, MapPin, Users, Download, Share2, Home } from 'lucide-react';
 import { Button } from '../../../components/ui/Button';
 import { format } from 'date-fns';
+import { MOCK_CLINICS } from './SelectClinic';
 
 interface ConfirmationProps {
     bookingData: {
         serviceId: string;
+        clinicId: string;
         doctorId: string;
         date: string;
         slot: string;
@@ -15,6 +17,7 @@ interface ConfirmationProps {
 
 export const Confirmation: React.FC<ConfirmationProps> = ({ bookingData }) => {
     const navigate = useNavigate();
+    const selectedClinic = MOCK_CLINICS.find(c => c.id === bookingData.clinicId);
 
     return (
         <div className="max-w-3xl mx-auto py-8">
@@ -92,7 +95,7 @@ export const Confirmation: React.FC<ConfirmationProps> = ({ bookingData }) => {
                             </div>
                             <div>
                                 <p className="text-[10px] font-bold text-text/40 uppercase tracking-widest mb-1">Location</p>
-                                <p className="font-display font-bold text-text italic text-lg">Wellness Wing, AyurSutra</p>
+                                <p className="font-display font-bold text-text italic text-lg">{selectedClinic?.name || 'AyurSutra Center'}</p>
                             </div>
                         </div>
                     </div>

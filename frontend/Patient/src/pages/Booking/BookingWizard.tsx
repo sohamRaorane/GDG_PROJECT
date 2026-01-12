@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import { Check, ChevronRight, ChevronLeft, Calendar as CalendarIcon, User, Package, FileText, CreditCard, CheckCircle, MapPin } from 'lucide-react';
 import { cn } from '../../utils/cn';
 import { Button } from '../../components/ui/Button';
@@ -28,6 +29,7 @@ const STEPS = [
 type StepId = typeof STEPS[number]['id'];
 
 export const BookingWizard = () => {
+    const location = useLocation();
     const [currentStep, setCurrentStep] = useState<StepId>('service');
     const [bookingData, setBookingData] = useState({
         serviceId: '',
@@ -39,6 +41,17 @@ export const BookingWizard = () => {
         peopleCount: 1,
         intakeValues: {}
     });
+
+    // Check for pre-selected service from navigation state
+    useEffect(() => {
+        if (location.state && location.state.serviceId) {
+            setBookingData(prev => ({ ...prev, serviceId: location.state.serviceId }));
+            setCurrentStep('clinic');
+
+            // Clear the state so refreshing doesn't stick (optional, but good UX)
+            // history.replaceState({}, ''); 
+        }
+    }, [location.state]);
 
     const currentStepIndex = STEPS.findIndex(s => s.id === currentStep);
 
@@ -129,12 +142,12 @@ export const BookingWizard = () => {
     };
 
     return (
-        <div className="min-h-screen bg-background py-12 px-4 transition-colors duration-500">
+        <div className="min-h-screen bg-[#FFF9F2] py-12 px-4 transition-colors duration-500">
             <div className="container mx-auto max-w-6xl">
                 {/* Brand / Header */}
                 <div className="text-center mb-12">
-                    <h1 className="text-4xl font-display font-medium text-primary mb-2 italic">AyurSutra Booking</h1>
-                    <p className="text-text/60 font-serif">Follow the steps below to schedule your healing session.</p>
+                    <h1 className="text-4xl font-display font-bold text-amber-900 mb-2 italic">AyurSutra Booking</h1>
+                    <p className="text-amber-800/60 font-serif">Follow the steps below to schedule your healing session.</p>
                 </div>
 
                 {/* Stepper container */}
@@ -149,20 +162,20 @@ export const BookingWizard = () => {
                                 <div key={step.id} className="flex items-center">
                                     <div className={cn(
                                         "flex items-center gap-2 px-4 py-2 rounded-full transition-all duration-300",
-                                        isCurrent ? "bg-primary text-white shadow-lg shadow-primary/20" :
-                                            isCompleted ? "text-primary opacity-80" : "text-text/40"
+                                        isCurrent ? "bg-amber-600 text-white shadow-lg shadow-amber-600/20" :
+                                            isCompleted ? "text-amber-700 opacity-80" : "text-amber-900/30"
                                     )}>
                                         <div className={cn(
                                             "w-8 h-8 rounded-full flex items-center justify-center border transition-all",
-                                            isCurrent ? "bg-accent text-white border-transparent" :
-                                                isCompleted ? "bg-secondary text-primary border-transparent" : "bg-white border-primary/10"
+                                            isCurrent ? "bg-amber-500 text-white border-transparent" :
+                                                isCompleted ? "bg-amber-100 text-amber-700 border-transparent" : "bg-white border-amber-900/10"
                                         )}>
                                             {isCompleted ? <Check size={14} /> : <StepIcon size={14} />}
                                         </div>
                                         <span className={cn(
                                             "text-xs font-bold uppercase tracking-wider hidden sm:block whitespace-nowrap",
                                             isCurrent ? "text-white" : "",
-                                            !isCurrent && !isCompleted && "text-text/40"
+                                            !isCurrent && !isCompleted && "text-amber-900/30"
                                         )}>
                                             {step.label}
                                         </span>
@@ -170,7 +183,7 @@ export const BookingWizard = () => {
                                     {index < STEPS.length - 1 && (
                                         <div className={cn(
                                             "mx-2 h-0.5 w-8 hidden sm:block transition-colors duration-300",
-                                            index < currentStepIndex ? "bg-secondary" : "bg-primary/10"
+                                            index < currentStepIndex ? "bg-amber-200" : "bg-amber-900/10"
                                         )} />
                                     )}
                                 </div>
@@ -180,9 +193,9 @@ export const BookingWizard = () => {
                 </div>
 
                 {/* Content Area - Glassmorphism Card */}
-                <div className="bg-white/80 backdrop-blur-xl rounded-[3rem] shadow-2xl shadow-secondary/10 border-2 border-secondary/20 p-8 md:p-12 min-h-[500px] flex flex-col relative overflow-hidden">
-                    <div className="absolute top-0 right-0 w-64 h-64 bg-secondary/5 rounded-full blur-[100px] -z-10" />
-                    <div className="absolute bottom-0 left-0 w-64 h-64 bg-accent/5 rounded-full blur-[100px] -z-10" />
+                <div className="bg-white/60 backdrop-blur-xl rounded-[3rem] shadow-2xl shadow-amber-900/5 border border-white/50 p-8 md:p-12 min-h-[500px] flex flex-col relative overflow-hidden">
+                    <div className="absolute top-0 right-0 w-64 h-64 bg-amber-200/20 rounded-full blur-[100px] -z-10" />
+                    <div className="absolute bottom-0 left-0 w-64 h-64 bg-orange-200/20 rounded-full blur-[100px] -z-10" />
                     <div className="flex-1">
                         {/* Step Content with basic fade-in (replace with framer if available) */}
                         <div className="animate-in fade-in duration-500">
@@ -237,12 +250,12 @@ export const BookingWizard = () => {
 
                     {/* Footer Actions */}
                     {currentStep !== 'confirm' && (
-                        <div className="mt-12 flex justify-between items-center pt-8 border-t-2 border-secondary/10">
+                        <div className="mt-12 flex justify-between items-center pt-8 border-t border-amber-900/10">
                             <Button
                                 variant="outline"
                                 onClick={handleBack}
                                 disabled={currentStepIndex === 0}
-                                className="px-8 rounded-xl border-secondary/20 hover:bg-secondary/10 gap-2 text-secondary font-bold"
+                                className="px-8 rounded-xl border-amber-900/20 hover:bg-amber-50 gap-2 text-amber-800 font-bold"
                             >
                                 <ChevronLeft size={18} /> Back
                             </Button>
@@ -251,7 +264,7 @@ export const BookingWizard = () => {
                                 {currentStep !== 'payment' && (
                                     <Button
                                         onClick={handleNext}
-                                        className="px-10 py-6 rounded-2xl bg-primary text-white hover:bg-primary/90 shadow-xl shadow-primary/20 gap-2 text-lg font-bold border-b-4 border-primary/20 active:border-b-0 active:translate-y-1 transition-all"
+                                        className="px-10 py-6 rounded-2xl bg-gradient-to-r from-amber-600 to-orange-600 text-white hover:from-amber-700 hover:to-orange-700 shadow-xl shadow-amber-900/10 gap-2 text-lg font-bold border-b-4 border-amber-800/20 active:border-b-0 active:translate-y-1 transition-all"
                                     >
                                         {currentStep === 'intake' ? "Go to Payment" : "Continue"}
                                         <ChevronRight size={20} />
