@@ -1,11 +1,11 @@
-import { AlertTriangle, Phone, Check, User, AlertCircle, Clock, TrendingUp, Calendar, MapPin } from 'lucide-react';
+import { AlertTriangle, Check, User, AlertCircle, Clock, TrendingUp, Calendar, MapPin } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import { useState, useEffect } from 'react';
 import { subscribeToRedFlags, resolveRedFlag, clearAllRedFlags } from '../services/dashboard';
 import type { DailyHealthLog } from '../types/db';
 
 
-import { collection, query, where, onSnapshot, limit } from 'firebase/firestore';
+import { collection, query, where, onSnapshot, limit, orderBy, Timestamp } from 'firebase/firestore';
 import { db } from '../firebase';
 import type { Appointment } from '../types/db';
 import { getDoctorName } from '../utils/doctors';
@@ -27,9 +27,12 @@ const DoctorDashboard = () => {
 
     useEffect(() => {
         // Fetch upcoming confirmed appointments
+        // Query: Status Confirmed, StartTime >= Now, Sorted by StartTime Ascending
         const q = query(
             collection(db, 'appointments'),
             where('status', '==', 'confirmed'),
+            where('startAt', '>=', Timestamp.now()),
+            orderBy('startAt', 'asc'),
             limit(10)
         );
 
@@ -161,10 +164,7 @@ const DoctorDashboard = () => {
 
                                 {/* Action Buttons */}
                                 <div className="flex gap-3">
-                                    <button className="flex-1 bg-gradient-to-r from-slate-900 to-slate-800 hover:from-slate-800 hover:to-slate-700 text-white py-3 rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition-all shadow-lg shadow-slate-900/20 hover:shadow-xl hover:shadow-slate-900/30">
-                                        <Phone size={16} />
-                                        Call Patient
-                                    </button>
+
                                     <button
                                         onClick={() => resolveRedFlag(flag.id)}
                                         className="px-4 bg-white border-2 border-slate-200 text-slate-600 rounded-xl hover:border-green-500 hover:text-green-600 hover:bg-green-50 transition-all flex items-center justify-center group"

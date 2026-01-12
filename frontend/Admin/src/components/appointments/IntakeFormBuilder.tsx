@@ -95,7 +95,11 @@ const IntakeFormBuilder = () => {
                         </div>
                     </div>
                     <Button
-                        onClick={addField}
+                        type="button"
+                        onClick={() => {
+                            console.log("Add Question clicked");
+                            addField();
+                        }}
                         className="bg-indigo-600 hover:bg-indigo-700 text-white shadow-lg shadow-indigo-500/20"
                     >
                         <Plus className="mr-2 h-4 w-4" /> Add Question
@@ -168,6 +172,7 @@ const IntakeFormBuilder = () => {
                                                     </span>
                                                 ))}
                                                 <button
+                                                    type="button"
                                                     className="px-2 py-1 rounded-md text-sm font-medium text-indigo-500 border border-dashed border-indigo-300 hover:bg-indigo-50 hover:text-indigo-700 hover:border-indigo-400 transition-colors"
                                                     onClick={() => {
                                                         const newOpt = prompt("Enter option name:");
@@ -200,6 +205,7 @@ const IntakeFormBuilder = () => {
                                         </label>
 
                                         <button
+                                            type="button"
                                             onClick={() => removeField(field.id)}
                                             className="text-slate-400 hover:text-red-500 hover:bg-red-50 p-2 rounded-lg transition-colors"
                                             title="Remove Question"

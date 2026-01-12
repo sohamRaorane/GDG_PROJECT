@@ -40,6 +40,33 @@ export const DOCTORS: DoctorResource[] = [
         rating: 4.6,
         clinicIds: ['2', '4'] // Prakriti and VedaLife
     },
+    {
+        id: 'dr-iyer',
+        name: 'Dr. Vikram Iyer',
+        specialization: 'Kayachikitsa (General Medicine)',
+        experience: '15 Years',
+        image: drRajesh, // Placeholder
+        rating: 4.7,
+        clinicIds: ['1', '3']
+    },
+    {
+        id: 'dr-mehta',
+        name: 'Dr. Sunita Mehta',
+        specialization: 'Stri Roga (Gynecology)',
+        experience: '10 Years',
+        image: drAnjali, // Placeholder
+        rating: 4.9,
+        clinicIds: ['2', '5']
+    },
+    {
+        id: 'dr-singh',
+        name: 'Dr. Aryan Singh',
+        specialization: 'Shalya Tantra (Surgery)',
+        experience: '18 Years',
+        image: drRajesh, // Placeholder
+        rating: 4.8,
+        clinicIds: ['4']
+    },
 ];
 
 export const getDoctorName = (id: string): string => {

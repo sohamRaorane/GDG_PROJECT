@@ -41,12 +41,17 @@ const isSlotBooked = async (resourceId: string, date: string, time: string): Pro
     return !snapDoc.empty;
 };
 
+import { getBookingSettings } from './db';
+
 export const getAvailableSlotsForService = async (
     serviceId: string,
     date: string,
     preferredDoctorId?: string
 ): Promise<{ time: string; availableRoomId: string; availableDoctorId: string }[]> => {
     console.log(`[Scheduling] Fetching slots for Service:${serviceId} on Date:${date} (Doc:${preferredDoctorId})`);
+
+    // 0. Check Booking Rules (Cut-off Time)
+    const settings = await getBookingSettings();
 
     // 1. Get Service Details to know compatible rooms
     const serviceDoc = await getDoc(doc(db, 'services', serviceId));
@@ -82,8 +87,21 @@ export const getAvailableSlotsForService = async (
 
     // 4. Check Availability for each Time Slot
     const availableSlots = [];
+    const cutoffHours = settings?.cutoffTime ? parseInt(settings.cutoffTime) : 0;
+    const now = new Date();
 
     for (const time of TIME_SLOTS) {
+        // Cut-off Check
+        if (cutoffHours > 0) {
+            const slotDateTime = new Date(`${date}T${time}`);
+            const diffInHours = (slotDateTime.getTime() - now.getTime()) / (1000 * 60 * 60);
+
+            if (diffInHours < cutoffHours) {
+                console.log(`[Scheduling] Slot ${time} filtered due to cutoff rule (${cutoffHours}h required)`);
+                continue;
+            }
+        }
+
         // A. Check Doctor Availability
         const isDoctorBooked = await isSlotBooked(doctorId, date, time);
         if (isDoctorBooked) {
