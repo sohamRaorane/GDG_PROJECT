@@ -1,5 +1,5 @@
 import { Button } from '../../components/ui/Button';
-import { Calendar, PlayCircle, Info, Sparkles, CheckCircle2, ChevronRight, Lock, Stethoscope, MapPin } from 'lucide-react';
+import { Calendar, PlayCircle, Info, Sparkles, CheckCircle2, ChevronRight, Lock, Stethoscope } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import ayurvedaBg from '../../assets/ayurveda_bg.png';
 import therapySession from '../../assets/therapy_session.png';
@@ -11,11 +11,56 @@ import { collection, query, where, getDocs, limit } from 'firebase/firestore';
 import { db } from '../../firebase';
 import { RecoveryTimeline } from '../../components/dashboard/RecoveryTimeline';
 import type { ActiveTherapy } from '../../types/db';
+import { PrescriptionModal, type PrescriptionData } from '../../components/dashboard/PrescriptionModal';
+
+const mockPrescription: PrescriptionData = {
+    doctorName: "Anjali Gupta",
+    doctorSpecialization: "Ayurvedic Physician",
+    date: "Jan 5, 2024",
+    diagnosis: "Vata Dosha Imbalance & Mild Insomnia",
+    medicines: [
+        {
+            id: 'm1',
+            name: 'Ashwagandha Churna',
+            dosage: '1 tsp with warm milk',
+            frequency: '1-0-1',
+            timing: 'After Food',
+            duration: '15 Days',
+            type: 'Powder'
+        },
+        {
+            id: 'm2',
+            name: 'Brahmi Vati',
+            dosage: '1 Tablet',
+            frequency: '0-0-1',
+            timing: 'After Food',
+            duration: '15 Days',
+            type: 'Tablet'
+        },
+        {
+            id: 'm3',
+            name: 'Triphala Churna',
+            dosage: '1/2 tsp with warm water',
+            frequency: '0-0-1',
+            timing: 'Before Food',
+            duration: '30 Days',
+            type: 'Powder'
+        }
+    ],
+    advice: [
+        "Drink at least 3-4 liters of warm water daily.",
+        "Practice Anuloz-Vilom Pranayama for 15 mins every morning.",
+        "Avoid caffeine and spicy foods after sunset.",
+        "Maintain a regular sleep schedule (10 PM - 6 AM)."
+    ],
+    followUpDate: "Jan 19, 2024"
+};
 
 export const Home = () => {
     const navigate = useNavigate();
     const { currentUser } = useAuth();
     const [activeTherapy, setActiveTherapy] = useState<ActiveTherapy | null>(null);
+    const [isPrescriptionOpen, setIsPrescriptionOpen] = useState(false);
 
     useEffect(() => {
         const fetchActiveTherapy = async () => {
@@ -221,7 +266,7 @@ export const Home = () => {
 
                                 <Button
                                     variant="ghost"
-                                    onClick={() => navigate('/profile')}
+                                    onClick={() => setIsPrescriptionOpen(true)}
                                     className="w-full mt-4 h-8 text-xs font-bold text-primary hover:bg-white hover:shadow-sm border border-transparent hover:border-primary/10"
                                 >
                                     View Prescription
@@ -264,6 +309,12 @@ export const Home = () => {
 
 
             </div>
+
+            <PrescriptionModal
+                isOpen={isPrescriptionOpen}
+                onClose={() => setIsPrescriptionOpen(false)}
+                data={mockPrescription}
+            />
         </div>
     );
 };

@@ -1,9 +1,10 @@
 
 import { useState } from 'react';
-import { User, Calendar, History, Clock, MapPin, Phone, Mail, Camera, ChevronRight, Settings, CreditCard, LogOut, CheckCircle2 } from 'lucide-react';
+import { User, Calendar, History, Clock, MapPin, Phone, Mail, Camera, ChevronRight, Settings, CreditCard, LogOut, CheckCircle2, Volume2, VolumeX } from 'lucide-react';
 import { cn } from '../../utils/cn';
 import { Button } from '../../components/ui/Button';
 import { useAuth } from '../../context/AuthContext';
+import { useAudio } from '../../context/AudioContext';
 import { useNavigate } from 'react-router-dom';
 
 // Mock Data
@@ -46,6 +47,7 @@ const PAST_APPOINTMENTS = [
 
 export const Profile = () => {
     const { currentUser, logout } = useAuth();
+    const { isPlaying, toggleAudio } = useAudio();
     const navigate = useNavigate();
     const [activeTab, setActiveTab] = useState<'details' | 'upcoming' | 'history' | 'settings'>('upcoming');
 
@@ -121,6 +123,13 @@ export const Profile = () => {
                             </nav>
 
                             <div className="mt-6 pt-6 border-t border-slate-100 px-2 space-y-1">
+                                <button
+                                    onClick={toggleAudio}
+                                    className="w-full text-left px-4 py-2.5 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-50 transition-colors flex items-center gap-3"
+                                >
+                                    {isPlaying ? <Volume2 size={18} /> : <VolumeX size={18} />}
+                                    {isPlaying ? 'Mute Background Music' : 'Play Background Music'}
+                                </button>
                                 <button
                                     onClick={() => setActiveTab('settings')}
                                     className={cn(
@@ -353,7 +362,7 @@ export const Profile = () => {
                     </div>
                 </div>
             </div>
-        </div>
+        </div >
     );
 };
 
