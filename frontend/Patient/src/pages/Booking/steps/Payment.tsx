@@ -1,7 +1,13 @@
 import React, { useState } from 'react';
 import { cn } from '../../../utils/cn';
-import { CreditCard, Smartphone, Globe, ArrowRight, ShieldCheck, IndianRupee } from 'lucide-react';
+import { CreditCard, Smartphone, Globe, ArrowRight, ShieldCheck, IndianRupee, Store } from 'lucide-react';
 import { format } from 'date-fns';
+import { loadStripe } from '@stripe/stripe-js';
+import { Elements, CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
+
+// Initialize Stripe
+const STRIPE_PK = 'pk_test_51SorTn2HwmHF1z4id8ykNC2p4TDOSwRe1No6jJYb5QMkFt7aoumoBbHsK9zguye53R7Ds6iS5No8RwDBhVj4Uki400VYpN2Kq5';
+const stripePromise = loadStripe(STRIPE_PK);
 
 interface PaymentProps {
     bookingData: any;
@@ -10,13 +16,77 @@ interface PaymentProps {
 }
 
 const PAYMENT_METHODS = [
-    { id: 'credit-card', label: 'Card Payment', icon: CreditCard, subtitle: 'Visa, Mastercard, Amex' },
-    { id: 'upi', label: 'UPI Payment', icon: Smartphone, subtitle: 'Google Pay, PhonePe, Bhim' },
-    { id: 'paypal', label: 'PayPal', icon: Globe, subtitle: 'Worldwide payment' },
+    { id: 'card', label: 'Card Payment', icon: CreditCard, subtitle: 'Secure online payment via Stripe' },
+    { id: 'offline', label: 'Pay at Clinic', icon: Store, subtitle: 'Pay via Cash/Card upon arrival' },
 ];
 
+const StripePaymentForm = ({ onComplete, isProcessing }: { onComplete: () => void, isProcessing: boolean }) => {
+    const stripe = useStripe();
+    const elements = useElements();
+    const [error, setError] = useState<string | null>(null);
+
+    const handleSubmit = async (event: React.FormEvent) => {
+        event.preventDefault();
+
+        if (!stripe || !elements) {
+            return;
+        }
+
+        const cardElement = elements.getElement(CardElement);
+        if (!cardElement) return;
+
+        const { error, paymentMethod } = await stripe.createPaymentMethod({
+            type: 'card',
+            card: cardElement,
+        });
+
+        if (error) {
+            setError(error.message || 'Payment failed');
+            console.error('[Stripe Error]', error);
+        } else {
+            console.log('[PaymentMethod]', paymentMethod);
+            setError(null);
+            onComplete();
+        }
+    };
+
+    return (
+        <form onSubmit={handleSubmit} className="mt-4 space-y-4">
+            <div className="p-4 border rounded-xl bg-white focus-within:ring-2 ring-primary/20 transition-all">
+                <CardElement options={{
+                    style: {
+                        base: {
+                            fontSize: '16px',
+                            color: '#424770',
+                            '::placeholder': {
+                                color: '#aab7c4',
+                            },
+                        },
+                        invalid: {
+                            color: '#9e2146',
+                        },
+                    },
+                }} />
+            </div>
+            {error && <div className="text-red-500 text-sm font-medium">{error}</div>}
+
+            <button
+                type="submit"
+                disabled={!stripe || isProcessing}
+                className={cn(
+                    "w-full bg-primary text-white py-4 rounded-2xl font-bold text-lg shadow-lg shadow-primary/20",
+                    "hover:bg-primary/90 transition-all flex items-center justify-center gap-3",
+                    isProcessing && "opacity-70 cursor-not-allowed"
+                )}
+            >
+                {isProcessing ? "Processing..." : "Pay & Book"} <ArrowRight size={20} />
+            </button>
+        </form>
+    );
+};
+
 export const Payment: React.FC<PaymentProps> = ({ bookingData, onPaymentComplete, isProcessing = false }) => {
-    const [paymentMethod, setPaymentMethod] = useState('credit-card');
+    const [paymentMethod, setPaymentMethod] = useState('card');
 
     return (
         <div className="flex flex-col lg:grid lg:grid-cols-12 gap-12 py-4">
@@ -58,8 +128,6 @@ export const Payment: React.FC<PaymentProps> = ({ bookingData, onPaymentComplete
                                 )}>
                                     {isSelected && <div className="w-2 h-2 rounded-full bg-white" />}
                                 </div>
-
-                                {isSelected && <div className="absolute inset-0 bg-gradient-to-r from-transparent via-secondary/5 to-transparent skew-x-12" />}
                             </div>
                         );
                     })}
@@ -72,7 +140,7 @@ export const Payment: React.FC<PaymentProps> = ({ bookingData, onPaymentComplete
                 </div>
             </div>
 
-            {/* Right: Order Details & Summary */}
+            {/* Right: Order Details & Payment Form */}
             <div className="lg:col-span-5">
                 <div className="bg-white rounded-[2.5rem] border-2 border-secondary/20 p-8 shadow-xl shadow-secondary/5 sticky top-8 relative overflow-hidden">
                     <div className="absolute top-0 right-0 w-40 h-40 bg-secondary/5 rounded-bl-[100px] -mr-10 -mt-10" />
@@ -91,31 +159,6 @@ export const Payment: React.FC<PaymentProps> = ({ bookingData, onPaymentComplete
                             </div>
                         </div>
 
-                        <div className="flex justify-between items-start pt-4 border-t border-dashed border-secondary/20">
-                            <div>
-                                <p className="text-sm text-secondary/60 font-medium mb-1 uppercase tracking-wider text-[10px]">Date & Time</p>
-                                <p className="font-bold text-text text-base">{bookingData.date ? format(new Date(bookingData.date), 'MMM do, yyyy') : 'Date not set'}</p>
-                                <p className="text-xs text-text/50 mt-0.5">{bookingData.slot || 'Time not set'}</p>
-                            </div>
-                        </div>
-
-                        <div className="space-y-4 pt-6 border-t border-secondary/10">
-                            <div className="flex justify-between text-sm">
-                                <span className="text-text/60 font-medium">Subtotal</span>
-                                <div className="flex items-center gap-1 font-bold text-text/80">
-                                    <IndianRupee size={12} />
-                                    <span>{bookingData.servicePrice?.toLocaleString() || '0'}</span>
-                                </div>
-                            </div>
-                            <div className="flex justify-between text-sm">
-                                <span className="text-text/60 font-medium">Service Fee</span>
-                                <div className="flex items-center gap-1 font-bold text-text/80">
-                                    <IndianRupee size={12} />
-                                    <span>50</span>
-                                </div>
-                            </div>
-                        </div>
-
                         <div className="pt-6 border-t-2 border-dashed border-secondary/20 flex justify-between items-center">
                             <span className="text-lg font-display font-bold text-primary italic uppercase tracking-wider">Total Amount</span>
                             <div className="flex items-center gap-1 text-2xl font-display font-bold text-primary">
@@ -125,23 +168,32 @@ export const Payment: React.FC<PaymentProps> = ({ bookingData, onPaymentComplete
                         </div>
                     </div>
 
-                    <button
-                        onClick={onPaymentComplete}
-                        disabled={isProcessing}
-                        className={cn(
-                            "w-full bg-primary text-white py-5 rounded-3xl font-bold text-lg shadow-xl shadow-primary/20 border-b-4 border-primary/20 active:border-b-0 active:translate-y-1",
-                            "hover:bg-primary/90 transition-all flex items-center justify-center gap-3 group relative overflow-hidden",
-                            isProcessing && "opacity-70 cursor-not-allowed"
+                    {/* Dynamic Payment Action */}
+                    <div className="relative z-10">
+                        {paymentMethod === 'card' ? (
+                            <Elements stripe={stripePromise}>
+                                <StripePaymentForm onComplete={onPaymentComplete} isProcessing={isProcessing} />
+                            </Elements>
+                        ) : (
+                            <div className="space-y-4 text-center">
+                                <div className="p-4 bg-amber-50 rounded-xl text-amber-800 text-sm border border-amber-100">
+                                    You can pay the full amount at the clinic reception before your session begins.
+                                </div>
+                                <button
+                                    onClick={onPaymentComplete}
+                                    disabled={isProcessing}
+                                    className={cn(
+                                        "w-full bg-primary text-white py-4 rounded-2xl font-bold text-lg shadow-lg shadow-primary/20",
+                                        "hover:bg-primary/90 transition-all flex items-center justify-center gap-3",
+                                        isProcessing && "opacity-70 cursor-not-allowed"
+                                    )}
+                                >
+                                    {isProcessing ? "Processing..." : "Boook Appointment"} <ArrowRight size={20} />
+                                </button>
+                            </div>
                         )}
-                    >
-                        <span className="relative z-10">{isProcessing ? "Processing..." : "Complete Booking"}</span>
-                        {!isProcessing && <ArrowRight size={20} className="relative z-10 group-hover:translate-x-1 transition-transform" />}
-                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000" />
-                    </button>
+                    </div>
 
-                    <p className="text-center text-[10px] text-text/30 font-bold mt-6 uppercase tracking-widest relative z-10">
-                        Prices are inclusive of all healing ritual taxes
-                    </p>
                 </div>
             </div>
         </div>
