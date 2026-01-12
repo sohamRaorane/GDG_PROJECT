@@ -8,6 +8,7 @@ import { useState, useEffect } from 'react';
 import { collection, query, where, onSnapshot, limit } from 'firebase/firestore';
 import { db } from '../firebase';
 import type { Appointment } from '../types/db';
+import { getDoctorName } from '../utils/doctors';
 
 const DoctorDashboard = () => {
     // Red Flags data - integrated with Firestore
@@ -151,6 +152,7 @@ const DoctorDashboard = () => {
                                 <thead className="bg-gradient-to-r from-slate-50 to-slate-100 border-b border-slate-200">
                                     <tr>
                                         <th className="px-6 py-4 text-xs uppercase text-admin-muted font-bold tracking-wider">Patient</th>
+                                        <th className="px-6 py-4 text-xs uppercase text-admin-muted font-bold tracking-wider">Doctor</th>
                                         <th className="px-6 py-4 text-xs uppercase text-admin-muted font-bold tracking-wider">Therapy</th>
                                         <th className="px-6 py-4 text-xs uppercase text-admin-muted font-bold tracking-wider">Time</th>
                                         <th className="px-6 py-4 text-xs uppercase text-admin-muted font-bold tracking-wider">Room</th>
@@ -164,6 +166,7 @@ const DoctorDashboard = () => {
                                             className="hover:bg-gradient-to-r hover:from-slate-50/50 hover:to-transparent transition-all group"
                                         >
                                             <td className="px-6 py-4 font-bold text-admin-sidebar group-hover:text-admin-active transition-colors">{session.patient}</td>
+                                            <td className="px-6 py-4 font-medium text-slate-700">{session.doctor}</td>
                                             <td className="px-6 py-4 text-slate-600">{session.therapy}</td>
                                             <td className="px-6 py-4 font-semibold text-admin-sidebar flex items-center gap-2">
                                                 <Clock size={14} className="text-admin-muted" />
