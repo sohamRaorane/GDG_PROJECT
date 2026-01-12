@@ -78,29 +78,31 @@ export const Home = () => {
             if (currentUser) {
                 try {
                     // Query for an active therapy for this user
-                    // Note: Ideally this should be a real-time listener or robust query
-                    const q = query(
+                    // Prioritize IN_PROGRESS
+                    const q_active = query(
                         collection(db, 'active_therapies'),
                         where('patientId', '==', currentUser.uid),
+                        where('status', '==', 'IN_PROGRESS'),
                         limit(1)
                     );
-                    const snapshot = await getDocs(q);
+
+                    let snapshot = await getDocs(q_active);
+
+                    // If no active therapy, check for any (completed)
+                    if (snapshot.empty) {
+                        const q_any = query(
+                            collection(db, 'active_therapies'),
+                            where('patientId', '==', currentUser.uid),
+                            limit(1)
+                        );
+                        snapshot = await getDocs(q_any);
+                    }
+
                     if (!snapshot.empty) {
                         const doc = snapshot.docs[0];
                         setActiveTherapy({ id: doc.id, ...doc.data() } as ActiveTherapy);
                     } else {
-                        // Fallback/Mock for demo if no real therapy found, so the user sees the UI
-                        // Remove this else block for production
-                        setActiveTherapy({
-                            id: 'demo_therapy',
-                            patientId: currentUser.uid,
-                            therapyName: 'Panchakarma Detox',
-                            startDate: new Date().toISOString(),
-                            totalDays: 21,
-                            currentDay: 4,
-                            status: 'IN_PROGRESS',
-                            logs: {}
-                        } as ActiveTherapy);
+                        setActiveTherapy(null);
                     }
                 } catch (error) {
                     console.error("Error fetching therapy:", error);
