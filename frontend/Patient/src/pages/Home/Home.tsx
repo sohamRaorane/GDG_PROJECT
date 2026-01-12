@@ -11,6 +11,8 @@ import { collection, query, where, getDocs, limit } from 'firebase/firestore';
 import { db } from '../../firebase';
 import { RecoveryTimeline } from '../../components/dashboard/RecoveryTimeline';
 import type { ActiveTherapy } from '../../types/db';
+import { motion, AnimatePresence } from 'framer-motion';
+import namasteLady from '../../assets/namaste_lady.png';
 import { PrescriptionModal, type PrescriptionData } from '../../components/dashboard/PrescriptionModal';
 
 const mockPrescription: PrescriptionData = {
@@ -60,7 +62,16 @@ export const Home = () => {
     const navigate = useNavigate();
     const { currentUser } = useAuth();
     const [activeTherapy, setActiveTherapy] = useState<ActiveTherapy | null>(null);
+    const [introComplete, setIntroComplete] = useState(false);
     const [isPrescriptionOpen, setIsPrescriptionOpen] = useState(false);
+
+    useEffect(() => {
+        // Start the transition after 1.5 seconds
+        const timer = setTimeout(() => {
+            setIntroComplete(true);
+        }, 1500);
+        return () => clearTimeout(timer);
+    }, []);
 
     useEffect(() => {
         const fetchActiveTherapy = async () => {
@@ -110,6 +121,26 @@ export const Home = () => {
                 <div className="absolute inset-0 bg-gradient-to-b from-secondary/50 via-background/20 to-background/50 backdrop-blur-[1px]"></div>
             </div>
 
+            {/* Intro Animation Layer */}
+            <AnimatePresence>
+                {!introComplete && (
+                    <motion.div
+                        className="fixed inset-0 z-50 flex items-center justify-center pointer-events-none"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0, transition: { duration: 0.5 } }}
+                    >
+                        <motion.img
+                            layoutId="namaste-lady"
+                            src={namasteLady}
+                            alt="Namaste"
+                            className="w-[80vh] h-auto object-contain drop-shadow-2xl"
+                            transition={{ duration: 1.2, ease: [0.43, 0.13, 0.23, 0.96] }}
+                        />
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
             <div className="container mx-auto px-4 relative z-10 pt-8 space-y-8">
 
                 {/* Disease-Specific Flying Marquee (Top below Navbar) */}
@@ -143,8 +174,8 @@ export const Home = () => {
                 </div>
 
                 {/* Header */}
-                <header className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-4">
-                    <div className="space-y-2">
+                <header className="relative flex flex-col md:flex-row md:items-end justify-between gap-6 pb-4 min-h-[160px]">
+                    <div className="relative z-10 space-y-2 max-w-2xl">
                         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/20 text-primary-dark backdrop-blur-sm border border-white/30 text-sm font-semibold">
                             <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
                             Online
@@ -152,10 +183,23 @@ export const Home = () => {
                         <h1 className="text-4xl md:text-5xl font-display font-bold text-primary-dark">
                             Namaste, <span className="text-primary">{currentUser?.displayName?.split(' ')[0] || 'Guest'}</span>
                         </h1>
-                        <p className="text-slate-800 text-lg max-w-xl leading-relaxed font-medium">
+                        <p className="text-slate-800 text-lg leading-relaxed font-medium">
                             Your healing journey is on track. Let's make today count.
                         </p>
                     </div>
+
+                    {/* Final Position for Namaste Lady */}
+                    {introComplete && (
+                        <div className="absolute right-0 bottom-0 z-0 pointer-events-none hidden md:block">
+                            <motion.img
+                                layoutId="namaste-lady"
+                                src={namasteLady}
+                                alt="Namaste"
+                                className="w-auto h-[300px] object-contain drop-shadow-xl translate-y-12 translate-x-12"
+                                transition={{ duration: 1.2, ease: [0.43, 0.13, 0.23, 0.96] }}
+                            />
+                        </div>
+                    )}
                 </header>
 
                 {/* Dashboard Grid */}

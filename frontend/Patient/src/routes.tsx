@@ -7,6 +7,7 @@ import { Doctors } from './pages/Doctors/Doctors';
 import { Services } from './pages/Services/Services';
 import { Progress } from './pages/Progress/Progress';
 import { TherapyDashboard } from './components/dashboard/TherapyDashboard';
+import { Community } from './pages/Community';
 
 import Login from './pages/Login';
 import ProtectedRoute from './components/ProtectedRoute';
@@ -82,6 +83,10 @@ const router = createBrowserRouter([
             {
                 path: 'therapy/live/:id',
                 element: <TherapyDashboard />,
+            },
+            {
+                path: 'community',
+                element: <Community />,
             },
         ],
     },

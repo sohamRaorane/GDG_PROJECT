@@ -10,10 +10,32 @@ import {
     type DocumentData,
     type QueryDocumentSnapshot,
     type SnapshotOptions,
-    writeBatch
+    writeBatch,
+    query,
+    where,
+    onSnapshot
 } from 'firebase/firestore';
 import { db } from '../firebase';
 import type { UserProfile, Service, Appointment, Notification } from '../types/db';
+
+export interface CommunityChannel {
+    id: string;
+    name: string;
+    description: string;
+    icon: string;
+    participantCount?: number;
+}
+
+export interface CommunityPost {
+    id: string;
+    channelId: string;
+    userId: string;
+    userName: string;
+    userAvatar?: string;
+    content: string;
+    createdAt: Timestamp;
+    likes: number;
+}
 
 // Firestore Data Converter
 const converter = <T>() => ({
@@ -240,4 +262,30 @@ export const getIntakeForm = async (): Promise<any[] | null> => {
         return snap.data().fields;
     }
     return null;
+};
+
+// --- Community Management ---
+
+export const channelsCollection = collection(db, 'community_channels').withConverter(converter<CommunityChannel>());
+export const postsCollection = collection(db, 'community_posts').withConverter(converter<CommunityPost>());
+
+export const getChannels = async (): Promise<CommunityChannel[]> => {
+    const snapshot = await getDocs(channelsCollection);
+    return snapshot.docs.map(doc => doc.data());
+};
+
+export const getChannelPosts = async (channelId: string): Promise<CommunityPost[]> => {
+    const q = query(postsCollection, where('channelId', '==', channelId));
+    const snapshot = await getDocs(q);
+    return snapshot.docs.map(doc => doc.data()).sort((a, b) => a.createdAt.toMillis() - b.createdAt.toMillis());
+};
+
+export const subscribeToChannelPosts = (channelId: string, callback: (posts: CommunityPost[]) => void) => {
+    const q = query(postsCollection, where('channelId', '==', channelId));
+    return onSnapshot(q, (snapshot) => {
+        const posts = snapshot.docs
+            .map(doc => doc.data())
+            .sort((a, b) => a.createdAt.toMillis() - b.createdAt.toMillis());
+        callback(posts);
+    });
 };
