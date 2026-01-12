@@ -63,6 +63,62 @@ export const checkPatientVitals = functions.firestore
         return null;
     });
 
+/**
+ * onAppointmentCreated
+ * Triggers when a new appointment is created.
+ * Automatically creates an "Active Therapy" record for the patient to track progress.
+ */
+export const onAppointmentCreated = functions.firestore
+    .document('appointments/{appointmentId}')
+    .onCreate(async (snap, context) => {
+        const appointment = snap.data();
+        if (!appointment) return null;
+
+        const { customerId, serviceId, serviceName, startAt } = appointment;
+
+        if (!customerId || !serviceId) {
+            console.log("Missing customerId or serviceId in appointment, skipping active therapy creation.");
+            return null;
+        }
+
+        try {
+            // Fetch service details to get duration
+            const serviceDoc = await admin.firestore().collection('services').doc(serviceId).get();
+            const serviceData = serviceDoc.data();
+            const durationDays = serviceData?.durationDays || 14; // Default to 14 days if not specified
+
+            // Calculate formatted start date (YYYY-MM-DD)
+            // handle both Firestore Timestamp and JS Date objects if necessary, though trigger usually gives Timestamp
+            const startDateObj = startAt.toDate ? startAt.toDate() : new Date(startAt);
+            const startDate = startDateObj.toISOString().split('T')[0];
+
+            // Generate default timeline
+            const timeline = Array.from({ length: durationDays }, (_, i) => ({
+                day: i + 1,
+                title: `Day ${i + 1}`,
+                subTitle: i === 0 ? "Preparation Phase" : "Treatment Phase",
+                description: "Follow standard daily protocol. Consult your doctor for specific instructions."
+            }));
+
+            // Create Active Therapy Record
+            await admin.firestore().collection('active_therapies').add({
+                patientId: customerId,
+                therapyName: serviceName,
+                startDate: startDate,
+                totalDays: durationDays,
+                currentDay: 1,
+                status: 'IN_PROGRESS',
+                logs: {},
+                timeline: timeline
+            });
+
+            console.log(`Active therapy created for patient ${customerId} for service ${serviceName}`);
+        } catch (error) {
+            console.error("Error creating active therapy:", error);
+        }
+        return null;
+    });
+
 // --- AI Proxy Endpoint (server-side) ---
 import express from 'express';
 import cors from 'cors';
@@ -122,7 +178,7 @@ app.post('/generate', async (req, res) => {
                         const m = rd.match(/(\d+)(?:\.?\d*)/);
                         if (m) return Number(m[1]);
                     }
-                } catch (e) {}
+                } catch (e) { }
                 return 30;
             })();
 

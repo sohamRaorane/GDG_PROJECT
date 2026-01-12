@@ -106,22 +106,20 @@ export const bookMultiDayAppointment = async (
             console.error("Failed to trigger pre-notification", notifierErr);
         }
 
-        // 6. Auto-create Active Therapy record
+        // 6. Active Therapy Creation (Client-Side Fallback)
         try {
-            const activeTherapyData = {
-                patientId: params.customerId,
-                therapyName: params.serviceName,
+            console.log("Creating Active Therapy record client-side...");
+            const therapyId = await createActiveTherapyRecord({
+                customerId: params.customerId,
+                serviceName: params.serviceName,
                 startDate: params.startDate,
-                totalDays: params.days || 14,
-                currentDay: 1,
-                status: 'IN_PROGRESS',
-                logs: {},
-                timeline: []
-            };
-
-            await addDoc(collection(db, 'active_therapies'), activeTherapyData);
-        } catch (err) {
-            console.error("Failed to create active therapy:", err);
+                durationDays: params.days
+            });
+            console.log("Active Therapy created with ID:", therapyId);
+        } catch (atError) {
+            console.error("Failed to create Active Therapy record:", atError);
+            // Non-blocking error, booking still succeeds
+            // In production, we might want to alert admin or retry
         }
 
         return "Success";
@@ -195,5 +193,34 @@ export const rescheduleAppointment = async (
 
 export const createNotification = async (notification: Omit<Notification, 'id'>): Promise<string> => {
     const docRef = await addDoc(collection(db, 'notifications'), notification as Notification);
+    return docRef.id;
+};
+
+// Client-side helper to create Active Therapy (Replaces Cloud Function)
+const createActiveTherapyRecord = async (params: {
+    customerId: string;
+    serviceName: string;
+    startDate: string;
+    durationDays: number;
+}) => {
+    // Generate default timeline
+    const timeline = Array.from({ length: params.durationDays }, (_, i) => ({
+        day: i + 1,
+        title: `Day ${i + 1}`,
+        subTitle: i === 0 ? "Preparation Phase" : "Treatment Phase",
+        description: "Follow standard daily protocol. Consult your doctor for specific instructions."
+    }));
+
+    const docRef = await addDoc(collection(db, 'active_therapies'), {
+        patientId: params.customerId,
+        therapyName: params.serviceName,
+        startDate: params.startDate,
+        totalDays: params.durationDays,
+        currentDay: 1,
+        status: 'IN_PROGRESS',
+        logs: {},
+        timeline: timeline
+    });
+
     return docRef.id;
 };
