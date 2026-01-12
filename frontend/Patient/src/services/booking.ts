@@ -15,6 +15,7 @@ export const bookMultiDayAppointment = async (
         startTime: string; // HH:MM
         days: number;
         durationMinutes: number;
+        intakeValues?: Record<string, any>;
     }
 ): Promise<string> => {
     // 1. Generate Required Slot IDs
@@ -61,6 +62,7 @@ export const bookMultiDayAppointment = async (
                 startAt: Timestamp.fromDate(startDateTime),
                 endAt: Timestamp.fromDate(endDateTime),
                 status: 'confirmed',
+                intakeValues: params.intakeValues,
                 createdAt: Timestamp.now(),
                 updatedAt: Timestamp.now()
             };

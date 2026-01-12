@@ -4,11 +4,38 @@ import { useState, useEffect } from 'react';
 import { subscribeToRedFlags, resolveRedFlag, clearAllRedFlags } from '../services/dashboard';
 import type { DailyHealthLog } from '../types/db';
 
-import { useState, useEffect } from 'react';
-import { collection, query, where, onSnapshot, limit } from 'firebase/firestore';
-import { db } from '../firebase';
-import type { Appointment } from '../types/db';
-import { getDoctorName } from '../utils/doctors';
+
+
+
+const INCOMING_SESSIONS = [
+    {
+        id: '1',
+        patient: 'Sarah Johnson',
+        doctor: 'Dr. Mike Chen',
+        therapy: 'Physiotherapy',
+        time: '10:00 AM',
+        room: 'Room 302',
+        status: 'Arrived'
+    },
+    {
+        id: '2',
+        patient: 'Michael Brown',
+        doctor: 'Dr. Emily White',
+        therapy: 'Hydrotherapy',
+        time: '11:30 AM',
+        room: 'Pool Area',
+        status: 'En Route'
+    },
+    {
+        id: '3',
+        patient: 'David Wilson',
+        doctor: 'Dr. Sarah Smith',
+        therapy: 'Massage',
+        time: '2:00 PM',
+        room: 'Room 405',
+        status: 'Scheduled'
+    }
+];
 
 const DoctorDashboard = () => {
     // Red Flags data - integrated with Firestore

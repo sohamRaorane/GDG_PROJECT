@@ -245,3 +245,19 @@ export const isChannelMember = async (channelId: string, userId: string): Promis
     const snap = await getDoc(doc(membersCollection, memberId));
     return snap.exists();
 };
+
+// --- Settings Management ---
+
+export const settingsCollection = collection(db, 'settings');
+
+export const getIntakeForm = async (): Promise<any[] | null> => {
+    const docRef = doc(settingsCollection, 'intake_form');
+    console.log("Fetching intake form from", docRef.path);
+    const snap = await getDoc(docRef);
+    if (snap.exists()) {
+        console.log("Intake form found:", snap.data());
+        return snap.data().fields;
+    }
+    console.log("Intake form not found");
+    return null;
+};
