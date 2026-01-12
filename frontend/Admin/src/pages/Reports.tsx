@@ -2,11 +2,7 @@ import {
     XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
     LineChart, Line, BarChart, Bar, AreaChart, Area
 } from 'recharts';
-import { Users, Clock, DollarSign, Activity, Loader2 } from 'lucide-react';
-import { useState, useEffect } from 'react';
-import { collection, query, where, onSnapshot } from 'firebase/firestore';
-import { db } from '../firebase';
-import type { Appointment } from '../types/db';
+import { Users, Clock, DollarSign, Activity } from 'lucide-react';
 
 const Reports = () => {
     // State for aggregated data

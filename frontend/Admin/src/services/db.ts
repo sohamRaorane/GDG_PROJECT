@@ -203,7 +203,7 @@ export const saveGlobalSchedule = async (schedule: any[]): Promise<void> => {
     // We use a fixed ID 'global_availability' for this singleton setting
     const docRef = doc(settingsCollection, 'global_availability');
     // Using set with merge: true or just set to overwrite
-    await updateDoc(docRef, { schedule, updatedAt: Timestamp.now() }).catch(async (err) => {
+    await updateDoc(docRef, { schedule, updatedAt: Timestamp.now() }).catch(async () => {
         // If doc doesn't exist, create it (updateDoc fails if doc missing)
         // using setDoc would be cleaner but imported as setDoc would change imports. 
         // Let's us setDoc (which is effectively set on collection reference with ID)

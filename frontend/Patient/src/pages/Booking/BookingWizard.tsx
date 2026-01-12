@@ -135,6 +135,7 @@ export const BookingWizard = () => {
                 startTime: bookingData.slot,
                 days: daysToBook,
                 durationMinutes: service.durationMinutes,
+                price: service.price,
                 intakeValues: bookingData.intakeValues
             });
 

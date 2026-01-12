@@ -1,7 +1,6 @@
 
 import { useState, useEffect } from 'react';
-import { Dialog } from '@headlessui/react';
-import { X, Calendar, User, Clock, CheckCircle, AlertTriangle, ChevronRight, ChevronLeft } from 'lucide-react';
+import { X, Calendar, User, CheckCircle, AlertTriangle, ChevronRight } from 'lucide-react';
 import { getAllUsers, getAllServices, checkConflicts, createAppointmentBatch } from '../../services/db';
 import type { UserProfile, Service } from '../../types/db';
 import { Timestamp } from 'firebase/firestore';
@@ -101,6 +100,7 @@ export const TreatmentWizard = ({ isOpen, onClose, onSuccess }: TreatmentWizardP
                     startAt: Timestamp.fromDate(startAt),
                     endAt: Timestamp.fromDate(endAt),
                     status: 'confirmed' as const,
+                    price: selectedService.price,
                     createdAt: Timestamp.now(),
                     updatedAt: Timestamp.now()
                 });
