@@ -42,6 +42,7 @@ export const MainLayout = () => {
                 sleepQuality: 5,
                 isFlagged: true,
                 flaggedReason: "URGENT SOS ALERT: Patient triggered emergency assistance from the app.",
+                userName: currentUser.displayName || 'Anonymous Patient',
                 createdAt: Timestamp.now()
             });
             console.log("SOS Alert recorded in Firestore");
