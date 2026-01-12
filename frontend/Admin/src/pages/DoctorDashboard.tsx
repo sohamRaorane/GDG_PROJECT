@@ -1,7 +1,52 @@
-import { AlertTriangle, Phone, Check, User, AlertCircle, Clock, Activity as ActivityIcon, TrendingUp, Calendar, MapPin } from 'lucide-react';
+import { AlertTriangle, Phone, Check, User, AlertCircle, Clock, TrendingUp, Calendar, MapPin } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 
+import { useState, useEffect } from 'react';
+import { collection, query, where, onSnapshot, limit } from 'firebase/firestore';
+import { db } from '../firebase';
+import type { Appointment } from '../types/db';
+
 const DoctorDashboard = () => {
+    const [incomingSessions, setIncomingSessions] = useState<{
+        id: string;
+        patient: string;
+        therapy: string;
+        time: string;
+        status: string;
+        room: string;
+    }[]>([]);
+
+    useEffect(() => {
+        // Fetch upcoming confirmed appointments
+        // Note: Requires composite index on [status, startAt]
+        const q = query(
+            collection(db, 'appointments'),
+            where('status', '==', 'confirmed'),
+            // orderBy('startAt', 'asc'), // Uncomment after creating index
+            limit(10)
+        );
+
+        const unsubscribe = onSnapshot(q, (snapshot) => {
+            const sessions = snapshot.docs.map(doc => {
+                const data = doc.data() as Appointment;
+                const date = data.startAt.toDate();
+                return {
+                    id: doc.id,
+                    patient: data.customerName,
+                    therapy: data.serviceName,
+                    time: date.toLocaleString('en-US', { weekday: 'short', hour: 'numeric', minute: 'numeric', hour12: true }),
+                    status: 'Confirmed', // Default for now
+                    room: data.roomId || 'Room 1'
+                };
+            });
+            setIncomingSessions(sessions);
+        }, (error) => {
+            console.error("Error fetching sessions:", error);
+        });
+
+        return () => unsubscribe();
+    }, []);
+
     // Red Flags data - ready for database integration
     const RED_FLAGS: {
         id: string;
@@ -11,16 +56,6 @@ const DoctorDashboard = () => {
         painLevel: string;
         digestion: string;
         isUrgent: boolean;
-    }[] = [];
-
-    // Incoming Therapy Sessions data - ready for database integration
-    const INCOMING_SESSIONS: {
-        id: string;
-        patient: string;
-        therapy: string;
-        time: string;
-        status: string;
-        room: string;
     }[] = [];
 
     // Vitals Trends data - ready for database integration
@@ -149,7 +184,7 @@ const DoctorDashboard = () => {
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-slate-100">
-                                    {INCOMING_SESSIONS.map((session, index) => (
+                                    {incomingSessions.map((session, index) => (
                                         <tr
                                             key={session.id}
                                             className="hover:bg-gradient-to-r hover:from-slate-50/50 hover:to-transparent transition-all group"

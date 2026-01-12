@@ -22,6 +22,9 @@ import {
     Tooltip,
     ResponsiveContainer
 } from "recharts";
+import { useState, useEffect } from 'react';
+import { collection, query, where, onSnapshot } from 'firebase/firestore';
+import { db } from '../firebase';
 
 const DashboardHome = () => {
     // Revenue data for the last 6 months - ready for database integration
@@ -43,6 +46,24 @@ const DashboardHome = () => {
         avatar: string;
         color: string;
     }[] = [];
+
+    const [activeTherapyCount, setActiveTherapyCount] = useState(0);
+
+    useEffect(() => {
+        // Real-time listener for Active Therapies count
+        const q = query(
+            collection(db, 'active_therapies'),
+            where('status', '==', 'IN_PROGRESS')
+        );
+
+        const unsubscribe = onSnapshot(q, (snapshot) => {
+            setActiveTherapyCount(snapshot.size);
+        }, (error) => {
+            console.error("Error fetching active therapy count:", error);
+        });
+
+        return () => unsubscribe();
+    }, []);
 
     const stats = [
         {
@@ -87,6 +108,8 @@ const DashboardHome = () => {
             hasSparkline: true
         },
     ];
+
+    // ... (rest of the file)
 
     return (
         <div className="space-y-6 font-['Inter',sans-serif]">
@@ -319,7 +342,7 @@ const DashboardHome = () => {
                                     <p className="text-xs text-slate-600">In progress</p>
                                 </div>
                             </div>
-                            <span className="text-lg font-bold text-emerald-600">0</span>
+                            <span className="text-lg font-bold text-emerald-600">{activeTherapyCount}</span>
                         </div>
                     </div>
                 </div>
