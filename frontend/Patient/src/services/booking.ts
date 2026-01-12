@@ -116,6 +116,30 @@ export const bookMultiDayAppointment = async (
             console.error("DEBUG: Failed to trigger pre-notification", notifierErr);
         }
 
+        // 6. Auto-create Active Therapy record
+        try {
+            console.log("DEBUG: Attempting to auto-create active therapy (multi-day) for serviceId:", params.serviceId);
+
+            // We already have days in params, so we can use that directly or fetch service duration if preferred.
+            // Using params.days is safer as it reflects what was actually booked.
+            const activeTherapyData = {
+                patientId: params.customerId,
+                therapyName: params.serviceName,
+                startDate: params.startDate,
+                totalDays: params.days || 14,
+                currentDay: 1,
+                status: 'IN_PROGRESS',
+                logs: {},
+                timeline: []
+            };
+
+            const ref = await addDoc(collection(db, 'active_therapies'), activeTherapyData);
+            console.log(`DEBUG: Auto-created active therapy successfully. ID: ${ref.id}`);
+
+        } catch (err) {
+            console.error("DEBUG: Failed to create active therapy:", err);
+        }
+
         return "Success";
     } catch (e: any) {
         console.error("Multi-Day Booking Failed:", e);

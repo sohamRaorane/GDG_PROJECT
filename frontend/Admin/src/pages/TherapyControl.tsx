@@ -181,6 +181,65 @@ const TherapyControl = () => {
                             </p>
                         </div>
                     </div>
+
+                    {/* Timeline Configuration */}
+                    <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+                        <h2 className="text-lg font-bold text-slate-900 mb-4 flex items-center gap-2">
+                            Full Timeline Config
+                        </h2>
+                        <p className="text-xs text-slate-500 mb-4">Edit the titles/descriptions for each day of the journey.</p>
+                        <div className="space-y-4 max-h-60 overflow-y-auto pr-2">
+                            {Array.from({ length: therapy.totalDays }, (_, i) => {
+                                const dayNum = i + 1;
+                                const existing = therapy.timeline?.find(t => t.day === dayNum);
+                                return (
+                                    <div key={dayNum} className="p-3 border border-slate-100 rounded-lg text-sm">
+                                        <div className="font-bold text-slate-700 mb-1">Day {dayNum}</div>
+                                        <input
+                                            type="text"
+                                            placeholder="Title (e.g. Standard Treatment)"
+                                            className="w-full mb-2 px-2 py-1 border border-slate-200 rounded text-xs"
+                                            defaultValue={existing?.subTitle || (dayNum === 1 ? "Preparation" : "Standard Treatment")}
+                                            onBlur={(e) => {
+                                                const newTimeline = [...(therapy.timeline || [])];
+                                                const idx = newTimeline.findIndex(t => t.day === dayNum);
+                                                const newItem = {
+                                                    day: dayNum,
+                                                    title: `Day ${dayNum}`,
+                                                    subTitle: e.target.value,
+                                                    description: existing?.description || "Follow standard protocol."
+                                                };
+                                                if (idx >= 0) newTimeline[idx] = { ...newTimeline[idx], subTitle: e.target.value };
+                                                else newTimeline.push(newItem);
+
+                                                // Auto-save on blur
+                                                updateDoc(doc(db, 'active_therapies', id!), { timeline: newTimeline });
+                                            }}
+                                        />
+                                        <textarea
+                                            placeholder="Description"
+                                            className="w-full px-2 py-1 border border-slate-200 rounded text-xs h-16"
+                                            defaultValue={existing?.description || "Follow standard protocol."}
+                                            onBlur={(e) => {
+                                                const newTimeline = [...(therapy.timeline || [])];
+                                                const idx = newTimeline.findIndex(t => t.day === dayNum);
+                                                const newItem = {
+                                                    day: dayNum,
+                                                    title: `Day ${dayNum}`,
+                                                    subTitle: existing?.subTitle || "Standard Treatment",
+                                                    description: e.target.value
+                                                };
+                                                if (idx >= 0) newTimeline[idx] = { ...newTimeline[idx], description: e.target.value };
+                                                else newTimeline.push(newItem);
+
+                                                updateDoc(doc(db, 'active_therapies', id!), { timeline: newTimeline });
+                                            }}
+                                        />
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    </div>
                 </div>
 
                 {/* RIGHT COLUMN: Visuals (What the patient sees) */}

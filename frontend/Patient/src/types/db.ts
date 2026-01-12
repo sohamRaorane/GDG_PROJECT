@@ -137,9 +137,16 @@ export interface ActiveTherapy {
     patientId: string;
     therapyName: string;
     startDate: string;
+    totalDays: number;
     currentDay: number;
     status: string;
     logs: Record<string, TherapyLog>;
+    timeline?: {
+        day: number;
+        title: string;
+        subTitle: string;
+        description: string;
+    }[];
 }
 
 export interface CommunityChannel {
