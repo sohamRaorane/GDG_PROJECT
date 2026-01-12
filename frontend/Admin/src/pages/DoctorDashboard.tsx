@@ -2,55 +2,29 @@ import { AlertTriangle, Phone, Check, User, AlertCircle, Clock, Activity as Acti
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 
 const DoctorDashboard = () => {
-    // Mock Data for Red Flags
-    const RED_FLAGS = [
-        {
-            id: '1',
-            patientId: 'ODSRC3',
-            sessionDate: '2026-01-07',
-            alert: 'URGENT SOS ALERT: Patient triggered emergency assistance from the app.',
-            painLevel: '10/10',
-            digestion: 'N/A',
-            isUrgent: true
-        },
-        {
-            id: '2',
-            patientId: 'YX9P92',
-            sessionDate: '2026-01-06',
-            alert: 'URGENT SOS ALERT: Patient triggered emergency assistance from the app.',
-            painLevel: '10/10',
-            digestion: 'N/A',
-            isUrgent: true
-        },
-        {
-            id: '3',
-            patientId: 'YX9P92',
-            sessionDate: '2026-01-06',
-            alert: 'URGENT SOS ALERT: Patient triggered emergency assistance from the app.',
-            painLevel: '10/10',
-            digestion: 'N/A',
-            isUrgent: true
-        }
-    ];
+    // Red Flags data - ready for database integration
+    const RED_FLAGS: {
+        id: string;
+        patientId: string;
+        sessionDate: string;
+        alert: string;
+        painLevel: string;
+        digestion: string;
+        isUrgent: boolean;
+    }[] = [];
 
-    // Mock Data for Incoming Therapy Sessions
-    const INCOMING_SESSIONS = [
-        { id: '1', patient: 'Sarah Jenkins', therapy: 'Panchakarma (Day 3)', time: '09:00 AM', status: 'Arrived', room: 'Room 2A' },
-        { id: '2', patient: 'Michael Chang', therapy: 'Shirodhara', time: '10:30 AM', status: 'En Route', room: 'Room 1B' },
-        { id: '3', patient: 'Emma Wilson', therapy: 'Abhyanga', time: '12:00 PM', status: 'Scheduled', room: 'Room 3C' },
-        { id: '4', patient: 'Robert Fox', therapy: 'Panchakarma (Day 1)', time: '02:00 PM', status: 'Scheduled', room: 'Room 2A' },
-    ];
+    // Incoming Therapy Sessions data - ready for database integration
+    const INCOMING_SESSIONS: {
+        id: string;
+        patient: string;
+        therapy: string;
+        time: string;
+        status: string;
+        room: string;
+    }[] = [];
 
-    // Mock Data for Vitals Trends
-    const VITALS_DATA = [
-        { day: 'Mon', pain: 4, sleep: 6, appetite: 7 },
-        { day: 'Tue', pain: 3, sleep: 7, appetite: 8 },
-        { day: 'Wed', pain: 5, sleep: 5, appetite: 6 },
-        { day: 'Thu', pain: 2, sleep: 8, appetite: 9 },
-        { day: 'Fri', pain: 2, sleep: 8, appetite: 9 },
-        { day: 'Sat', pain: 1, sleep: 9, appetite: 10 },
-        { day: 'Sun', pain: 1, sleep: 9, appetite: 10 },
-    ];
+    // Vitals Trends data - ready for database integration
+    const VITALS_DATA: { day: string; pain: number; sleep: number; appetite: number }[] = [];
 
     return (
         <div className="space-y-8 pb-12">
@@ -192,8 +166,8 @@ const DoctorDashboard = () => {
                                             </td>
                                             <td className="px-6 py-4">
                                                 <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider border ${session.status === 'Arrived' ? 'bg-gradient-to-r from-emerald-50 to-green-50 text-emerald-700 border-emerald-200 shadow-sm' :
-                                                        session.status === 'En Route' ? 'bg-gradient-to-r from-amber-50 to-orange-50 text-amber-700 border-amber-200 shadow-sm' :
-                                                            'bg-gradient-to-r from-slate-50 to-slate-100 text-slate-600 border-slate-200'
+                                                    session.status === 'En Route' ? 'bg-gradient-to-r from-amber-50 to-orange-50 text-amber-700 border-amber-200 shadow-sm' :
+                                                        'bg-gradient-to-r from-slate-50 to-slate-100 text-slate-600 border-slate-200'
                                                     }`}>
                                                     {session.status === 'Arrived' && <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></div>}
                                                     {session.status === 'En Route' && <div className="w-1.5 h-1.5 bg-amber-500 rounded-full animate-pulse"></div>}

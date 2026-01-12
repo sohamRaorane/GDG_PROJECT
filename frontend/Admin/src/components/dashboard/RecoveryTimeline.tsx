@@ -21,14 +21,14 @@ export const RecoveryTimeline = ({ therapy }: RecoveryTimelineProps) => {
         let description = "Follow the standard diet and rest protocols today to ensure maximum benefit.";
 
         if (dayNum === 1) {
-            subTitle = "Preparation (Poorvakarma)";
-            description = "Start with intake of medicated ghee (Snehapana) and maintain a light, warm diet.";
+            subTitle = "Initial Phase";
+            description = "Beginning of the treatment cycle. Follow prescribed protocols.";
         } else if (dayNum === Math.floor(totalDays / 2)) {
-            subTitle = "Main Procedure (Pradhana Karma)";
-            description = "The core purification therapy session. Complete rest is strictly required.";
+            subTitle = "Core Treatment";
+            description = "Mid-point of the therapy. Ensure all parameters are within normal range.";
         } else if (dayNum === totalDays) {
-            subTitle = "Recovery (Paschat Karma)";
-            description = "Gradual reintroduction of normal diet (Samsarjana Krama). Avoid heavy activity.";
+            subTitle = "Completion Phase";
+            description = "Final day of treatment. Review progress and plan next steps.";
         }
 
         return { dayNum, title, subTitle, description, isCompleted, isCurrent };

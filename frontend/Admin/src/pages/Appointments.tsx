@@ -10,6 +10,7 @@ import Modal from "../components/ui/Modal";
 import ScheduleManager from "../components/appointments/ScheduleManager";
 import IntakeFormBuilder from "../components/appointments/IntakeFormBuilder";
 import CalendarView from "../components/appointments/CalendarView";
+import BookingSettingsPanel from "../components/appointments/BookingSettingsPanel";
 import { TreatmentWizard } from "../components/appointments/TreatmentWizard";
 import { getAllServices, createService, getAllAppointments, updateAppointmentStatus, updateService, deleteService } from "../services/db";
 import type { Appointment, Service } from "../types/db";
@@ -159,8 +160,22 @@ const Appointments = () => {
             setLoadingServices(true);
             try {
                 const services = await getAllServices();
+
+                // CLEANUP: Automatically remove dummy services shown in screenshot
+                const DUMMY_NAMES = ['kITKAT', 'Dental Care', 'Tennis Court', 'Abhyanga Snan', 'Abhyanga Therapy', 'Full Panchakarma Detox'];
+                const dummyServices = services.filter(s => DUMMY_NAMES.includes(s.name));
+
+                if (dummyServices.length > 0) {
+                    console.log("Cleaning up dummy services...", dummyServices.length);
+                    await Promise.all(dummyServices.map(s => deleteService(s.id)));
+                }
+
                 if (!mounted) return;
-                const mapped: AppointmentType[] = services.map((s) => ({
+
+                // Filter out deleted services from display
+                const validServices = services.filter(s => !DUMMY_NAMES.includes(s.name));
+
+                const mapped: AppointmentType[] = validServices.map((s) => ({
                     id: s.id,
                     name: s.name,
                     duration: s.durationMinutes,
@@ -390,70 +405,7 @@ const Appointments = () => {
                     {activeTab === "settings" && (
                         <div className="space-y-6">
                             <IntakeFormBuilder />
-                            <Card className="border-none shadow-lg">
-                                <div className="p-6">
-                                    <div className="flex items-center gap-3 mb-6">
-                                        <div className="p-2.5 bg-blue-50 text-blue-600 rounded-lg">
-                                            <Settings className="h-5 w-5" />
-                                        </div>
-                                        <div>
-                                            <h3 className="text-lg font-bold text-slate-800">Booking Rules</h3>
-                                            <p className="text-sm text-slate-500">Configure constraints and requirements for new bookings</p>
-                                        </div>
-                                    </div>
-
-                                    <div className="space-y-6">
-                                        <div className="grid gap-6 md:grid-cols-2">
-                                            <div className="space-y-2">
-                                                <label className="text-sm font-semibold text-slate-700">Max Bookings Per Slot</label>
-                                                <div className="relative">
-                                                    <Users className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
-                                                    <input
-                                                        type="number"
-                                                        className="w-full pl-9 rounded-xl border border-slate-200 py-2.5 text-slate-700 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 focus:outline-none"
-                                                        defaultValue={1}
-                                                    />
-                                                </div>
-                                                <p className="text-xs text-slate-400">Limit specific number of people per time slot.</p>
-                                            </div>
-                                            <div className="space-y-2">
-                                                <label className="text-sm font-semibold text-slate-700">Cut-off Time (hours before)</label>
-                                                <div className="relative">
-                                                    <Clock className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
-                                                    <input
-                                                        type="number"
-                                                        className="w-full pl-9 rounded-xl border border-slate-200 py-2.5 text-slate-700 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 focus:outline-none"
-                                                        defaultValue={24}
-                                                    />
-                                                </div>
-                                                <p className="text-xs text-slate-400">Minimum notice required for bookings.</p>
-                                            </div>
-                                        </div>
-
-                                        <div className="space-y-3 pt-2">
-                                            <label className="flex items-center gap-3 p-3 bg-slate-50 rounded-xl cursor-pointer hover:bg-slate-100 transition-colors">
-                                                <input type="checkbox" className="h-5 w-5 rounded border-slate-300 text-blue-600 focus:ring-blue-500" id="manual-confirm" />
-                                                <div>
-                                                    <p className="font-semibold text-slate-700">Require Manual Confirmation</p>
-                                                    <p className="text-xs text-slate-500">Admin must approve appointments before they are confirmed.</p>
-                                                </div>
-                                            </label>
-
-                                            <label className="flex items-center gap-3 p-3 bg-slate-50 rounded-xl cursor-pointer hover:bg-slate-100 transition-colors">
-                                                <input type="checkbox" className="h-5 w-5 rounded border-slate-300 text-blue-600 focus:ring-blue-500" id="advance-pay" />
-                                                <div>
-                                                    <p className="font-semibold text-slate-700">Require Advance Payment</p>
-                                                    <p className="text-xs text-slate-500">Collect payment at the time of booking.</p>
-                                                </div>
-                                            </label>
-                                        </div>
-
-                                        <div className="pt-4 flex justify-end">
-                                            <Button className="bg-slate-900 text-white hover:bg-slate-800 shadow-xl shadow-slate-900/10">Save Configuration</Button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </Card>
+                            <BookingSettingsPanel />
                         </div>
                     )}
                 </div>

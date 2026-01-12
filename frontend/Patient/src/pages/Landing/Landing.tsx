@@ -5,26 +5,25 @@ import {
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 
-// Mock Data for Therapists (Recycling DoctorResource structure)
 const EXPERTS = [
     {
         id: '1',
-        name: 'Dr. Ananya Sharma',
-        role: 'Senior Ayurvedic Practitioner',
+        name: 'Dr. Sarah Smith',
+        role: 'Senior Wellness Practitioner',
         image: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&q=80&w=800',
         rating: 4.9,
     },
     {
         id: '2',
-        name: 'Dr. Rajesh Verma',
-        role: 'Panchakarma Specialist',
+        name: 'Dr. John Doe',
+        role: 'Detox Specialist',
         image: 'https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?auto=format&fit=crop&q=80&w=800',
         rating: 4.8,
     },
     {
         id: '3',
-        name: 'Dr. Priya Kapoor',
-        role: 'Holistic Wellness Coach',
+        name: 'Dr. Emily Brown',
+        role: 'Holistic Health Coach',
         image: 'https://images.unsplash.com/photo-1594824476967-48c8b964273f?auto=format&fit=crop&q=80&w=800',
         rating: 4.9,
     },
@@ -32,20 +31,20 @@ const EXPERTS = [
 
 const FAQS = [
     {
-        q: "What types of Ayurvedic treatments does AyurSutra provide?",
-        a: "AyurSutra offers a wide range of traditional treatments including Panchakarma, Shirodhara, Abhyanga, and personalized diet consultation tailored to your Dosha."
+        q: "What types of wellness treatments do you provide?",
+        a: "We offer a wide range of holistic treatments including stress relief therapies, detoxification programs, and personalized wellness consultations."
     },
     {
-        q: "How do I know which therapy is right for my Dosha?",
-        a: "Our initial consultation typically includes a Prakriti analysis where our expert Vaidyas assess your body type and recommend the most suitable treatments."
+        q: "How do I know which therapy is right for me?",
+        a: "Our initial consultation assesses your specific needs and health goals to recommend the most suitable treatment plan for you."
     },
     {
         q: "What should I expect during my first session?",
-        a: "Your first session involves a detailed health assessment, pulse diagnosis (Nadi Pariksha), and a relaxed discussion about your lifestyle and wellness goals."
+        a: "Your first session involves a detailed health assessment and a relaxed discussion about your lifestyle and wellness goals to create a personalized plan."
     },
     {
-        q: "Is AyurSutra suitable for chronic conditions?",
-        a: "Yes, Ayurveda is highly effective for managing chronic conditions like arthritis, digestive issues, and stress. Our specialists create long-term care plans for sustainable healing."
+        q: "Are the treatments suitable for chronic conditions?",
+        a: "Yes, our holistic approach is effective for managing various chronic conditions. Our specialists create long-term care plans for sustainable healing."
     }
 ];
 

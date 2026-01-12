@@ -1,17 +1,15 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Button from "../ui/Button";
 import Card from "../ui/Card";
-import { Check, Clock, CalendarDays, Plus, Trash2 } from "lucide-react";
-
-interface DaySchedule {
-    day: string;
-    enabled: boolean;
-    slots: { start: string; end: string }[];
-}
+import { Check, Clock, CalendarDays, Plus, Trash2, Save, Loader2 } from "lucide-react";
+import { saveGlobalSchedule, getGlobalSchedule } from "../../services/db";
+import type { DaySchedule } from "../../types/db";
 
 const DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
 
 const ScheduleManager = () => {
+    const [loading, setLoading] = useState(true);
+    const [saving, setSaving] = useState(false);
     const [schedule, setSchedule] = useState<DaySchedule[]>(
         DAYS.map((day) => ({
             day,
@@ -19,6 +17,24 @@ const ScheduleManager = () => {
             slots: [{ start: "09:00", end: "17:00" }],
         }))
     );
+
+    useEffect(() => {
+        let mounted = true;
+        const load = async () => {
+            try {
+                const saved = await getGlobalSchedule();
+                if (saved && mounted) {
+                    setSchedule(saved);
+                }
+            } catch (error) {
+                console.error("Failed to load schedule", error);
+            } finally {
+                if (mounted) setLoading(false);
+            }
+        };
+        load();
+        return () => { mounted = false };
+    }, []);
 
     const toggleDay = (index: number) => {
         const newSchedule = [...schedule];
@@ -34,6 +50,28 @@ const ScheduleManager = () => {
         };
         setSchedule(newSchedule);
     };
+
+    const handleSave = async () => {
+        setSaving(true);
+        try {
+            await saveGlobalSchedule(schedule);
+            // Optional: Show success toast
+            alert("Schedule saved successfully!");
+        } catch (error) {
+            console.error("Failed to save schedule", error);
+            alert("Failed to save schedule.");
+        } finally {
+            setSaving(false);
+        }
+    };
+
+    if (loading) {
+        return (
+            <div className="flex justify-center py-12">
+                <Loader2 className="h-8 w-8 animate-spin text-emerald-500" />
+            </div>
+        );
+    }
 
     return (
         <div className="space-y-6">
@@ -130,8 +168,13 @@ const ScheduleManager = () => {
                     ))}
                 </div>
                 <div className="bg-slate-50 p-6 border-t border-slate-100 flex justify-end rounded-b-xl">
-                    <Button className="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 shadow-lg shadow-emerald-500/20 text-white font-medium px-8">
-                        Save Schedule Changes
+                    <Button
+                        onClick={handleSave}
+                        disabled={saving}
+                        className="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 shadow-lg shadow-emerald-500/20 text-white font-medium px-8 flex items-center gap-2"
+                    >
+                        {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+                        {saving ? "Saving..." : "Save Schedule Changes"}
                     </Button>
                 </div>
             </Card>

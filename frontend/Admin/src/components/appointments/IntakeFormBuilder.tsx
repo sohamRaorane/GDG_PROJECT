@@ -1,25 +1,39 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Button from "../ui/Button";
 import Card from "../ui/Card";
-import { Plus, Trash2, GripVertical, FileText, CheckSquare, Type, List } from "lucide-react";
-
-interface FormField {
-    id: string;
-    type: "text" | "textarea" | "select" | "checkbox";
-    label: string;
-    required: boolean;
-    options?: string[]; // For select inputs
-}
+import { Plus, Trash2, GripVertical, FileText, CheckSquare, Type, List, Save, Loader2 } from "lucide-react";
+import { saveIntakeForm, getIntakeForm } from "../../services/db";
+import type { IntakeFormField } from "../../types/db";
 
 const IntakeFormBuilder = () => {
-    const [fields, setFields] = useState<FormField[]>([
+    const [fields, setFields] = useState<IntakeFormField[]>([
         { id: "1", type: "text", label: "Medical History", required: true },
         { id: "2", type: "text", label: "Current Medications", required: false },
         { id: "3", type: "select", label: "Do you have allergies?", required: true, options: ["Yes", "No"] },
     ]);
+    const [loading, setLoading] = useState(true);
+    const [saving, setSaving] = useState(false);
+
+    useEffect(() => {
+        let mounted = true;
+        const load = async () => {
+            try {
+                const saved = await getIntakeForm();
+                if (saved && mounted) {
+                    setFields(saved);
+                }
+            } catch (error) {
+                console.error("Failed to load intake form", error);
+            } finally {
+                if (mounted) setLoading(false);
+            }
+        };
+        load();
+        return () => { mounted = false };
+    }, []);
 
     const addField = () => {
-        const newField: FormField = {
+        const newField: IntakeFormField = {
             id: Date.now().toString(),
             type: "text",
             label: "New Question",
@@ -32,11 +46,24 @@ const IntakeFormBuilder = () => {
         setFields(fields.filter((f) => f.id !== id));
     };
 
-    const updateField = (id: string, updates: Partial<FormField>) => {
+    const updateField = (id: string, updates: Partial<IntakeFormField>) => {
         setFields(fields.map((f) => (f.id === id ? { ...f, ...updates } : f)));
     };
 
-    const getIconForType = (type: FormField["type"]) => {
+    const handleSave = async () => {
+        setSaving(true);
+        try {
+            await saveIntakeForm(fields);
+            alert("Form saved successfully!");
+        } catch (error) {
+            console.error("Failed to save form", error);
+            alert("Failed to save form.");
+        } finally {
+            setSaving(false);
+        }
+    };
+
+    const getIconForType = (type: IntakeFormField["type"]) => {
         switch (type) {
             case "text": return <Type className="h-4 w-4" />;
             case "textarea": return <FileText className="h-4 w-4" />;
@@ -45,6 +72,14 @@ const IntakeFormBuilder = () => {
             default: return <Type className="h-4 w-4" />;
         }
     };
+
+    if (loading) {
+        return (
+            <div className="flex justify-center py-12 bg-white rounded-xl shadow-lg">
+                <Loader2 className="h-8 w-8 animate-spin text-indigo-500" />
+            </div>
+        );
+    }
 
     return (
         <Card className="border-none shadow-lg overflow-hidden">
@@ -108,7 +143,7 @@ const IntakeFormBuilder = () => {
                                                 </div>
                                                 <select
                                                     value={field.type}
-                                                    onChange={(e) => updateField(field.id, { type: e.target.value as FormField["type"] })}
+                                                    onChange={(e) => updateField(field.id, { type: e.target.value as IntakeFormField["type"] })}
                                                     className="w-full pl-9 pr-3 py-2 rounded-lg border border-slate-200 bg-slate-50 text-sm font-medium text-slate-700 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/10 focus:outline-none appearance-none cursor-pointer hover:bg-white transition-colors"
                                                 >
                                                     <option value="text">Short Text</option>
@@ -179,7 +214,14 @@ const IntakeFormBuilder = () => {
                 </div>
 
                 <div className="mt-6 flex justify-end">
-                    <Button className="bg-slate-900 text-white hover:bg-slate-800 shadow-xl shadow-slate-900/10">Save Form</Button>
+                    <Button
+                        onClick={handleSave}
+                        disabled={saving}
+                        className="bg-slate-900 text-white hover:bg-slate-800 shadow-xl shadow-slate-900/10 flex items-center gap-2"
+                    >
+                        {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+                        {saving ? "Saving..." : "Save Form"}
+                    </Button>
                 </div>
             </div>
         </Card>

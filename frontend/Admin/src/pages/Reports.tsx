@@ -4,42 +4,15 @@ import {
 } from 'recharts';
 import { TrendingUp, Users, Clock, DollarSign, Activity } from 'lucide-react';
 
-const data = [
-    { name: 'Mon', appointments: 40, revenue: 2400 },
-    { name: 'Tue', appointments: 30, revenue: 1398 },
-    { name: 'Wed', appointments: 20, revenue: 9800 },
-    { name: 'Thu', appointments: 27, revenue: 3908 },
-    { name: 'Fri', appointments: 18, revenue: 4800 },
-    { name: 'Sat', appointments: 23, revenue: 3800 },
-    { name: 'Sun', appointments: 34, revenue: 4300 },
-];
+// Data arrays - ready for database integration
+const data: { name: string; appointments: number; revenue: number }[] = [];
 
-const providerData = [
-    { name: 'Dr. Smith', utilization: 85, hours: 40 },
-    { name: 'Dr. Doe', utilization: 72, hours: 35 },
-    { name: 'Dr. Jane', utilization: 92, hours: 45 },
-    { name: 'Massage Therapy', utilization: 68, hours: 50 },
-];
+const providerData: { name: string; utilization: number; hours: number }[] = [];
 
-const revenueData = [
-    { month: 'Jan', revenue: 45000 },
-    { month: 'Feb', revenue: 52000 },
-    { month: 'Mar', revenue: 48000 },
-    { month: 'Apr', revenue: 61000 },
-    { month: 'May', revenue: 73000 },
-    { month: 'Jun', revenue: 85000 },
-];
+const revenueData: { month: string; revenue: number }[] = [];
 
 // Heatmap data - booking intensity by day and hour
-const heatmapData = [
-    { day: 'Mon', slots: [2, 3, 5, 8, 6, 4, 2] },
-    { day: 'Tue', slots: [1, 4, 6, 7, 5, 3, 1] },
-    { day: 'Wed', slots: [3, 5, 8, 9, 7, 4, 2] },
-    { day: 'Thu', slots: [2, 6, 9, 8, 6, 3, 1] },
-    { day: 'Fri', slots: [4, 7, 6, 5, 4, 2, 1] },
-    { day: 'Sat', slots: [1, 2, 4, 8, 9, 5, 2] },
-    { day: 'Sun', slots: [1, 2, 3, 7, 9, 6, 3] },
-];
+const heatmapData: { day: string; slots: number[] }[] = [];
 
 
 

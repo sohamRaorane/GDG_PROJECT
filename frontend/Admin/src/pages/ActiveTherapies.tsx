@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from 'react';
-import { collection, query, where, getDocs } from 'firebase/firestore';
+import { collection, query, where, getDocs, deleteDoc, doc } from 'firebase/firestore';
 import { db } from '../firebase'; // Adjust if needed
 import { Link } from 'react-router-dom';
 import { Users, Calendar, Activity, ArrowRight } from 'lucide-react';
@@ -22,7 +22,16 @@ const ActiveTherapies = () => {
                     id: doc.id,
                     ...doc.data()
                 })) as ActiveTherapy[];
-                setTherapies(data);
+
+                // CLEANUP: Automatically remove dummy data (user_123)
+                const dummyData = data.filter(t => t.patientId === 'user_123');
+                if (dummyData.length > 0) {
+                    console.log("Cleaning up dummy data...", dummyData.length);
+                    await Promise.all(dummyData.map(t => deleteDoc(doc(db, 'active_therapies', t.id))));
+                    setTherapies(data.filter(t => t.patientId !== 'user_123'));
+                } else {
+                    setTherapies(data);
+                }
             } catch (error) {
                 console.error("Error fetching therapies:", error);
             } finally {

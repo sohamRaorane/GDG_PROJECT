@@ -7,54 +7,14 @@ import { doc, setDoc, Timestamp } from 'firebase/firestore';
 import { seedTreatmentRooms } from '../../../services/seedRooms';
 
 // Textures
-import oilTexture from '../../../assets/textures/oil_massage.png';
-import shirodharaTexture from '../../../assets/textures/shirodhara.png';
-import herbsTexture from '../../../assets/textures/herbs.png';
-import panchakarmaTexture from '../../../assets/textures/panchakarma.png';
+// Textures
+// Texture imports removed as they were unsed after removing hardcoded data
 
 const SERVICE_IMAGES: Record<string, string> = {
-    'dental-care': shirodharaTexture,
-    'tennis-court': herbsTexture,
-    'abhyanga': oilTexture,
-    'panchakarma-full': panchakarmaTexture
+    // Add logic to map service IDs to generic image URLs if needed
 };
 
-const DEFAULT_SERVICES: Partial<Service>[] = [
-    {
-        id: 'abhyanga',
-        name: 'Abhyanga Therapy',
-        type: 'Paid',
-        users: ['Therapist A1'],
-        location: 'Room 101',
-        resources: ['Massage Table'],
-        intro: 'Traditional Ayurvedic oil massage for relaxation.',
-        price: 1500,
-        currency: 'INR',
-        description: 'Traditional Ayurvedic oil massage for relaxation.',
-        durationMinutes: 90,
-        isActive: true,
-        providerId: 'admin_1',
-        workingHours: [],
-        bookingRules: { maxAdvanceBookingDays: 30, minAdvanceBookingHours: 48, requiresManualConfirmation: true }
-    },
-    {
-        id: 'panchakarma-full',
-        name: 'Full Panchakarma Detox',
-        type: 'Paid',
-        users: ['Dr. Sharma'],
-        location: 'Wellness Wing',
-        resources: ['Panchakarma Lounge'],
-        intro: '7-day deep detoxification program.',
-        price: 15000,
-        currency: 'INR',
-        description: 'The ultimate Ayurvedic rejuvenation program.',
-        durationMinutes: 120,
-        isActive: true,
-        providerId: 'admin_1',
-        workingHours: [],
-        bookingRules: { maxAdvanceBookingDays: 60, minAdvanceBookingHours: 72, requiresManualConfirmation: true }
-    }
-];
+const DEFAULT_SERVICES: Partial<Service>[] = [];
 
 interface SelectServiceProps {
     selectedServiceId: string;
@@ -168,7 +128,7 @@ export const SelectService = ({ selectedServiceId, onSelect }: SelectServiceProp
                         {/* Image Header */}
                         <div className="h-56 relative overflow-hidden">
                             <img
-                                src={SERVICE_IMAGES[service.id] || shirodharaTexture}
+                                src={SERVICE_IMAGES[service.id] || "https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&q=80&w=600"}
                                 alt={service.name}
                                 className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-1000 grayscale-[20%] group-hover:grayscale-0"
                             />

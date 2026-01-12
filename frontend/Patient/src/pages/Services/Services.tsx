@@ -25,33 +25,7 @@ interface Service {
     recommended?: boolean;
 }
 
-const ADDITIONAL_SERVICES: Service[] = [
-    {
-        id: 'shirodhara',
-        name: 'Shirodhara',
-        description: 'Continuous pouring of warm medicated oil on the forehead to relieve stress.',
-        detailedDescription: 'Shirodhara involves a continuous, rhythmic pouring of warm herbal oil over the forehead (the "third eye"). This therapy is deeply meditative and is highly effective for treating anxiety, insomnia, migraines, and enhancing mental clarity.',
-        duration: '45 Mins',
-        price: 'Rs. 2,200',
-        image: shirodharaTexture,
-        tags: ['Mental Health', 'Insomnia', 'Focus'],
-        features: ['Relieves anxiety', 'Treats insomnia', 'Improves focus'],
-        intensity: 1
-    },
-    {
-        id: 'panchakarma-full',
-        name: 'Full Panchakarma Detox',
-        description: 'A complete 7-day detoxification program personalized to your body type.',
-        detailedDescription: 'Panchakarma is the ultimate Ayurvedic detoxification and rejuvenation program. Over 7 days, you will undergo a series of five therapies designed to purge toxins from the deep tissues, reset your digestion, and restore your natural balance.',
-        duration: '7 Days',
-        price: 'Rs. 15,000',
-        image: panchakarmaTexture,
-        tags: ['Deep Detox', 'Weight Loss', 'Rejuvenation', 'Holistic'],
-        features: ['Deep detoxification', 'Weight management', 'Rejuvenation', 'Dosha balance'],
-        intensity: 3,
-        recommended: true
-    },
-];
+const ADDITIONAL_SERVICES: Service[] = [];
 
 const IntensityDots = ({ level }: { level: number }) => (
     <div className="flex gap-1" title={`Intensity: ${level === 1 ? 'Mild' : level === 2 ? 'Moderate' : 'Intense'}`}>
