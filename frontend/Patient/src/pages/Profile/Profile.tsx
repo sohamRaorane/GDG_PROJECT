@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from 'react';
-import { User, Calendar, History, Clock, MapPin, Phone, Mail, Camera, Settings, LogOut, Music, VolumeX, Sparkles, Lock } from 'lucide-react';
+import { User, Calendar, History, Clock, MapPin, Phone, Mail, Camera, LogOut, Music, VolumeX, Sparkles, Lock } from 'lucide-react';
 import { NatureBackground } from '../../components/ui/NatureBackground';
 import { cn } from '../../utils/cn';
 import { Button } from '../../components/ui/Button';
@@ -38,12 +38,12 @@ export const Profile = () => {
         postalCode: '',
         passkey: ''
     });
-    const [originalPasskey, setOriginalPasskey] = useState('');
+
 
     // State for Actions (Cancel/Reschedule)
     const [selectedApt, setSelectedApt] = useState<any | null>(null);
     const [showCancelModal, setShowCancelModal] = useState(false);
-    const [inputPasskey, setInputPasskey] = useState('');
+    const [inputSessionName, setInputSessionName] = useState('');
     const [verifying, setVerifying] = useState(false);
 
     // Details Modal State
@@ -81,7 +81,7 @@ export const Profile = () => {
                         postalCode: profile.postalCode || '',
                         passkey: profile.passkey || ''
                     }));
-                    setOriginalPasskey(profile.passkey || '');
+
                 }
             });
         }
@@ -136,7 +136,7 @@ export const Profile = () => {
     const handleStartCancel = async (apt: any) => {
         setSelectedApt(apt);
         setShowCancelModal(true);
-        setInputPasskey('');
+        setInputSessionName('');
     };
 
     const handleViewDetails = (apt: any) => {
@@ -145,16 +145,13 @@ export const Profile = () => {
     };
 
     const handleVerifyAndCancel = async () => {
-        if (!originalPasskey) {
-            alert("No security passkey set. Please set it in Settings first.");
-            return;
-        }
-        if (inputPasskey !== originalPasskey) {
-            alert("Invalid security passkey. Please try again.");
-            return;
-        }
-
         if (!selectedApt) return;
+
+        // Verify Session Name logic
+        if (inputSessionName.trim().toLowerCase() !== selectedApt.service.toLowerCase()) {
+            alert("Session name does not match. Please type it exactly as shown.");
+            return;
+        }
 
         try {
             setVerifying(true);
@@ -205,7 +202,7 @@ export const Profile = () => {
                 passkey: formData.passkey
             });
 
-            setOriginalPasskey(formData.passkey);
+
             alert("Profile updated successfully!");
         } catch (error) {
             console.error("Error updating profile:", error);
@@ -700,19 +697,19 @@ export const Profile = () => {
                         <Lock size={32} />
                     </div>
                     <div>
-                        <h3 className="text-2xl font-bold text-[#1A2E25] mb-2">Security Verification</h3>
+                        <h3 className="text-2xl font-bold text-[#1A2E25] mb-2">Cancel Session</h3>
                         <p className="text-gray-600">
-                            Please enter your <b>Security Passkey</b> to confirm cancellation for <b>{selectedApt?.service}</b>.
+                            To confirm cancellation, please type the session name <b>{selectedApt?.service}</b> below.
                         </p>
                     </div>
 
                     <div className="max-w-xs mx-auto">
                         <input
-                            type="password"
-                            placeholder="Enter Passkey"
-                            className="w-full text-center text-2xl tracking-[0.5em] font-bold border-2 border-[#E3F2E1] rounded-xl py-3 focus:border-[#2F5E3D] focus:outline-none transition-all"
-                            value={inputPasskey}
-                            onChange={(e) => setInputPasskey(e.target.value)}
+                            type="text"
+                            placeholder="Type session name"
+                            className="w-full text-center text-lg font-bold border-2 border-[#E3F2E1] rounded-xl py-3 focus:border-[#2F5E3D] focus:outline-none transition-all"
+                            value={inputSessionName}
+                            onChange={(e) => setInputSessionName(e.target.value)}
                         />
                     </div>
 
@@ -722,7 +719,7 @@ export const Profile = () => {
                         </Button>
                         <Button
                             onClick={handleVerifyAndCancel}
-                            disabled={verifying || !inputPasskey}
+                            disabled={verifying || !inputSessionName}
                             className="bg-red-500 hover:bg-red-600 text-white min-w-[140px]"
                         >
                             {verifying ? "Verifying..." : "Verify & Cancel"}
@@ -898,17 +895,7 @@ const InputGroup = ({ label, value, onChange, type = "text", icon, readOnly }: a
     </div>
 );
 
-const SettingToggle = ({ label, description }: any) => (
-    <div className="flex items-center justify-between p-4 hover:bg-white/60 rounded-2xl transition-all cursor-pointer group hover:shadow-sm">
-        <div>
-            <h4 className="font-bold text-[#1A2E25] group-hover:text-[#2F5E3D] transition-colors text-lg">{label}</h4>
-            <p className="text-sm text-[#6B8577] mt-1 pr-4">{description}</p>
-        </div>
-        <div className="w-14 h-8 bg-[#E3F2E1] rounded-full relative transition-colors group-hover:bg-[#C4D7C4] cursor-pointer shadow-inner shrink-0">
-            <div className="absolute top-1 left-1 bottom-1 w-6 bg-white rounded-full shadow-sm transition-transform duration-300 transform group-hover:translate-x-6"></div>
-        </div>
-    </div>
-);
+
 
 const EmptyState = ({ icon, title, description, action, actionLabel }: any) => (
     <div className="text-center py-24 bg-white/40 border-2 border-dashed border-[#C4D7C4] rounded-[3rem] animate-in fade-in zoom-in-95 duration-500">

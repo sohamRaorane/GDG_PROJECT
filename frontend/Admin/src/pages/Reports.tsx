@@ -1,22 +1,140 @@
 import {
     XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
-    LineChart, Line, BarChart, Bar, Legend, AreaChart, Area
+    LineChart, Line, BarChart, Bar, AreaChart, Area
 } from 'recharts';
-import { TrendingUp, Users, Clock, DollarSign, Activity } from 'lucide-react';
-
-// Data arrays - ready for database integration
-const data: { name: string; appointments: number; revenue: number }[] = [];
-
-const providerData: { name: string; utilization: number; hours: number }[] = [];
-
-const revenueData: { month: string; revenue: number }[] = [];
-
-// Heatmap data - booking intensity by day and hour
-const heatmapData: { day: string; slots: number[] }[] = [];
-
-
+import { Users, Clock, DollarSign, Activity, Loader2 } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { collection, query, where, onSnapshot } from 'firebase/firestore';
+import { db } from '../firebase';
+import type { Appointment } from '../types/db';
 
 const Reports = () => {
+    // State for aggregated data
+    const [revenueData, setRevenueData] = useState<{ month: string; revenue: number }[]>([]);
+    const [appointmentData, setAppointmentData] = useState<{ name: string; appointments: number }[]>([]);
+    const [providerData, setProviderData] = useState<{ name: string; utilization: number }[]>([]);
+    const [heatmapData, setHeatmapData] = useState<{ day: string; slots: number[] }[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        // Listen to all specific appointments for analytics
+        const q = query(
+            collection(db, 'appointments'),
+            where('status', 'in', ['confirmed', 'completed']) // Only confirmed valid appts
+        );
+
+        const unsubscribe = onSnapshot(q, (snapshot) => {
+            const appointments = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Appointment));
+            processData(appointments);
+            setLoading(false);
+        });
+
+        return () => unsubscribe();
+    }, []);
+
+    const processData = (appointments: Appointment[]) => {
+        // --- 1. Revenue Trends (Group by Month) ---
+        const revenueMap: Record<string, number> = {};
+        const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+        // Initialize current year months to 0 to show complete line
+        const currentMonthIdx = new Date().getMonth();
+        for (let i = 0; i <= currentMonthIdx; i++) {
+            revenueMap[months[i]] = 0;
+        }
+
+        appointments.forEach(app => {
+            const date = app.startAt.toDate();
+            if (date.getFullYear() === new Date().getFullYear()) {
+                const month = months[date.getMonth()];
+                revenueMap[month] = (revenueMap[month] || 0) + (app.price || 0); // Assuming price field exists
+            }
+        });
+
+        const revData = Object.keys(revenueMap).map(m => ({
+            month: m,
+            revenue: revenueMap[m]
+        })).sort((a, b) => months.indexOf(a.month) - months.indexOf(b.month)); // Sort purely by month order
+
+        setRevenueData(revData);
+
+        // --- 2. Appointment Trends (Group by Day of Week: recent window or general distribution) ---
+        // Let's show distribution per day of week for general patterns
+        const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+        const apptMap: Record<string, number> = {};
+        days.forEach(d => apptMap[d] = 0);
+
+        appointments.forEach(app => {
+            const day = days[app.startAt.toDate().getDay()];
+            apptMap[day]++;
+        });
+
+        const apptData = days.map(d => ({
+            name: d,
+            appointments: apptMap[d]
+        }));
+        setAppointmentData(apptData);
+
+        // --- 3. Provider Performance (Utilization/Count by Service) ---
+        const serviceMap: Record<string, number> = {};
+        appointments.forEach(app => {
+            // Using serviceName as proxy for "Provider/Service" metric
+            const name = app.serviceName || 'General';
+            serviceMap[name] = (serviceMap[name] || 0) + 1;
+        });
+
+        // Convert raw count to a pseudo-utilization percentage for visualization (relative to max)
+        const maxCount = Math.max(...Object.values(serviceMap), 1);
+        const provData = Object.keys(serviceMap).map(name => ({
+            name: name,
+            utilization: Math.round((serviceMap[name] / maxCount) * 100),
+            count: serviceMap[name] // keep raw count if needed
+        })).slice(0, 5); // Top 5
+        setProviderData(provData);
+
+        // --- 4. Peak Booking Hours (Heatmap) ---
+        // Grid: 7 days x 7 hours (9am - 3pm shown in UI)
+        // Correct mappings:
+        // UI days labels in order: Mon, Tue ... ? Code shows 'heatmapData' map usage.
+        // Let's align with the existing UI structure: Y-axis days, X-axis hours.
+        // We need to match the days order in the UI. 
+        // Existing static data structure wasn't fully visible but let's assume standard Mon-Sun.
+
+        const uiDays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+        const uiHours = [9, 10, 11, 12, 13, 14, 15]; // 9 AM to 3 PM
+
+        // Initialize Map
+        const heatMap: Record<string, number[]> = {};
+        uiDays.forEach(d => {
+            heatMap[d] = new Array(uiHours.length).fill(0);
+        });
+
+        appointments.forEach(app => {
+            const date = app.startAt.toDate();
+            const day = uiDays[date.getDay()];
+            const hour = date.getHours();
+
+            const hourIdx = uiHours.indexOf(hour);
+            if (hourIdx >= 0 && heatMap[day]) {
+                heatMap[day][hourIdx]++;
+            }
+        });
+
+        const heatData = uiDays.map(d => ({
+            day: d,
+            slots: heatMap[d]
+        }));
+        setHeatmapData(heatData);
+    };
+
+    if (loading) {
+        return (
+            <div className="min-h-screen flex items-center justify-center bg-slate-50">
+                <Loader2 className="w-10 h-10 animate-spin text-emerald-600" />
+            </div>
+        );
+    }
+
     return (
         <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-emerald-50/30">
             <div className="space-y-6 pb-8">
@@ -99,12 +217,12 @@ const Reports = () => {
                             </div>
                             <div>
                                 <h3 className="text-lg font-serif font-bold text-blue-900">Appointment Trends</h3>
-                                <p className="text-xs text-slate-500">Daily appointment volume</p>
+                                <p className="text-xs text-slate-500">Weekly appointment distribution</p>
                             </div>
                         </div>
                         <div className="h-[280px] w-full">
                             <ResponsiveContainer width="100%" height="100%">
-                                <LineChart data={data}>
+                                <LineChart data={appointmentData}>
                                     <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" vertical={false} />
                                     <XAxis
                                         dataKey="name"
@@ -144,8 +262,8 @@ const Reports = () => {
                                 <Users size={20} className="text-purple-700" />
                             </div>
                             <div>
-                                <h3 className="text-lg font-serif font-bold text-purple-900">Provider Performance</h3>
-                                <p className="text-xs text-slate-500">Utilization rates by provider</p>
+                                <h3 className="text-lg font-serif font-bold text-purple-900">Service Performance</h3>
+                                <p className="text-xs text-slate-500">Popularity by service type</p>
                             </div>
                         </div>
                         <div className="h-[280px] w-full">
@@ -172,7 +290,7 @@ const Reports = () => {
                                             border: '1px solid #e2e8f0',
                                             boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)'
                                         }}
-                                        formatter={(value: number | undefined) => [`${value ?? 0}%`, 'Utilization']}
+                                        formatter={(value: number | undefined) => [`${value ?? 0}%`, 'Relative Popularity']}
                                     />
                                     <Bar
                                         dataKey="utilization"

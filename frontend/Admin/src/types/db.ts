@@ -88,6 +88,7 @@ export interface Appointment {
     providerId: string;
     startAt: Timestamp;
     endAt: Timestamp;
+    price?: number;
     status: AppointmentStatus;
     roomId?: string;
     notes?: string;

@@ -261,3 +261,12 @@ export const getIntakeForm = async (): Promise<any[] | null> => {
     console.log("Intake form not found");
     return null;
 };
+
+export const getBookingSettings = async (): Promise<any | null> => {
+    const docRef = doc(settingsCollection, 'booking_conf');
+    const snap = await getDoc(docRef);
+    if (snap.exists()) {
+        return snap.data().settings;
+    }
+    return null;
+};
