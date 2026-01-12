@@ -9,6 +9,11 @@ export interface UserProfile {
     role: UserRole;
     phoneNumber?: string;
     photoURL?: string;
+    dob?: string;
+    address?: string;
+    city?: string;
+    state?: string;
+    postalCode?: string;
     createdAt: Timestamp;
     updatedAt: Timestamp;
 }
@@ -111,6 +116,7 @@ export interface DailyHealthLog {
     notes?: string;
     isFlagged?: boolean;
     flaggedReason?: string;
+    userName?: string;
     createdAt: Timestamp;
 }
 

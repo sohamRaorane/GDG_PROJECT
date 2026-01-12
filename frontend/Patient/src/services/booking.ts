@@ -1,5 +1,5 @@
 import { db } from '../firebase';
-import { doc, runTransaction, collection, Timestamp, addDoc, getDoc } from 'firebase/firestore';
+import { doc, runTransaction, collection, Timestamp, addDoc, getDoc, query, where, getDocs, writeBatch } from 'firebase/firestore';
 import type { Appointment, Slot, Notification, Service } from '../types/db';
 
 export const bookMultiDayAppointment = async (
@@ -46,9 +46,6 @@ export const bookMultiDayAppointment = async (
             // 3. WRITE: Create Appointment (Parent)
             const appointmentRef = doc(collection(db, 'appointments'));
             const startDateTime = new Date(`${params.startDate}T${params.startTime}`);
-            // End Date is (StartDate + Days) ? Or just session duration?
-            // Usually appointment record tracks the "First Session" or valid range.
-            // Let's store the full range.
             const endDateTime = new Date(startDateTime);
             endDateTime.setDate(endDateTime.getDate() + params.days);
 
@@ -62,7 +59,7 @@ export const bookMultiDayAppointment = async (
                 providerId: params.providerId,
                 roomId: params.roomId,
                 startAt: Timestamp.fromDate(startDateTime),
-                endAt: Timestamp.fromDate(endDateTime), // Represents the full course duration?
+                endAt: Timestamp.fromDate(endDateTime),
                 status: 'confirmed',
                 createdAt: Timestamp.now(),
                 updatedAt: Timestamp.now()
@@ -89,14 +86,12 @@ export const bookMultiDayAppointment = async (
 
         // 5. Trigger Notification for Pre-precautions
         try {
-            console.log("DEBUG: Triggering notification for serviceId:", params.serviceId);
             const svcRef = doc(db, 'services', params.serviceId);
             const svcSnap = await getDoc(svcRef);
             if (svcSnap.exists()) {
                 const svc = svcSnap.data() as Service;
-                console.log("DEBUG: Service found. prePrecautions:", svc.prePrecautions);
                 if (svc.prePrecautions) {
-                    const nid = await createNotification({
+                    await createNotification({
                         userId: params.customerId,
                         title: `Pre-treatment Precautions: ${params.serviceName}`,
                         message: svc.prePrecautions,
@@ -105,15 +100,10 @@ export const bookMultiDayAppointment = async (
                         isRead: false,
                         createdAt: Timestamp.now()
                     });
-                    console.log("DEBUG: Pre-notification created with ID:", nid);
-                } else {
-                    console.log("DEBUG: No prePrecautions defined for this service.");
                 }
-            } else {
-                console.warn("DEBUG: Service document not found for notification trigger.");
             }
         } catch (notifierErr) {
-            console.error("DEBUG: Failed to trigger pre-notification", notifierErr);
+            console.error("Failed to trigger pre-notification", notifierErr);
         }
 
         // 6. Active Therapy Creation (Client-Side Fallback)
@@ -137,6 +127,68 @@ export const bookMultiDayAppointment = async (
         console.error("Multi-Day Booking Failed:", e);
         throw e;
     }
+};
+
+export const rescheduleAppointment = async (
+    appointmentId: string,
+    newDate: string,
+    newTime: string,
+    doctorId: string,
+    roomId: string,
+    serviceId: string
+): Promise<string> => {
+    // 1. Check Availability
+    const slotId = `${doctorId}_${roomId}_${newDate}_${newTime}`;
+    const slotTickRef = doc(db, 'slots', slotId);
+    const slotSnap = await getDoc(slotTickRef);
+    if (slotSnap.exists()) {
+        throw new Error(`Time slot ${newTime} is already booked.`);
+    }
+
+    // 2. Get Old Slots
+    const qSlots = query(collection(db, 'slots'), where('appointmentId', '==', appointmentId));
+    const oldSlotsSnap = await getDocs(qSlots);
+
+    // 3. Write Batch
+    const batch = writeBatch(db);
+
+    // Delete old
+    oldSlotsSnap.docs.forEach(d => {
+        batch.delete(d.ref);
+    });
+
+    // Create new
+    const newSlot: Slot = {
+        id: slotId,
+        doctorId: doctorId,
+        roomId: roomId,
+        date: newDate,
+        time: newTime,
+        serviceId: serviceId,
+        appointmentId: appointmentId,
+        lockedAt: Timestamp.now()
+    };
+    batch.set(slotTickRef, newSlot);
+
+    // Update Appointment
+    const aptRef = doc(db, 'appointments', appointmentId);
+    const startDateTime = new Date(`${newDate}T${newTime}`);
+    const endDateTime = new Date(startDateTime.getTime() + 60 * 60 * 1000); // 60 min default
+
+    batch.update(aptRef, {
+        startAt: Timestamp.fromDate(startDateTime),
+        endAt: Timestamp.fromDate(endDateTime),
+        roomId: roomId,
+        updatedAt: Timestamp.now(),
+        status: 'rescheduled'
+    });
+
+    await batch.commit();
+
+    // Trigger Notification (Mock)
+    console.log(`[MOCK EMAIL] Appointment Rescheduled for ${appointmentId}. New Date: ${newDate}, Time: ${newTime}`);
+
+    return "Rescheduled Successfully";
 };
 
 export const createNotification = async (notification: Omit<Notification, 'id'>): Promise<string> => {
