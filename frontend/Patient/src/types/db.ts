@@ -111,6 +111,7 @@ export interface DailyHealthLog {
     notes?: string;
     isFlagged?: boolean;
     flaggedReason?: string;
+    userName?: string;
     createdAt: Timestamp;
 }
 
