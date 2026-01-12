@@ -39,6 +39,7 @@ export const BookingWizard = () => {
         slot: '',
         roomId: '',
         peopleCount: 1,
+        servicePrice: 0,
         intakeValues: {}
     });
 
@@ -223,7 +224,7 @@ export const BookingWizard = () => {
                             {currentStep === 'service' && (
                                 <SelectService
                                     selectedServiceId={bookingData.serviceId}
-                                    onSelect={(id) => setBookingData(prev => ({ ...prev, serviceId: id }))}
+                                    onSelect={(id, price) => setBookingData(prev => ({ ...prev, serviceId: id, servicePrice: price }))}
                                 />
                             )}
                             {currentStep === 'clinic' && (

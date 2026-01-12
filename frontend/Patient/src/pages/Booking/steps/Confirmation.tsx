@@ -111,7 +111,7 @@ export const Confirmation: React.FC<ConfirmationProps> = ({ bookingData }) => {
             {/* Actions */}
             <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
                 <Button
-                    onClick={() => navigate('/dashboard')}
+                    onClick={() => navigate('/home')}
                     className="w-full sm:w-auto px-10 py-5 rounded-3xl bg-primary text-white shadow-xl shadow-primary/20 hover:bg-primary/90 flex items-center gap-2 font-bold transition-transform hover:-translate-y-1"
                 >
                     <Home size={18} />
