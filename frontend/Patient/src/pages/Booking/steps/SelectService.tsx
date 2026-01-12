@@ -130,7 +130,7 @@ const DEFAULT_SERVICES: Partial<Service>[] = [
 
 interface SelectServiceProps {
     selectedServiceId: string;
-    onSelect: (serviceId: string) => void;
+    onSelect: (serviceId: string, price: number) => void;
 }
 
 export const SelectService = ({ selectedServiceId, onSelect }: SelectServiceProps) => {
@@ -298,7 +298,7 @@ export const SelectService = ({ selectedServiceId, onSelect }: SelectServiceProp
                                     <button
                                         onClick={(e) => {
                                             e.stopPropagation();
-                                            onSelect(service.id);
+                                            onSelect(service.id, service.price);
                                         }}
                                         className={cn(
                                             "flex-1 py-3 px-4 rounded-xl font-bold text-sm transition-all shadow-md",
@@ -336,9 +336,9 @@ export const SelectService = ({ selectedServiceId, onSelect }: SelectServiceProp
                             <p className="text-amber-900/80 font-body leading-relaxed text-lg">
                                 {viewingService.description}
                             </p>
-                            
+
                             {/* Additional details to match Services modal look */}
-                             <div className="flex items-center justify-between text-sm py-4 border-t border-amber-100 mt-4">
+                            <div className="flex items-center justify-between text-sm py-4 border-t border-amber-100 mt-4">
                                 <div>
                                     <span className="text-amber-900/50">Duration:</span>
                                     <span className="ml-2 font-medium text-amber-900">{viewingService.durationMinutes} mins</span>
@@ -360,7 +360,7 @@ export const SelectService = ({ selectedServiceId, onSelect }: SelectServiceProp
                                 <Button
                                     className="flex-1 bg-gradient-to-r from-amber-600 to-orange-600 text-white hover:from-amber-700 hover:to-orange-700 shadow-lg shadow-orange-900/20"
                                     onClick={() => {
-                                        onSelect(viewingService.id);
+                                        onSelect(viewingService.id, viewingService.price);
                                         setViewingService(null);
                                     }}
                                 >

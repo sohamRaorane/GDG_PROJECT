@@ -39,13 +39,23 @@ export const BookingWizard = () => {
         slot: '',
         roomId: '',
         peopleCount: 1,
+        servicePrice: 0,
         intakeValues: {}
     });
 
     // Check for pre-selected service from navigation state
     useEffect(() => {
         if (location.state && location.state.serviceId) {
-            setBookingData(prev => ({ ...prev, serviceId: location.state.serviceId }));
+            const serviceId = location.state.serviceId;
+            setBookingData(prev => ({ ...prev, serviceId }));
+
+            // Fetch price for pre-selected service
+            getServiceById(serviceId).then(service => {
+                if (service) {
+                    setBookingData(prev => ({ ...prev, servicePrice: service.price }));
+                }
+            });
+
             setCurrentStep('clinic');
 
             // Clear the state so refreshing doesn't stick (optional, but good UX)
@@ -202,7 +212,7 @@ export const BookingWizard = () => {
                             {currentStep === 'service' && (
                                 <SelectService
                                     selectedServiceId={bookingData.serviceId}
-                                    onSelect={(id) => setBookingData(prev => ({ ...prev, serviceId: id }))}
+                                    onSelect={(id, price) => setBookingData(prev => ({ ...prev, serviceId: id, servicePrice: price }))}
                                 />
                             )}
                             {currentStep === 'clinic' && (

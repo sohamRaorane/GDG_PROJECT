@@ -1,6 +1,7 @@
 
 import { useState, useEffect } from 'react';
-import { User, Calendar, History, Clock, MapPin, Phone, Mail, Camera, Settings, LogOut, Music, VolumeX, Sparkles } from 'lucide-react';
+import { User, Calendar, History, Clock, MapPin, Phone, Mail, Camera, Settings, LogOut, Music, VolumeX, Sparkles, Lock } from 'lucide-react';
+import { NatureBackground } from '../../components/ui/NatureBackground';
 import { cn } from '../../utils/cn';
 import { Button } from '../../components/ui/Button';
 import { useAuth } from '../../context/AuthContext';
@@ -11,7 +12,6 @@ import { db } from '../../firebase';
 import { getUserProfile, getServiceById, createUserProfile, cancelAppointment } from '../../services/db';
 import { rescheduleAppointment } from '../../services/booking';
 import { updateProfile } from 'firebase/auth';
-import { sendOtpEmail } from '../../services/email';
 import { Modal } from '../../components/ui/Modal';
 import { SelectSlot } from '../Booking/steps/SelectSlot';
 
@@ -35,14 +35,15 @@ export const Profile = () => {
         address: '',
         city: '',
         state: '',
-        postalCode: ''
+        postalCode: '',
+        passkey: ''
     });
+    const [originalPasskey, setOriginalPasskey] = useState('');
 
     // State for Actions (Cancel/Reschedule)
     const [selectedApt, setSelectedApt] = useState<any | null>(null);
     const [showCancelModal, setShowCancelModal] = useState(false);
-    const [otp, setOtp] = useState('');
-    const [inputOtp, setInputOtp] = useState('');
+    const [inputPasskey, setInputPasskey] = useState('');
     const [verifying, setVerifying] = useState(false);
 
     // Details Modal State
@@ -77,8 +78,10 @@ export const Profile = () => {
                         address: profile.address || '',
                         city: profile.city || '',
                         state: profile.state || '',
-                        postalCode: profile.postalCode || ''
+                        postalCode: profile.postalCode || '',
+                        passkey: profile.passkey || ''
                     }));
+                    setOriginalPasskey(profile.passkey || '');
                 }
             });
         }
@@ -131,22 +134,9 @@ export const Profile = () => {
     };
 
     const handleStartCancel = async (apt: any) => {
-        if (!currentUser?.email) {
-            alert("No email found for verification.");
-            return;
-        }
         setSelectedApt(apt);
         setShowCancelModal(true);
-        setInputOtp('');
-
-        // Generate OTP
-        const newOtp = Math.floor(100000 + Math.random() * 900000).toString();
-        setOtp(newOtp);
-
-        // Send Email
-        setLoading(true);
-        await sendOtpEmail(currentUser.email, newOtp, "Cancellation Verification");
-        setLoading(false);
+        setInputPasskey('');
     };
 
     const handleViewDetails = (apt: any) => {
@@ -155,8 +145,12 @@ export const Profile = () => {
     };
 
     const handleVerifyAndCancel = async () => {
-        if (inputOtp !== otp) {
-            alert("Invalid OTP. Please try again.");
+        if (!originalPasskey) {
+            alert("No security passkey set. Please set it in Settings first.");
+            return;
+        }
+        if (inputPasskey !== originalPasskey) {
+            alert("Invalid security passkey. Please try again.");
             return;
         }
 
@@ -207,9 +201,11 @@ export const Profile = () => {
                 address: formData.address,
                 city: formData.city,
                 state: formData.state,
-                postalCode: formData.postalCode
+                postalCode: formData.postalCode,
+                passkey: formData.passkey
             });
 
+            setOriginalPasskey(formData.passkey);
             alert("Profile updated successfully!");
         } catch (error) {
             console.error("Error updating profile:", error);
@@ -621,8 +617,21 @@ export const Profile = () => {
                                 <div className="animate-in fade-in slide-in-from-bottom-8 duration-700 ease-out space-y-6">
                                     <PageHeader title="Settings" subtitle="Preferences & Privacy" />
 
-                                    <div className="bg-white/60 backdrop-blur-md rounded-[2.5rem] p-8 border border-white/60 shadow-sm space-y-2">
+                                    <div className="bg-white/60 backdrop-blur-md rounded-[2.5rem] p-8 border border-white/60 shadow-sm space-y-6">
                                         <SettingToggle label="Email Notifications" description="Receive updates about your appointments" />
+
+                                        <div className="pt-4 border-t border-white/40">
+                                            <h4 className="text-lg font-bold text-[#1A2E25] mb-4">Security</h4>
+                                            <InputGroup
+                                                label="Security Passkey"
+                                                value={formData.passkey}
+                                                onChange={(e: any) => setFormData({ ...formData, passkey: e.target.value })}
+                                                type="password"
+                                                icon={<Lock size={18} className="text-[#8FA893]" />}
+                                                placeholder="Enter 4-digit passkey"
+                                            />
+                                            <p className="text-xs text-[#6B8577] mt-2 italic"> This passkey will be required for session cancellations.</p>
+                                        </div>
                                     </div>
                                 </div>
                             )}
@@ -687,40 +696,37 @@ export const Profile = () => {
             <Modal isOpen={showCancelModal} onClose={() => setShowCancelModal(false)}>
                 <div className="p-4 space-y-6 text-center">
                     <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto text-red-600">
-                        <LogOut size={32} className="ml-1" />
+                        <Lock size={32} />
                     </div>
                     <div>
-                        <h3 className="text-2xl font-bold text-[#1A2E25] mb-2">Cancel Appointment?</h3>
+                        <h3 className="text-2xl font-bold text-[#1A2E25] mb-2">Security Verification</h3>
                         <p className="text-gray-600">
-                            We've sent a verification code to <b>{currentUser?.email}</b>.
-                            Please enter it below to confirm cancellation for <b>{selectedApt?.service}</b>.
+                            Please enter your <b>Security Passkey</b> to confirm cancellation for <b>{selectedApt?.service}</b>.
                         </p>
                     </div>
 
                     <div className="max-w-xs mx-auto">
                         <input
-                            type="text"
-                            placeholder="Enter 6-digit OTP"
-                            className="w-full text-center text-2xl tracking-[0.5em] font-bold border-2 border-[#E3F2E1] rounded-xl py-3 focus:border-[#2F5E3D] focus:outline-none transition-all uppercase"
-                            maxLength={6}
-                            value={inputOtp}
-                            onChange={(e) => setInputOtp(e.target.value)}
+                            type="password"
+                            placeholder="Enter Passkey"
+                            className="w-full text-center text-2xl tracking-[0.5em] font-bold border-2 border-[#E3F2E1] rounded-xl py-3 focus:border-[#2F5E3D] focus:outline-none transition-all"
+                            value={inputPasskey}
+                            onChange={(e) => setInputPasskey(e.target.value)}
                         />
                     </div>
 
                     <div className="flex gap-3 justify-center pt-2">
                         <Button variant="ghost" onClick={() => setShowCancelModal(false)}>
-                            Keep It
+                            Keep session
                         </Button>
                         <Button
                             onClick={handleVerifyAndCancel}
-                            disabled={verifying || inputOtp.length !== 6}
+                            disabled={verifying || !inputPasskey}
                             className="bg-red-500 hover:bg-red-600 text-white min-w-[140px]"
                         >
-                            {verifying ? "Cancelling..." : "Confirm Cancel"}
+                            {verifying ? "Verifying..." : "Verify & Cancel"}
                         </Button>
                     </div>
-                    <p className="text-xs text-gray-400">Can't find the email? Check spam or <button className="underline text-[#2F5E3D]" onClick={() => handleStartCancel(selectedApt)}>Resend</button></p>
                 </div>
             </Modal>
             {/* Reschedule Modal */}
@@ -766,17 +772,6 @@ export const Profile = () => {
 
 // --- Sub Components ---
 
-
-
-const NatureBackground = () => (
-    <div className="fixed inset-0 z-0 overflow-hidden pointer-events-none select-none bg-[#F0F4F1]">
-        <div className="absolute top-[-20%] left-[-10%] w-[60%] h-[60%] bg-[#D1E8D5] rounded-full mix-blend-multiply filter blur-[80px] opacity-80 animate-blob"></div>
-        <div className="absolute top-[-10%] right-[-10%] w-[50%] h-[50%] bg-[#CDE0D0] rounded-full mix-blend-multiply filter blur-[80px] opacity-80 animate-blob animation-delay-2000"></div>
-        <div className="absolute bottom-[-20%] left-[20%] w-[60%] h-[60%] bg-[#D9EBE0] rounded-full mix-blend-multiply filter blur-[80px] opacity-80 animate-blob animation-delay-4000"></div>
-        {/* Subtle texture overlay */}
-        <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-[0.05]"></div>
-    </div>
-);
 
 const SidebarItem = ({ active, onClick, icon, label, variant = 'default' }: any) => {
     const isDanger = variant === 'danger';

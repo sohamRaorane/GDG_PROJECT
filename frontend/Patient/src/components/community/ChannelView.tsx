@@ -160,7 +160,7 @@ export const ChannelView = ({ channel, onBack }: ChannelViewProps) => {
                     </div>
                 </div>
             ) : (
-                <div className="p-4 bg-slate-50 text-center border-t border-slate-200">
+                <div className="p-4 bg-slate-50 text-center border-t border-slate-100">
                     <p className="text-sm text-slate-500">Please <a href="/login" className="text-emerald-600 font-bold hover:underline">login</a> to participate.</p>
                 </div>
             )}

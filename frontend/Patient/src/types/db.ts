@@ -14,6 +14,7 @@ export interface UserProfile {
     city?: string;
     state?: string;
     postalCode?: string;
+    passkey?: string;
     createdAt: Timestamp;
     updatedAt: Timestamp;
 }

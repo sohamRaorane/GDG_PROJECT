@@ -59,8 +59,8 @@ export const Community = () => {
                                         key={channel.id}
                                         onClick={() => setSelectedChannel(channel)}
                                         className={`w-full text-left p-3 rounded-xl transition-all flex items-center gap-3 group ${selectedChannel?.id === channel.id
-                                                ? 'bg-emerald-50 border-emerald-100 ring-1 ring-emerald-200/50 shadow-sm'
-                                                : 'hover:bg-slate-50 border border-transparent'
+                                            ? 'bg-emerald-50 border-emerald-100 ring-1 ring-emerald-200/50 shadow-sm'
+                                            : 'hover:bg-slate-50 border border-transparent'
                                             }`}
                                     >
                                         <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 transition-colors ${selectedChannel?.id === channel.id ? 'bg-emerald-100 text-emerald-600' : 'bg-slate-100 text-slate-500 group-hover:bg-white group-hover:shadow-sm'

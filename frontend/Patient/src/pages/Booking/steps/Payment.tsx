@@ -87,7 +87,7 @@ export const Payment: React.FC<PaymentProps> = ({ bookingData, onPaymentComplete
                             </div>
                             <div className="flex items-center gap-1 font-bold text-text">
                                 <IndianRupee size={14} />
-                                <span>1,500</span>
+                                <span>{bookingData.servicePrice?.toLocaleString() || '0'}</span>
                             </div>
                         </div>
 
@@ -104,7 +104,7 @@ export const Payment: React.FC<PaymentProps> = ({ bookingData, onPaymentComplete
                                 <span className="text-text/60 font-medium">Subtotal</span>
                                 <div className="flex items-center gap-1 font-bold text-text/80">
                                     <IndianRupee size={12} />
-                                    <span>1,500</span>
+                                    <span>{bookingData.servicePrice?.toLocaleString() || '0'}</span>
                                 </div>
                             </div>
                             <div className="flex justify-between text-sm">
@@ -120,7 +120,7 @@ export const Payment: React.FC<PaymentProps> = ({ bookingData, onPaymentComplete
                             <span className="text-lg font-display font-bold text-primary italic uppercase tracking-wider">Total Amount</span>
                             <div className="flex items-center gap-1 text-2xl font-display font-bold text-primary">
                                 <IndianRupee size={20} />
-                                <span>1,550</span>
+                                <span>{((bookingData.servicePrice || 0) + 50).toLocaleString()}</span>
                             </div>
                         </div>
                     </div>
