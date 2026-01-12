@@ -13,7 +13,8 @@ import {
     writeBatch,
     query,
     where,
-    onSnapshot
+    onSnapshot,
+    setDoc
 } from 'firebase/firestore';
 import { db } from '../firebase';
 import type { UserProfile, Service, Appointment, Notification } from '../types/db';
@@ -262,6 +263,41 @@ export const getIntakeForm = async (): Promise<any[] | null> => {
         return snap.data().fields;
     }
     return null;
+};
+
+export const saveGeneralSettings = async (settings: any): Promise<void> => {
+    const docRef = doc(settingsCollection, 'general');
+    const batch = writeBatch(db);
+    batch.set(docRef, { settings, updatedAt: Timestamp.now() });
+    await batch.commit();
+};
+
+export const getGeneralSettings = async (): Promise<any | null> => {
+    const docRef = doc(settingsCollection, 'general');
+    const snap = await getDoc(docRef);
+    if (snap.exists()) {
+        return snap.data().settings;
+    }
+    return null;
+};
+
+// --- Clinic Settings Management (SaaS Architecture) ---
+
+export const updateClinicSettings = async (clinicId: string, section: string, data: any) => {
+    const docRef = doc(db, 'clinics', clinicId, 'settings', section);
+    // setDoc with merge: true ensures document creation and non-destructive updates
+    await setDoc(docRef, data, { merge: true });
+};
+
+export const subscribeToClinicSettings = (clinicId: string, section: string, callback: (data: any) => void) => {
+    const docRef = doc(db, 'clinics', clinicId, 'settings', section);
+    return onSnapshot(docRef, (snap) => {
+        if (snap.exists()) {
+            callback(snap.data());
+        } else {
+            callback(null);
+        }
+    });
 };
 
 // --- Community Management ---
