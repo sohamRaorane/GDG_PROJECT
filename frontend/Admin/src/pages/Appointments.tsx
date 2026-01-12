@@ -1,11 +1,10 @@
 import { useState, useEffect } from "react";
-import { Plus, Eye, Trash2, Clock, Users, DollarSign, Power, Calendar, Settings, MoreVertical, Check } from "lucide-react";
+import { Plus, Eye, Trash2, Clock, Users, DollarSign, Power, Calendar, Settings, MoreVertical, Check, Edit } from "lucide-react";
 
 // Simple utility for joining classes
 // @ts-ignore
 const cn = (...classes: any[]) => classes.filter(Boolean).join(' ');
 import Button from "../components/ui/Button";
-import Card from "../components/ui/Card";
 import Modal from "../components/ui/Modal";
 import ScheduleManager from "../components/appointments/ScheduleManager";
 import IntakeFormBuilder from "../components/appointments/IntakeFormBuilder";
@@ -40,6 +39,7 @@ const Appointments = () => {
     const [loadingAppointments, setLoadingAppointments] = useState(false);
     const [selectedAppointment, setSelectedAppointment] = useState<Appointment | null>(null);
     const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
+    const [editingId, setEditingId] = useState<string | null>(null);
 
     const [newType, setNewType] = useState<Partial<AppointmentType>>({
         name: "",
@@ -51,20 +51,48 @@ const Appointments = () => {
         postPrecautions: ""
     });
 
-    const handleCreateType = () => {
+    const handleCreateType = async () => {
         if (!newType.name) return;
-        const type: AppointmentType = {
-            id: Date.now(),
-            name: newType.name as string,
-            duration: newType.duration || 30,
-            type: newType.type || "User",
-            price: newType.price || 0,
-            status: newType.status || "Unpublished",
-        };
 
-        // persist to Firestore as a Service
-        (async () => {
-            try {
+        try {
+            if (editingId) {
+                // Update existing service
+                const updates: Partial<Service> = {
+                    name: newType.name,
+                    durationMinutes: newType.duration,
+                    price: newType.price,
+                    isActive: newType.status === "Published",
+                    prePrecautions: newType.prePrecautions,
+                    postPrecautions: newType.postPrecautions,
+                    updatedAt: Timestamp.now(),
+                };
+
+                await updateService(editingId, updates);
+
+                setAppointmentTypes(prev => prev.map(t => String(t.id) === editingId ? {
+                    ...t,
+                    name: newType.name!,
+                    duration: newType.duration!,
+                    type: newType.type!,
+                    price: newType.price!,
+                    status: newType.status!,
+                    prePrecautions: newType.prePrecautions,
+                    postPrecautions: newType.postPrecautions
+                } : t));
+
+            } else {
+                // Create new service
+                const type: AppointmentType = {
+                    id: Date.now(),
+                    name: newType.name as string,
+                    duration: newType.duration || 30,
+                    type: newType.type || "User",
+                    price: newType.price || 0,
+                    status: newType.status || "Unpublished",
+                    prePrecautions: newType.prePrecautions,
+                    postPrecautions: newType.postPrecautions
+                };
+
                 const svc: Omit<Service, 'id'> = {
                     name: type.name,
                     description: type.name,
@@ -82,16 +110,31 @@ const Appointments = () => {
                 };
                 const id = await createService(svc);
                 setAppointmentTypes((prev) => [...prev, { ...type, id }]);
-            } catch (err) {
-                console.error("Failed to create service", err);
             }
-        })();
 
-        setIsModalOpen(false);
-        setNewType({ name: "", duration: 30, type: "User", price: 0, status: "Unpublished", prePrecautions: "", postPrecautions: "" });
+            setIsModalOpen(false);
+            setNewType({ name: "", duration: 30, type: "User", price: 0, status: "Unpublished", prePrecautions: "", postPrecautions: "" });
+            setEditingId(null);
+        } catch (err) {
+            console.error("Failed to save service", err);
+        }
     };
 
-    const AppointmentTypeCard = ({ type, onToggle, onDelete }: { type: AppointmentType; onToggle?: () => void; onDelete?: () => void }) => (
+    const handleEditService = (type: AppointmentType) => {
+        setNewType({
+            name: type.name,
+            duration: type.duration,
+            type: type.type,
+            price: type.price,
+            status: type.status,
+            prePrecautions: type.prePrecautions || "",
+            postPrecautions: type.postPrecautions || ""
+        });
+        setEditingId(String(type.id));
+        setIsModalOpen(true);
+    };
+
+    const AppointmentTypeCard = ({ type, onToggle, onDelete, onEdit }: { type: AppointmentType; onToggle?: () => void; onDelete?: () => void; onEdit?: () => void }) => (
         <div className="group relative bg-white rounded-2xl p-6 border border-slate-200 shadow-sm hover:shadow-xl hover:border-emerald-100 transition-all duration-300">
             {/* Status Line */}
             <div className={`absolute top-0 left-6 right-6 h-1 rounded-b-full ${type.status === "Published" ? "bg-gradient-to-r from-emerald-400 to-teal-500" : "bg-slate-200"
@@ -113,6 +156,13 @@ const Appointments = () => {
                 <div className="flex items-center gap-1 opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity duration-200 bg-slate-50 p-1 rounded-lg">
                     <button className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors" title="Preview">
                         <Eye className="h-4 w-4" />
+                    </button>
+                    <button
+                        onClick={onEdit}
+                        className="p-1.5 text-slate-400 hover:text-amber-600 hover:bg-amber-50 rounded-md transition-colors"
+                        title="Edit"
+                    >
+                        <Edit className="h-4 w-4" />
                     </button>
                     <button
                         onClick={onToggle}
@@ -182,6 +232,8 @@ const Appointments = () => {
                     type: "User",
                     price: s.price,
                     status: s.isActive ? "Published" : "Unpublished",
+                    prePrecautions: s.prePrecautions,
+                    postPrecautions: s.postPrecautions,
                 }));
                 setAppointmentTypes(mapped);
             } catch (err) {
@@ -264,6 +316,7 @@ const Appointments = () => {
                                 Create New Type
                             </button>
                         )}
+                        {/* Always show create button or handle visibility better - kept as is for now */}
                     </div>
                 </div>
 
@@ -296,7 +349,13 @@ const Appointments = () => {
                     {activeTab === "services" && (
                         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
                             {appointmentTypes.map((type) => (
-                                <AppointmentTypeCard key={type.id} type={type} onToggle={() => handleToggleServiceActive(String(type.id), type.status === 'Published')} onDelete={() => handleDeleteService(String(type.id))} />
+                                <AppointmentTypeCard
+                                    key={type.id}
+                                    type={type}
+                                    onToggle={() => handleToggleServiceActive(String(type.id), type.status === 'Published')}
+                                    onDelete={() => handleDeleteService(String(type.id))}
+                                    onEdit={() => handleEditService(type)}
+                                />
                             ))}
                         </div>
                     )}
@@ -410,7 +469,15 @@ const Appointments = () => {
                     )}
                 </div>
 
-                <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} title="Create New Service">
+                <Modal
+                    isOpen={isModalOpen}
+                    onClose={() => {
+                        setIsModalOpen(false);
+                        setEditingId(null);
+                        setNewType({ name: "", duration: 30, type: "User", price: 0, status: "Unpublished", prePrecautions: "", postPrecautions: "" });
+                    }}
+                    title={editingId ? "Edit Service" : "Create New Service"}
+                >
                     <div className="space-y-5">
                         <div className="group">
                             <label className="mb-2 block text-sm font-semibold text-slate-700 group-focus-within:text-emerald-600 transition-colors">
@@ -556,8 +623,8 @@ const Appointments = () => {
                                 className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white py-3 rounded-xl font-semibold shadow-lg shadow-emerald-500/20 transform transition-all active:scale-[0.98]"
                                 onClick={handleCreateType}
                             >
-                                <Plus className="mr-2 h-5 w-5" />
-                                Create Service Type
+                                {editingId ? <Check className="mr-2 h-5 w-5" /> : <Plus className="mr-2 h-5 w-5" />}
+                                {editingId ? "Update Service" : "Create Service Type"}
                             </Button>
                         </div>
                     </div>
