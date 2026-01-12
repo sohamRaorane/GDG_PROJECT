@@ -1,8 +1,8 @@
 import {
     XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
-    LineChart, Line, BarChart, Bar, Legend, AreaChart, Area
+    LineChart, Line, BarChart, Bar, AreaChart, Area
 } from 'recharts';
-import { TrendingUp, Users, Clock, DollarSign, Activity } from 'lucide-react';
+import { Users, Clock, DollarSign, Activity } from 'lucide-react';
 
 // Data arrays - ready for database integration
 const data: { name: string; appointments: number; revenue: number }[] = [];

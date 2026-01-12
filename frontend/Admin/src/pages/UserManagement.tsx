@@ -19,7 +19,6 @@ interface User {
 
 const UserManagement = () => {
     const [users, setUsers] = useState<User[]>([]);
-    const [loading, setLoading] = useState(false);
 
     // Map backend role to UI label
     const mapRole = (role: string): RoleLabel => {
@@ -31,7 +30,6 @@ const UserManagement = () => {
     useEffect(() => {
         let mounted = true;
         const load = async () => {
-            setLoading(true);
             try {
                 const profiles = await getAllUsers();
                 if (!mounted) return;
@@ -49,8 +47,6 @@ const UserManagement = () => {
                 setUsers(mapped);
             } catch (err) {
                 console.error("Failed to load users", err);
-            } finally {
-                if (mounted) setLoading(false);
             }
         };
         load();
