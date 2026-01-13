@@ -97,6 +97,7 @@ export const Landing = () => {
                         <motion.h1 variants={fadeInUp} className="font-serif text-5xl md:text-7xl text-text leading-[1.1]">
                             Wellness Starts with a <span className="italic text-primary">Single Ritual</span>
                         </motion.h1>
+                    </motion.div>
 
                     <div className="flex flex-col gap-6 mt-8 lg:mt-0 justify-center items-end">
                         <motion.button
@@ -130,7 +131,6 @@ export const Landing = () => {
                         </motion.button>
                     </div>
 
-                    </motion.div>
                 </div>
 
                 {/* Floating Cards Steps (Bottom Hero) */}
@@ -157,7 +157,7 @@ export const Landing = () => {
             </header>
 
             {/* About Section */}
-            <section className="py-32 px-6 md:px-12 bg-white" id="about">
+            <section className="py-32 px-6 md:px-12 bg-white" id="about" >
                 <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
                     <motion.div
                         initial={{ opacity: 0, x: -50 }}
@@ -211,7 +211,7 @@ export const Landing = () => {
             </section>
 
             {/* Team Section */}
-            <section className="py-32 px-6 md:px-12 bg-secondary/5" id="our-team">
+            <section className="py-32 px-6 md:px-12 bg-secondary/5" id="our-team" >
                 <div className="max-w-7xl mx-auto space-y-16">
                     <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
                         <div className="space-y-4">
@@ -261,7 +261,7 @@ export const Landing = () => {
 
 
             {/* FAQ */}
-            <section className="py-32 px-6 md:px-12 bg-secondary/10">
+            <section className="py-32 px-6 md:px-12 bg-secondary/10" >
                 <div className="max-w-4xl mx-auto">
                     <div className="text-center mb-20 space-y-6">
                         <div className="flex items-center justify-center gap-3 text-primary uppercase tracking-widest text-xs font-bold">
@@ -297,7 +297,7 @@ export const Landing = () => {
             </section>
 
             {/* CTA Banner */}
-            <section className="relative py-40 px-6 md:px-12 overflow-hidden">
+            <section className="relative py-40 px-6 md:px-12 overflow-hidden" >
                 <div className="absolute inset-0">
                     <img
                         src="https://images.unsplash.com/photo-1519834785169-98be25ec3f84?auto=format&fit=crop&q=80&w=2000"
@@ -327,7 +327,7 @@ export const Landing = () => {
             </section>
 
             {/* Footer */}
-            <footer className="bg-white pt-24 pb-12 px-6 md:px-12 border-t border-slate-100" id="contact">
+            < footer className="bg-white pt-24 pb-12 px-6 md:px-12 border-t border-slate-100" id="contact" >
                 <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-12 mb-16">
                     <div className="space-y-6">
                         <div className="flex items-center gap-2">
@@ -361,7 +361,8 @@ export const Landing = () => {
                 <div className="max-w-7xl mx-auto pt-8 border-t border-slate-100 flex flex-col md:flex-row justify-between items-center gap-4 text-text/40 text-sm">
                     <p>© 2026 AyurSutra. All rights reserved.</p>
                 </div>
-            </footer>
+            </footer >
         </div>
+
     );
 };
