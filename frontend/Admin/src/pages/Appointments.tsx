@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Plus, Eye, Trash2, Clock, Users, DollarSign, Power, Calendar, Settings, MoreVertical, Check, Edit } from "lucide-react";
+import { Plus, Eye, Trash2, Clock, Users, IndianRupee, Power, Calendar, Settings, MoreVertical, Check, Edit } from "lucide-react";
 
 // Simple utility for joining classes
 // @ts-ignore
@@ -104,7 +104,7 @@ const Appointments = () => {
                     durationMinutes: type.duration,
                     durationDays: type.durationDays,
                     price: type.price,
-                    currency: "USD",
+                    currency: "INR",
                     isActive: type.status === "Published",
                     providerId: "admin",
                     workingHours: [],
@@ -196,8 +196,8 @@ const Appointments = () => {
                 <div className="flex flex-col gap-1">
                     <span className="text-xs font-medium text-slate-400 uppercase tracking-wider">Price</span>
                     <div className="flex items-center gap-2 text-slate-700 font-semibold">
-                        <DollarSign className="h-4 w-4 text-emerald-500" />
-                        <span>${type.price}</span>
+                        <IndianRupee className="h-4 w-4 text-emerald-500" />
+                        <span>₹{type.price}</span>
                     </div>
                 </div>
             </div>
@@ -526,7 +526,7 @@ const Appointments = () => {
                                     Price
                                 </label>
                                 <div className="relative">
-                                    <DollarSign className="absolute left-3.5 top-3.5 h-4 w-4 text-slate-400 group-focus-within:text-emerald-500 transition-colors" />
+                                    <IndianRupee className="absolute left-3.5 top-3.5 h-4 w-4 text-slate-400 group-focus-within:text-emerald-500 transition-colors" />
                                     <input
                                         type="number"
                                         className="w-full rounded-xl border border-slate-200 pl-10 pr-4 py-3 text-slate-700 transition-all focus:border-emerald-500 focus:ring-4 focus:ring-emerald-500/10 focus:outline-none placeholder:text-slate-400"
