@@ -133,7 +133,6 @@ export const Landing = () => {
                             </motion.button>
                         </div>
 
-                    </motion.div>
                 </div>
 
                 {/* Floating Cards Steps (Bottom Hero) */}
