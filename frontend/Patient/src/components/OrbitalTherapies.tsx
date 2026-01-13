@@ -326,7 +326,7 @@ export const OrbitalTherapies = () => {
                                         onClick={() => {
                                             setSelectedTherapy(null);
                                             setShowDetails(false);
-                                            navigate('/book', { state: { serviceId: selectedTherapy.id } });
+                                            navigate('/patient/book', { state: { serviceId: selectedTherapy.id } });
                                         }}
                                     >
                                         Book Now

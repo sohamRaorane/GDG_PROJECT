@@ -53,7 +53,7 @@ export const BackgroundMusic = () => {
     };
 
     return (
-        <div className="fixed bottom-6 right-6 z-50 flex flex-col items-center gap-2 group">
+        <div className="fixed top-24 right-6 z-50 flex flex-col items-center gap-2 group">
             <audio ref={audioRef} src={musicFile} />
 
             {/* Main Music Control Button */}
@@ -74,8 +74,8 @@ export const BackgroundMusic = () => {
 
             {/* Mute/Volume (Visible on hover of group or when playing) */}
             <div className={`
-                absolute bottom-14 transition-all duration-300 transform
-                ${isPlaying || hasInteracted ? 'translate-y-0 opacity-0 group-hover:opacity-100 group-hover:translate-y-[-5px]' : 'translate-y-2 opacity-0 pointer-events-none'}
+                absolute top-14 transition-all duration-300 transform
+                ${isPlaying || hasInteracted ? 'translate-y-0 opacity-0 group-hover:opacity-100 group-hover:translate-y-[5px]' : 'translate-y-[-8px] opacity-0 pointer-events-none'}
              `}>
                 <button
                     onClick={toggleMute}

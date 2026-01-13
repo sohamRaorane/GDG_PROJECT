@@ -67,9 +67,12 @@ export const Landing = () => {
                         ))}
                     </div>
 
-                    <a href="#contact" className="px-6 py-2.5 rounded-full border border-primary text-primary font-medium hover:bg-primary hover:text-white transition-all">
+                    <button
+                        onClick={() => document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' })}
+                        className="px-6 py-2.5 rounded-full border border-primary text-primary font-medium hover:bg-primary hover:text-white transition-all"
+                    >
                         Contact
-                    </a>
+                    </button>
                 </div>
             </motion.nav>
 
@@ -103,17 +106,17 @@ export const Landing = () => {
                                 whileHover={{ scale: 1.05, translateY: -2 }}
                                 whileTap={{ scale: 0.95 }}
                                 onClick={() => navigate('/auth/patient/login')}
-                                className="group relative px-8 py-5 bg-[#1F4D3F] text-white rounded-2xl font-bold shadow-[0_10px_40px_-10px_rgba(31,77,63,0.5)] overflow-hidden transition-all flex items-center gap-4 min-w-[240px] border border-[#ffffff10]"
+                                className="group relative px-8 py-5 bg-gradient-to-r from-emerald-600 to-teal-600 text-white rounded-2xl font-bold shadow-[0_10px_40px_-10px_rgba(16,185,129,0.4)] overflow-hidden transition-all flex items-center gap-4 min-w-[240px] border border-emerald-400/20"
                             >
-                                <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/0 via-emerald-400/20 to-emerald-500/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
-                                <div className="w-12 h-12 bg-white/10 rounded-xl flex items-center justify-center backdrop-blur-sm group-hover:bg-white/20 transition-colors">
+                                <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/10 to-white/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
+                                <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm group-hover:bg-white/30 transition-colors">
                                     <span className="text-2xl">👤</span>
                                 </div>
                                 <div className="flex flex-col items-start gap-1">
-                                    <span className="text-xs font-medium text-emerald-200 uppercase tracking-wider">For Patients</span>
+                                    <span className="text-xs font-medium text-emerald-100 uppercase tracking-wider">For Patients</span>
                                     <span className="text-lg leading-none">Login / Signup</span>
                                 </div>
-                                <ArrowRight className="ml-auto opacity-0 group-hover:opacity-100 -translate-x-2 group-hover:translate-x-0 transition-all text-emerald-300" size={20} />
+                                <ArrowRight className="ml-auto opacity-0 group-hover:opacity-100 -translate-x-2 group-hover:translate-x-0 transition-all text-white" size={20} />
                             </motion.button>
 
                             <motion.button
@@ -132,19 +135,7 @@ export const Landing = () => {
                                 <ArrowRight className="ml-auto opacity-0 group-hover:opacity-100 -translate-x-2 group-hover:translate-x-0 transition-all text-emerald-600" size={20} />
                             </motion.button>
                         </div>
-                        <div className="flex items-center gap-3">
-                            <div className="flex -space-x-3">
-                                {[1, 2, 3].map(i => (
-                                    <div key={i} className="w-10 h-10 rounded-full border-2 border-white bg-slate-200 overflow-hidden">
-                                        <img src={`https://i.pravatar.cc/100?img=${i + 10}`} alt="User" className="w-full h-full object-cover" />
-                                    </div>
-                                ))}
-                            </div>
-                            <div className="text-sm">
-                                <p className="font-bold text-text">Trusted by</p>
-                                <p className="text-primary">30,000+ Users</p>
-                            </div>
-                        </div>
+
                     </motion.div>
                 </div>
 
@@ -342,8 +333,8 @@ export const Landing = () => {
             </section >
 
             {/* Footer */}
-            < footer className="bg-white pt-24 pb-12 px-6 md:px-12 border-t border-slate-100" >
-                <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
+            <footer className="bg-white pt-24 pb-12 px-6 md:px-12 border-t border-slate-100" id="contact">
+                <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-12 mb-16">
                     <div className="space-y-6">
                         <div className="flex items-center gap-2">
                             <Leaf className="text-primary" size={24} />
@@ -352,61 +343,31 @@ export const Landing = () => {
                         <p className="text-text/60 leading-relaxed">
                             Your journey to mental and physical wellness starts here. Ancient wisdom, modern care.
                         </p>
-                        <div className="flex gap-4">
-                            {/* Social Icons */}
-                            {['tw', 'fb', 'ig', 'li'].map(social => (
-                                <div key={social} className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-text/60 hover:bg-primary hover:text-white transition-colors cursor-pointer">
-                                    <div className="w-4 h-4 bg-current rounded-sm" />
-                                </div>
-                            ))}
-                        </div>
                     </div>
 
                     <div>
                         <h4 className="font-bold text-text mb-6">Quick Links</h4>
                         <ul className="space-y-4 text-text/60">
                             <li><a href="#" className="hover:text-primary transition-colors">Home</a></li>
-                            <li><a href="#" className="hover:text-primary transition-colors">About</a></li>
-                            <li><a href="#" className="hover:text-primary transition-colors">Services</a></li>
-                            <li><a href="#" className="hover:text-primary transition-colors">Contact</a></li>
-                        </ul>
-                    </div>
-
-                    <div>
-                        <h4 className="font-bold text-text mb-6">Services</h4>
-                        <ul className="space-y-4 text-text/60">
-                            <li><a href="#" className="hover:text-primary transition-colors">Therapy Hub</a></li>
-                            <li><a href="#" className="hover:text-primary transition-colors">Support Groups</a></li>
-                            <li><a href="#" className="hover:text-primary transition-colors">Wellness Blog</a></li>
-                            <li><a href="#" className="hover:text-primary transition-colors">Self-Care Tools</a></li>
+                            <li><a href="#about" className="hover:text-primary transition-colors">About</a></li>
+                            <li><a href="#our-team" className="hover:text-primary transition-colors">Our Team</a></li>
                         </ul>
                     </div>
 
                     <div className="space-y-6">
-                        <h4 className="font-bold text-text mb-6">Subscribe</h4>
-                        <p className="text-text/60">Join our newsletter to stay up to date on features and releases.</p>
-                        <div className="flex gap-2">
-                            <input
-                                type="email"
-                                placeholder="Enter your email"
-                                className="flex-1 bg-slate-50 border border-slate-200 rounded-lg px-4 py-3 focus:outline-none focus:border-primary transition-colors"
-                            />
-                            <button className="bg-text text-white px-6 py-3 rounded-lg font-bold hover:bg-primary transition-colors">
-                                Subscribe
-                            </button>
+                        <h4 className="font-bold text-text mb-6">Contact Us</h4>
+                        <p className="text-text/60">Have questions? We'd love to hear from you.</p>
+                        <div className="space-y-3 text-text/60">
+                            <p>📧 contact@ayursutra.com</p>
+                            <p>📍 Mumbai, India</p>
                         </div>
                     </div>
                 </div>
 
                 <div className="max-w-7xl mx-auto pt-8 border-t border-slate-100 flex flex-col md:flex-row justify-between items-center gap-4 text-text/40 text-sm">
                     <p>© 2026 AyurSutra. All rights reserved.</p>
-                    <div className="flex gap-8">
-                        <a href="#" className="hover:text-primary">Privacy Policy</a>
-                        <a href="#" className="hover:text-primary">Terms of Service</a>
-                        <a href="#" className="hover:text-primary">Cookie Settings</a>
-                    </div>
                 </div>
-            </footer >
+            </footer>
         </div >
     );
 };
