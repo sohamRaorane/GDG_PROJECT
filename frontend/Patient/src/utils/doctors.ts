@@ -45,7 +45,7 @@ export const DOCTORS: DoctorResource[] = [
         name: 'Dr. Vikram Iyer',
         specialization: 'Kayachikitsa (General Medicine)',
         experience: '15 Years',
-        image: drRajesh, // Placeholder
+        image: 'https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?auto=format&fit=crop&q=80&w=800',
         rating: 4.7,
         clinicIds: ['1', '3']
     },
@@ -54,7 +54,7 @@ export const DOCTORS: DoctorResource[] = [
         name: 'Dr. Sunita Mehta',
         specialization: 'Stri Roga (Gynecology)',
         experience: '10 Years',
-        image: drAnjali, // Placeholder
+        image: 'https://images.unsplash.com/photo-1651008376811-b90baee60c1f?auto=format&fit=crop&q=80&w=800',
         rating: 4.9,
         clinicIds: ['2', '5']
     },
@@ -63,7 +63,7 @@ export const DOCTORS: DoctorResource[] = [
         name: 'Dr. Aryan Singh',
         specialization: 'Shalya Tantra (Surgery)',
         experience: '18 Years',
-        image: drRajesh, // Placeholder
+        image: 'https://images.unsplash.com/photo-1582750433449-648ed127bb54?auto=format&fit=crop&q=80&w=800',
         rating: 4.8,
         clinicIds: ['4']
     },
