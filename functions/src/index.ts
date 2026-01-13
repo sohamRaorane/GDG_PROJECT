@@ -148,7 +148,7 @@ if (!GEN_AI_KEY) {
 
 const genAI = GEN_AI_KEY ? new GoogleGenerativeAI(GEN_AI_KEY) : null;
 
-// Use Gemini 1.5 flash to avoid the 2.0 free-tier quota if configured
+// Use gemini-1.5-flash as explicitly requested by user
 const MODEL_NAME = 'gemini-1.5-flash';
 
 app.post('/generate', async (req, res) => {
@@ -159,7 +159,7 @@ app.post('/generate', async (req, res) => {
     const safeHistory = Array.isArray(history) ? history : [];
 
     try {
-        const model = genAI.getGenerativeModel({ model: MODEL_NAME });
+        const model = genAI.getGenerativeModel({ model: MODEL_NAME }, { apiVersion: 'v1' });
         const chat = model.startChat({ history: safeHistory });
         const result = await chat.sendMessage(nextMessage);
         const response = await result.response;

@@ -5,7 +5,7 @@ import tailwindcss from '@tailwindcss/vite'
 // https://vite.dev/config/
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '');
-  const projectId = env.VITE_FIREBASE_PROJECT_ID || 'gdg-project';
+  const projectId = env.VITE_FIREBASE_PROJECT_ID || 'ayursutra-f2435';
 
   return {
     plugins: [react(), tailwindcss()],
