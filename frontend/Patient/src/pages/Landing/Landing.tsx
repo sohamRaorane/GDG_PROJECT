@@ -99,42 +99,41 @@ export const Landing = () => {
                         </motion.h1>
                     </motion.div>
 
-                        <div className="flex flex-col sm:flex-row gap-6 mt-8">
-                            <motion.button
-                                whileHover={{ scale: 1.05, translateY: -2 }}
-                                whileTap={{ scale: 0.95 }}
-                                onClick={() => navigate('/auth/patient/login')}
-                                className="group relative px-8 py-5 bg-gradient-to-r from-emerald-600 to-teal-600 text-white rounded-2xl font-bold shadow-[0_10px_40px_-10px_rgba(16,185,129,0.4)] overflow-hidden transition-all flex items-center gap-4 min-w-[240px] border border-emerald-400/20"
-                            >
-                                <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/10 to-white/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
-                                <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm group-hover:bg-white/30 transition-colors">
-                                    <span className="text-2xl">👤</span>
-                                </div>
-                                <div className="flex flex-col items-start gap-1">
-                                    <span className="text-xs font-medium text-emerald-100 uppercase tracking-wider">For Patients</span>
-                                    <span className="text-lg leading-none">Login / Signup</span>
-                                </div>
-                                <ArrowRight className="ml-auto opacity-0 group-hover:opacity-100 -translate-x-2 group-hover:translate-x-0 transition-all text-white" size={20} />
-                            </motion.button>
+                    <div className="flex flex-col sm:flex-row gap-6 mt-8">
+                        <motion.button
+                            whileHover={{ scale: 1.05, translateY: -2 }}
+                            whileTap={{ scale: 0.95 }}
+                            onClick={() => navigate('/auth/patient/login')}
+                            className="group relative px-8 py-5 bg-gradient-to-r from-emerald-600 to-teal-600 text-white rounded-2xl font-bold shadow-[0_10px_40px_-10px_rgba(16,185,129,0.4)] overflow-hidden transition-all flex items-center gap-4 min-w-[240px] border border-emerald-400/20"
+                        >
+                            <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/10 to-white/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
+                            <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm group-hover:bg-white/30 transition-colors">
+                                <span className="text-2xl">👤</span>
+                            </div>
+                            <div className="flex flex-col items-start gap-1">
+                                <span className="text-xs font-medium text-emerald-100 uppercase tracking-wider">For Patients</span>
+                                <span className="text-lg leading-none">Login / Signup</span>
+                            </div>
+                            <ArrowRight className="ml-auto opacity-0 group-hover:opacity-100 -translate-x-2 group-hover:translate-x-0 transition-all text-white" size={20} />
+                        </motion.button>
 
-                            <motion.button
-                                whileHover={{ scale: 1.05, translateY: -2 }}
-                                whileTap={{ scale: 0.95 }}
-                                onClick={() => window.location.href = 'http://localhost:5174/login'}
-                                className="group relative px-8 py-5 bg-white text-slate-800 rounded-2xl font-bold shadow-[0_10px_40px_-10px_rgba(0,0,0,0.1)] border border-slate-100 overflow-hidden transition-all flex items-center gap-4 min-w-[240px] hover:border-emerald-500/30 hover:shadow-[0_10px_40px_-10px_rgba(31,77,63,0.15)]"
-                            >
-                                <div className="w-12 h-12 bg-slate-50 rounded-xl flex items-center justify-center group-hover:bg-emerald-50 transition-colors">
-                                    <span className="text-2xl">👨‍⚕️</span>
-                                </div>
-                                <div className="flex flex-col items-start gap-1">
-                                    <span className="text-xs font-medium text-slate-400 group-hover:text-emerald-600 uppercase tracking-wider transition-colors">For Staff</span>
-                                    <span className="text-lg leading-none">Doctor / Admin</span>
-                                </div>
-                                <ArrowRight className="ml-auto opacity-0 group-hover:opacity-100 -translate-x-2 group-hover:translate-x-0 transition-all text-emerald-600" size={20} />
-                            </motion.button>
-                        </div>
+                        <motion.button
+                            whileHover={{ scale: 1.05, translateY: -2 }}
+                            whileTap={{ scale: 0.95 }}
+                            onClick={() => window.location.href = 'http://localhost:5174/login'}
+                            className="group relative px-8 py-5 bg-white text-slate-800 rounded-2xl font-bold shadow-[0_10px_40px_-10px_rgba(0,0,0,0.1)] border border-slate-100 overflow-hidden transition-all flex items-center gap-4 min-w-[240px] hover:border-emerald-500/30 hover:shadow-[0_10px_40px_-10px_rgba(31,77,63,0.15)]"
+                        >
+                            <div className="w-12 h-12 bg-slate-50 rounded-xl flex items-center justify-center group-hover:bg-emerald-50 transition-colors">
+                                <span className="text-2xl">👨‍⚕️</span>
+                            </div>
+                            <div className="flex flex-col items-start gap-1">
+                                <span className="text-xs font-medium text-slate-400 group-hover:text-emerald-600 uppercase tracking-wider transition-colors">For Staff</span>
+                                <span className="text-lg leading-none">Doctor / Admin</span>
+                            </div>
+                            <ArrowRight className="ml-auto opacity-0 group-hover:opacity-100 -translate-x-2 group-hover:translate-x-0 transition-all text-emerald-600" size={20} />
+                        </motion.button>
+                    </div>
 
-                    </motion.div>
                 </div>
 
                 {/* Floating Cards Steps (Bottom Hero) */}
@@ -158,10 +157,10 @@ export const Landing = () => {
                         ))}
                     </div>
                 </motion.div>
-            </header >
+            </header>
 
             {/* About Section */}
-            < section className="py-32 px-6 md:px-12 bg-white" id="about" >
+            <section className="py-32 px-6 md:px-12 bg-white" id="about" >
                 <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
                     <motion.div
                         initial={{ opacity: 0, x: -50 }}
@@ -212,10 +211,10 @@ export const Landing = () => {
 
                     </motion.div>
                 </div>
-            </section >
+            </section>
 
             {/* Team Section */}
-            < section className="py-32 px-6 md:px-12 bg-secondary/5" id="our-team" >
+            <section className="py-32 px-6 md:px-12 bg-secondary/5" id="our-team" >
                 <div className="max-w-7xl mx-auto space-y-16">
                     <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
                         <div className="space-y-4">
@@ -260,12 +259,12 @@ export const Landing = () => {
                         ))}
                     </div>
                 </div>
-            </section >
+            </section>
 
 
 
             {/* FAQ */}
-            < section className="py-32 px-6 md:px-12 bg-secondary/10" >
+            <section className="py-32 px-6 md:px-12 bg-secondary/10" >
                 <div className="max-w-4xl mx-auto">
                     <div className="text-center mb-20 space-y-6">
                         <div className="flex items-center justify-center gap-3 text-primary uppercase tracking-widest text-xs font-bold">
@@ -298,10 +297,10 @@ export const Landing = () => {
                         ))}
                     </div>
                 </div>
-            </section >
+            </section>
 
             {/* CTA Banner */}
-            < section className="relative py-40 px-6 md:px-12 overflow-hidden" >
+            <section className="relative py-40 px-6 md:px-12 overflow-hidden" >
                 <div className="absolute inset-0">
                     <img
                         src="https://images.unsplash.com/photo-1519834785169-98be25ec3f84?auto=format&fit=crop&q=80&w=2000"
@@ -328,10 +327,10 @@ export const Landing = () => {
                         Get Started Today
                     </button>
                 </motion.div>
-            </section >
+            </section>
 
             {/* Footer */}
-            <footer className="bg-white pt-24 pb-12 px-6 md:px-12 border-t border-slate-100" id="contact">
+            < footer className="bg-white pt-24 pb-12 px-6 md:px-12 border-t border-slate-100" id="contact" >
                 <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-12 mb-16">
                     <div className="space-y-6">
                         <div className="flex items-center gap-2">
@@ -365,7 +364,8 @@ export const Landing = () => {
                 <div className="max-w-7xl mx-auto pt-8 border-t border-slate-100 flex flex-col md:flex-row justify-between items-center gap-4 text-text/40 text-sm">
                     <p>© 2026 AyurSutra. All rights reserved.</p>
                 </div>
-            </footer>
-        </div >
+            </footer >
+        </div>
+
     );
 };
