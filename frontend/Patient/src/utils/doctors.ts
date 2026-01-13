@@ -23,7 +23,7 @@ export const DOCTORS: DoctorResource[] = [
         experience: '12 Years',
         image: drAnjali,
         rating: 4.8,
-        clinicIds: ['1', '2'] // Available at AyurSutra and Prakriti
+        clinicIds: ['1', '2', '7'] // Available at AyurSutra, Prakriti, and Ojas
     },
     {
         id: 'dr-verma',
@@ -32,7 +32,7 @@ export const DOCTORS: DoctorResource[] = [
         experience: '20 Years',
         image: drRajesh,
         rating: 4.9,
-        clinicIds: ['1', '3', '5'] // AyurSutra, Dhanvantari, Sushruta
+        clinicIds: ['1', '3', '5', '6'] // AyurSutra, Dhanvantari, Sushruta, NavJivan
     },
     {
         id: 'dr-gupta',
@@ -41,7 +41,7 @@ export const DOCTORS: DoctorResource[] = [
         experience: '8 Years',
         image: drPriyanshu,
         rating: 4.6,
-        clinicIds: ['2', '4'] // Prakriti and VedaLife
+        clinicIds: ['2', '4', '7'] // Prakriti, VedaLife, Ojas
     },
     {
         id: 'dr-iyer',
@@ -50,7 +50,7 @@ export const DOCTORS: DoctorResource[] = [
         experience: '15 Years',
         image: drVikram,
         rating: 4.7,
-        clinicIds: ['1', '3']
+        clinicIds: ['1', '3', '6']
     },
     {
         id: 'dr-mehta',
@@ -59,7 +59,7 @@ export const DOCTORS: DoctorResource[] = [
         experience: '10 Years',
         image: drSunita,
         rating: 4.9,
-        clinicIds: ['2', '5']
+        clinicIds: ['2', '5', '7']
     },
     {
         id: 'dr-singh',
@@ -68,7 +68,7 @@ export const DOCTORS: DoctorResource[] = [
         experience: '18 Years',
         image: drAryan,
         rating: 4.8,
-        clinicIds: ['4']
+        clinicIds: ['4', '6']
     },
 ];
 

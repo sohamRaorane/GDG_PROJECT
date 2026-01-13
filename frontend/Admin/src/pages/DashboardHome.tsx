@@ -71,9 +71,12 @@ const DashboardHome = () => {
         },
     ]);
 
-    const [revenueData, setRevenueData] = useState<{ month: string; revenue: number; appointments: number; patients: number }[]>([]);
+    const [timeRange, setTimeRange] = useState<'daily' | '6months' | '1year'>('6months');
+    const [allAppointments, setAllAppointments] = useState<any[]>([]);
+    const [allUsers, setAllUsers] = useState<any[]>([]);
+    const [revenueData, setRevenueData] = useState<{ label: string; revenue: number; appointments: number; patients: number }[]>([]);
     const [sparklineData, setSparklineData] = useState<{ value: number }[]>([]);
-    const [providerData, setProviderData] = useState<{ name: string; patients: number; rating: number }[]>([]);
+    const [providerData, setProviderData] = useState<{ id: string; name: string; appointments: number; rating: number }[]>([]);
     const [recentActivity, setRecentActivity] = useState<{
         id: string;
         type: string;
@@ -84,11 +87,16 @@ const DashboardHome = () => {
         color: string;
     }[]>([]);
     const [activeTherapyCount, setActiveTherapyCount] = useState(0);
+    const [todayStats, setTodayStats] = useState({
+        newAppointments: 0,
+        totalPatients: 0,
+        totalValue: 0
+    });
 
     useEffect(() => {
         // 1. Users Listener
         const unsubscribeUsers = onSnapshot(collection(db, 'users'), (snapshot) => {
-            const allUsers = snapshot.docs.map(doc => doc.data());
+            const allUsers = snapshot.docs.map(doc => ({ uid: doc.id, ...doc.data() }));
             const totalUsers = snapshot.size;
             const providers = allUsers.filter((u: any) => u.role === 'organiser' || u.role === 'doctor').length;
 
@@ -98,13 +106,7 @@ const DashboardHome = () => {
                 return s;
             }));
 
-            // Calculate Provider Rankings
-            const providersList = allUsers.filter((u: any) => u.role === 'doctor');
-            setProviderData(providersList.map((p: any) => ({
-                name: p.displayName || 'Doctor',
-                patients: Math.floor(Math.random() * 20) + 5, // Mocking patient count for now
-                rating: 4.5 + Math.random() * 0.5
-            })));
+            setAllUsers(allUsers);
         });
 
         // 2. Appointments Listener
@@ -118,6 +120,11 @@ const DashboardHome = () => {
             // Revenue calculation
             const confirmedAppts = appointments.filter((a: any) => a.status === 'confirmed' || a.status === 'completed');
             const totalRevenue = confirmedAppts.reduce((sum: number, a: any) => sum + (a.price || 0), 0);
+
+            setStats(prev => prev.map(s => {
+                if (s.title === "Revenue") return { ...s, value: `₹${totalRevenue.toLocaleString()}` };
+                return s;
+            }));
 
             setStats(prev => prev.map(s => {
                 if (s.title === "Revenue") return { ...s, value: `₹${totalRevenue.toLocaleString()}` };
@@ -139,26 +146,29 @@ const DashboardHome = () => {
                 color: 'bg-indigo-500'
             })));
 
-            // Chart Data - Group by month
-            const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-            const chartGroups = confirmedAppts.reduce((acc: any, a: any) => {
-                const date = a.startAt?.toDate() || new Date();
-                const month = monthNames[date.getMonth()];
-                if (!acc[month]) acc[month] = { month, revenue: 0, appointments: 0, patients: new Set() };
-                acc[month].revenue += (a.price || 0);
-                acc[month].appointments += 1;
-                acc[month].patients.add(a.customerId);
-                return acc;
-            }, {});
+            // Calculate Today's Stats
+            const now = new Date();
+            const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 
-            const sortedChartData = monthNames
-                .filter(m => chartGroups[m])
-                .map(m => ({
-                    ...chartGroups[m],
-                    patients: chartGroups[m].patients.size
-                }));
+            const todaysAppts = appointments.filter((a: any) => {
+                const created = a.createdAt?.toDate() || new Date(0);
+                return created >= todayStart;
+            });
 
-            setRevenueData(sortedChartData.length > 0 ? sortedChartData : [{ month: 'No Data', revenue: 0, appointments: 0, patients: 0 }]);
+            const todaysRevenue = todaysAppts
+                .filter((a: any) => a.status === 'confirmed' || a.status === 'completed')
+                .reduce((sum: number, a: any) => sum + (a.price || 0), 0);
+
+            const todaysPatients = new Set(todaysAppts.map((a: any) => a.customerId)).size;
+
+            setTodayStats({
+                newAppointments: todaysAppts.length,
+                totalPatients: todaysPatients,
+                totalValue: todaysRevenue
+            });
+
+            // Store for dynamic filtering
+            setAllAppointments(confirmedAppts);
         });
 
         // 3. Active Therapies Listener
@@ -176,6 +186,164 @@ const DashboardHome = () => {
             unsubscribeActive();
         };
     }, []);
+
+    // Re-calculate Revenue Data when filter or appointments change
+    useEffect(() => {
+        if (allAppointments.length === 0) {
+            setRevenueData([{ label: 'No Data', revenue: 0, appointments: 0, patients: 0 }]);
+            return;
+        }
+
+        let filteredApps = [...allAppointments];
+        const now = new Date();
+        const chartMap: Record<string, { label: string, revenue: number, appointments: number, patients: Set<string> }> = {};
+
+        if (timeRange === 'daily') {
+            // Filter last 30 days
+            const thirtyDaysAgo = new Date();
+            thirtyDaysAgo.setDate(now.getDate() - 30);
+            filteredApps = filteredApps.filter(a => (a.startAt?.toDate() || new Date()) >= thirtyDaysAgo);
+
+            // Group by Date (DD MMM)
+            // Initialize last 30 days
+            for (let i = 29; i >= 0; i--) {
+                const d = new Date();
+                d.setDate(now.getDate() - i);
+                const label = d.toLocaleDateString('en-US', { day: 'numeric', month: 'short' });
+                chartMap[label] = { label, revenue: 0, appointments: 0, patients: new Set() };
+            }
+
+            filteredApps.forEach(a => {
+                const date = a.startAt?.toDate() || new Date();
+                const label = date.toLocaleDateString('en-US', { day: 'numeric', month: 'short' });
+                if (chartMap[label]) {
+                    chartMap[label].revenue += (a.price || 0);
+                    chartMap[label].appointments += 1;
+                    chartMap[label].patients.add(a.customerId);
+                }
+            });
+
+        } else {
+            // Monthly View (6 months or 1 Year)
+            const monthsBack = timeRange === '1year' ? 12 : 6;
+            const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+            // Filter by date range first (optional, but good for cleanliness)
+            const cutoffDate = new Date();
+            cutoffDate.setMonth(now.getMonth() - monthsBack + 1);
+            cutoffDate.setDate(1); // Start of that month
+            filteredApps = filteredApps.filter(a => (a.startAt?.toDate() || new Date()) >= cutoffDate);
+
+            // Initialize Months
+            for (let i = monthsBack - 1; i >= 0; i--) {
+                const d = new Date();
+                d.setMonth(now.getMonth() - i);
+                const monthName = monthNames[d.getMonth()];
+                // We might want Year to distinguish Jan 2025 vs Jan 2026 if 1 year, but simple month name is usually enough for < 1 year
+                // If 1 year and crossing boundary, duplicate names issue?
+                // Let's use "MMM" format. For safety in 1 year view across years, maybe "MMM YY"?
+                // Keeping simple "MMM" as per original design for now, assuming standard fiscal year or similar usage. 
+                // Actually if today is June, 12 months back includes last June.
+                // Let's use a unique key but label as MMM.
+                const label = monthName;
+                // For preventing collision if we wrap around (e.g. Jan to Jan), we rely on iteration order primarily.
+                // But map needs unique keys.
+                // Let's use "Month Year" for key?
+                // Original code just used monthNames array.
+                // Let's stick to original implementation style but initialized correctly.
+                if (!chartMap[label]) {
+                    chartMap[label] = { label, revenue: 0, appointments: 0, patients: new Set() };
+                }
+            }
+
+            filteredApps.forEach(a => {
+                const date = a.startAt?.toDate() || new Date();
+                const label = monthNames[date.getMonth()];
+                if (chartMap[label]) {
+                    chartMap[label].revenue += (a.price || 0);
+                    chartMap[label].appointments += 1;
+                    chartMap[label].patients.add(a.customerId);
+                }
+            });
+        }
+
+        let finalData = [];
+        if (timeRange === 'daily') {
+            for (let i = 29; i >= 0; i--) {
+                const d = new Date();
+                d.setDate(now.getDate() - i);
+                const label = d.toLocaleDateString('en-US', { day: 'numeric', month: 'short' });
+                const dataPoint = chartMap[label];
+                if (dataPoint) {
+                    finalData.push({ ...dataPoint, patients: dataPoint.patients.size });
+                } else {
+                    finalData.push({ label, revenue: 0, appointments: 0, patients: 0 });
+                }
+            }
+        } else {
+            const monthsBack = timeRange === '1year' ? 12 : 6;
+            const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+            for (let i = monthsBack - 1; i >= 0; i--) {
+                const d = new Date();
+                d.setMonth(now.getMonth() - i);
+                const label = monthNames[d.getMonth()];
+                const dataPoint = chartMap[label];
+                if (dataPoint) {
+                    finalData.push({ ...dataPoint, patients: dataPoint.patients.size });
+                } else {
+                    finalData.push({ label, revenue: 0, appointments: 0, patients: 0 });
+                }
+            }
+        }
+
+        setRevenueData(finalData);
+
+    }, [allAppointments, timeRange]);
+
+    // Calculate Top Providers Real-time
+    useEffect(() => {
+        if (allAppointments.length === 0 || allUsers.length === 0) return;
+
+        const providerCounts: Record<string, number> = {};
+
+        // Count confirmed/completed appointments only
+        allAppointments.forEach((appt: any) => {
+            // Assuming providerId exists on appointment
+            if (appt.providerId) {
+                providerCounts[appt.providerId] = (providerCounts[appt.providerId] || 0) + 1;
+            }
+        });
+
+        // Map to provider details
+        const rankedProviders = Object.entries(providerCounts)
+            .map(([providerId, count]) => {
+                const user = allUsers.find((u: any) => u.uid === providerId);
+                // Fallback: If no user found, use the providerId itself (legacy data support)
+                // If it looks like 'dr-verma', nice to just show 'Verma' or similar, but simplified: display ID if name missing.
+                let displayName = user?.displayName;
+                if (!displayName) {
+                    // Try to format 'dr-name' -> 'Dr. Name'
+                    if (providerId.toLowerCase().startsWith('dr-')) {
+                        const namePart = providerId.substring(3);
+                        displayName = `Dr. ${namePart.charAt(0).toUpperCase() + namePart.slice(1)}`;
+                    } else {
+                        displayName = providerId;
+                    }
+                }
+
+                return {
+                    id: providerId,
+                    name: displayName,
+                    appointments: count,
+                    rating: 5.0 // Placeholder as we don't have ratings yet
+                };
+            })
+            .sort((a, b) => b.appointments - a.appointments)
+            .slice(0, 5); // Top 5
+
+        setProviderData(rankedProviders);
+
+    }, [allAppointments, allUsers]);
 
     // ... (rest of the file)
 
@@ -259,10 +427,31 @@ const DashboardHome = () => {
                             <p className="text-sm text-slate-600 mt-1">Income trends over the last 6 months</p>
                         </div>
                         <div className="flex gap-2">
-                            <button className="px-3 py-1.5 text-xs font-medium bg-[#1C4E46] text-white rounded-lg hover:bg-[#163d37] transition-colors">
+                            <button
+                                onClick={() => setTimeRange('daily')}
+                                className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-colors ${timeRange === 'daily'
+                                    ? 'bg-[#1C4E46] text-white'
+                                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                                    }`}
+                            >
+                                Daily
+                            </button>
+                            <button
+                                onClick={() => setTimeRange('6months')}
+                                className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-colors ${timeRange === '6months'
+                                    ? 'bg-[#1C4E46] text-white'
+                                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                                    }`}
+                            >
                                 6 Months
                             </button>
-                            <button className="px-3 py-1.5 text-xs font-medium bg-slate-100 text-slate-600 rounded-lg hover:bg-slate-200 transition-colors">
+                            <button
+                                onClick={() => setTimeRange('1year')}
+                                className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-colors ${timeRange === '1year'
+                                    ? 'bg-[#1C4E46] text-white'
+                                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                                    }`}
+                            >
                                 1 Year
                             </button>
                         </div>
@@ -279,7 +468,7 @@ const DashboardHome = () => {
                                 </defs>
                                 <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" vertical={false} />
                                 <XAxis
-                                    dataKey="month"
+                                    dataKey="label"
                                     stroke="#94a3b8"
                                     style={{ fontSize: '12px' }}
                                 />
@@ -355,13 +544,13 @@ const DashboardHome = () => {
 
                     <div className="space-y-4">
                         {providerData.map((provider, index) => (
-                            <div key={provider.name} className="flex items-center gap-3">
+                            <div key={provider.id} className="flex items-center gap-3">
                                 <div className="flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-br from-teal-500 to-teal-600 text-white font-bold text-xs">
                                     #{index + 1}
                                 </div>
                                 <div className="flex-1">
                                     <p className="text-sm font-semibold text-slate-900">{provider.name}</p>
-                                    <p className="text-xs text-slate-600">{provider.patients} patients</p>
+                                    <p className="text-xs text-slate-600">{provider.appointments} appointments</p>
                                 </div>
                                 <div className="flex items-center gap-1 text-amber-500">
                                     <span className="text-sm font-semibold">★</span>
@@ -426,7 +615,7 @@ const DashboardHome = () => {
                         <div className="flex items-center justify-between pb-3 border-b border-white/20">
                             <span className="text-sm opacity-90">New Appointments</span>
                             <span className="text-2xl font-bold">
-                                {recentActivity.filter(a => a.time.includes('AM') || a.time.includes('PM')).length}
+                                {todayStats.newAppointments}
                             </span>
                         </div>
                         <div className="flex items-center justify-between pb-3 border-b border-white/20">
@@ -434,12 +623,12 @@ const DashboardHome = () => {
                             <span className="text-2xl font-bold">{activeTherapyCount}</span>
                         </div>
                         <div className="flex items-center justify-between pb-3 border-b border-white/20">
-                            <span className="text-sm opacity-90">Total Patients</span>
-                            <span className="text-2xl font-bold">{stats.find(s => s.title === "Total Users")?.value}</span>
+                            <span className="text-sm opacity-90">New Patients</span>
+                            <span className="text-2xl font-bold">{todayStats.totalPatients}</span>
                         </div>
                         <div className="flex items-center justify-between">
-                            <span className="text-sm opacity-90">Total Value</span>
-                            <span className="text-2xl font-bold">{stats.find(s => s.title === "Revenue")?.value}</span>
+                            <span className="text-sm opacity-90">Today's Revenue</span>
+                            <span className="text-2xl font-bold">₹{todayStats.totalValue.toLocaleString()}</span>
                         </div>
                     </div>
                 </div>
