@@ -11,7 +11,6 @@ import { Button } from '../components/ui/Button';
 import type { Notification } from '../types/db';
 import { format } from 'date-fns';
 import { FloatingNav } from '../components/ui/floating-navbar';
-import { BackgroundMusic } from '../components/ui/BackgroundMusic';
 
 export const MainLayout = () => {
     const { currentUser } = useAuth();
@@ -148,7 +147,6 @@ export const MainLayout = () => {
                 therapyName="Shirodhara"
             />
             <AIChatbot />
-            <BackgroundMusic />
         </div>
     );
 };

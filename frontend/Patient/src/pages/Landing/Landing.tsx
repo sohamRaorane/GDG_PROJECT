@@ -77,7 +77,7 @@ export const Landing = () => {
             </motion.nav>
 
             {/* Hero Section */}
-            <header className="relative pt-32 pb-32 md:pb-48 px-6 md:px-12 overflow-hidden flex items-center min-h-screen">
+            <header className="relative pt-20 pb-32 md:pb-48 px-6 md:px-12 overflow-hidden flex items-center min-h-[90vh]">
                 <div className="absolute inset-0 z-0">
                     <img
                         src="https://images.unsplash.com/photo-1600334089648-b0d9d3028eb2?auto=format&fit=crop&q=80&w=2000"
@@ -87,7 +87,7 @@ export const Landing = () => {
                     <div className="absolute inset-0 bg-gradient-to-r from-background via-background/80 to-transparent" />
                 </div>
 
-                <div className="max-w-7xl mx-auto relative z-10 w-full grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                <div className="max-w-6xl mx-auto relative z-10 w-full grid grid-cols-1 lg:grid-cols-2 gap-12 pt-12 lg:pt-16">
                     <motion.div
                         initial="hidden"
                         animate="visible"
@@ -97,9 +97,7 @@ export const Landing = () => {
                         <motion.h1 variants={fadeInUp} className="font-serif text-5xl md:text-7xl text-text leading-[1.1]">
                             Wellness Starts with a <span className="italic text-primary">Single Ritual</span>
                         </motion.h1>
-                        <motion.p variants={fadeInUp} className="text-lg text-text/70 max-w-lg leading-relaxed font-sans">
-                            Compassionate Ayurvedic care, online and in-person. Short-term therapy, long-term results, and a lifetime of balance.
-                        </motion.p>
+                    </motion.div>
 
                         <div className="flex flex-col sm:flex-row gap-6 mt-8">
                             <motion.button
@@ -144,7 +142,7 @@ export const Landing = () => {
                     initial={{ opacity: 0, y: 100 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.8, duration: 0.8 }}
-                    className="absolute bottom-10 left-0 right-0 hidden lg:block px-6 md:px-12 pointer-events-none"
+                    className="absolute bottom-2 left-0 right-0 hidden lg:block px-6 md:px-12 pointer-events-none"
                 >
                     <div className="grid grid-cols-3 gap-6 max-w-6xl mx-auto pointer-events-auto">
                         {[

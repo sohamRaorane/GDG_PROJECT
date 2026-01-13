@@ -183,7 +183,11 @@ export const Home = () => {
             {/* Background Image with Overlay */}
             <div className="fixed inset-0 z-0 h-full w-full">
                 <img src={ayurvedaBg} alt="Background" className="w-full h-full object-cover opacity-60" />
-                <div className="absolute inset-0 bg-gradient-to-b from-secondary/50 via-background/20 to-background/50 backdrop-blur-[1px]"></div>
+                <motion.div
+                    className="absolute inset-0 bg-gradient-to-b from-secondary/50 via-background/20 to-background/50"
+                    animate={{ backdropFilter: introComplete ? "blur(1px)" : "blur(8px)" }}
+                    transition={{ duration: 1 }}
+                ></motion.div>
             </div>
 
             {/* Intro Animation Layer */}
@@ -199,8 +203,8 @@ export const Home = () => {
                             layoutId="namaste-lady"
                             src={namasteLady}
                             alt="Namaste"
-                            className="w-[80vh] h-auto object-contain drop-shadow-2xl"
-                            transition={{ duration: 1.2, ease: [0.43, 0.13, 0.23, 0.96] }}
+                            className="w-[180vh] h-auto object-contain drop-shadow-2xl translate-y-24"
+                            transition={{ duration: 1.5, ease: [0.43, 0.13, 0.23, 0.96] }}
                         />
                     </motion.div>
                 )}
