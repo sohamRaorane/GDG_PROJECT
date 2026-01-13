@@ -46,6 +46,10 @@ const router = createBrowserRouter([
         element: <VerifyEmail />,
     },
     {
+        path: '/book',
+        element: <Navigate to="/patient/book" replace />,
+    },
+    {
         path: '/patient',
         element: (
             <ProtectedRoute allowedRoles={['customer']}>

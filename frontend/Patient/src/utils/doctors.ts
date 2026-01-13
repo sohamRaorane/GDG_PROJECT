@@ -1,6 +1,9 @@
 import drAnjali from '../assets/doctors/dr_anjali.png';
 import drRajesh from '../assets/doctors/dr_rajesh.png';
 import drPriyanshu from '../assets/doctors/dr_priyanshu.png';
+import drVikram from '../assets/doctors/dr_vikram.png';
+import drSunita from '../assets/doctors/dr_sunita.png';
+import drAryan from '../assets/doctors/dr_aryan.png';
 
 export interface DoctorResource {
     id: string;
@@ -45,7 +48,7 @@ export const DOCTORS: DoctorResource[] = [
         name: 'Dr. Vikram Iyer',
         specialization: 'Kayachikitsa (General Medicine)',
         experience: '15 Years',
-        image: drRajesh, // Placeholder
+        image: drVikram,
         rating: 4.7,
         clinicIds: ['1', '3']
     },
@@ -54,7 +57,7 @@ export const DOCTORS: DoctorResource[] = [
         name: 'Dr. Sunita Mehta',
         specialization: 'Stri Roga (Gynecology)',
         experience: '10 Years',
-        image: drAnjali, // Placeholder
+        image: drSunita,
         rating: 4.9,
         clinicIds: ['2', '5']
     },
@@ -63,7 +66,7 @@ export const DOCTORS: DoctorResource[] = [
         name: 'Dr. Aryan Singh',
         specialization: 'Shalya Tantra (Surgery)',
         experience: '18 Years',
-        image: drRajesh, // Placeholder
+        image: drAryan,
         rating: 4.8,
         clinicIds: ['4']
     },
