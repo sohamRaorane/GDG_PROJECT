@@ -6,7 +6,7 @@ import { subscribeToNotifications, markNotificationAsRead } from '../services/no
 import { createHealthLog } from '../services/db';
 import { Timestamp } from 'firebase/firestore';
 import { MicroSurveyModal } from '../components/modals/MicroSurveyModal';
-import { AIChatbot } from '../components/ai/AIChatbot';
+
 import { Button } from '../components/ui/Button';
 import type { Notification } from '../types/db';
 import { format } from 'date-fns';
@@ -146,7 +146,7 @@ export const MainLayout = () => {
                 onSubmit={(data) => console.log('Survey submitted:', data)}
                 therapyName="Shirodhara"
             />
-            <AIChatbot />
+
         </div>
     );
 };

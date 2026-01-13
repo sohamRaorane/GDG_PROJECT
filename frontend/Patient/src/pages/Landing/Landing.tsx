@@ -98,40 +98,37 @@ export const Landing = () => {
                             Wellness Starts with a <span className="italic text-primary">Single Ritual</span>
                         </motion.h1>
 
-                        <div className="flex flex-col sm:flex-row gap-6 mt-8">
-                            <motion.button
-                                whileHover={{ scale: 1.05, translateY: -2 }}
-                                whileTap={{ scale: 0.95 }}
-                                onClick={() => navigate('/auth/patient/login')}
-                                className="group relative px-8 py-5 bg-gradient-to-r from-emerald-600 to-teal-600 text-white rounded-2xl font-bold shadow-[0_10px_40px_-10px_rgba(16,185,129,0.4)] overflow-hidden transition-all flex items-center gap-4 min-w-[240px] border border-emerald-400/20"
-                            >
-                                <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/10 to-white/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
-                                <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm group-hover:bg-white/30 transition-colors">
-                                    <span className="text-2xl">👤</span>
-                                </div>
-                                <div className="flex flex-col items-start gap-1">
-                                    <span className="text-xs font-medium text-emerald-100 uppercase tracking-wider">For Patients</span>
-                                    <span className="text-lg leading-none">Login / Signup</span>
-                                </div>
-                                <ArrowRight className="ml-auto opacity-0 group-hover:opacity-100 -translate-x-2 group-hover:translate-x-0 transition-all text-white" size={20} />
-                            </motion.button>
+                    <div className="flex flex-col gap-6 mt-8 lg:mt-0 justify-center items-end">
+                        <motion.button
+                            whileHover={{ scale: 1.02 }}
+                            whileTap={{ scale: 0.98 }}
+                            onClick={() => navigate('/auth/patient/login')}
+                            className="bg-[#008f72] text-white p-4 rounded-2xl shadow-lg flex items-center gap-4 w-full max-w-sm hover:bg-[#007a61] transition-colors group"
+                        >
+                            <div className="w-12 h-12 bg-black/20 rounded-xl flex items-center justify-center shrink-0">
+                                <span className="text-2xl">👤</span>
+                            </div>
+                            <div className="flex flex-col items-start">
+                                <span className="text-xs font-medium text-white/80 uppercase tracking-wider">For Patients</span>
+                                <span className="text-xl font-bold">Login / Signup</span>
+                            </div>
+                        </motion.button>
 
-                            <motion.button
-                                whileHover={{ scale: 1.05, translateY: -2 }}
-                                whileTap={{ scale: 0.95 }}
-                                onClick={() => window.location.href = 'http://localhost:5174/login'}
-                                className="group relative px-8 py-5 bg-white text-slate-800 rounded-2xl font-bold shadow-[0_10px_40px_-10px_rgba(0,0,0,0.1)] border border-slate-100 overflow-hidden transition-all flex items-center gap-4 min-w-[240px] hover:border-emerald-500/30 hover:shadow-[0_10px_40px_-10px_rgba(31,77,63,0.15)]"
-                            >
-                                <div className="w-12 h-12 bg-slate-50 rounded-xl flex items-center justify-center group-hover:bg-emerald-50 transition-colors">
-                                    <span className="text-2xl">👨‍⚕️</span>
-                                </div>
-                                <div className="flex flex-col items-start gap-1">
-                                    <span className="text-xs font-medium text-slate-400 group-hover:text-emerald-600 uppercase tracking-wider transition-colors">For Staff</span>
-                                    <span className="text-lg leading-none">Doctor / Admin</span>
-                                </div>
-                                <ArrowRight className="ml-auto opacity-0 group-hover:opacity-100 -translate-x-2 group-hover:translate-x-0 transition-all text-emerald-600" size={20} />
-                            </motion.button>
-                        </div>
+                        <motion.button
+                            whileHover={{ scale: 1.02 }}
+                            whileTap={{ scale: 0.98 }}
+                            onClick={() => window.location.href = 'http://localhost:5174/login'}
+                            className="bg-white text-slate-800 p-4 rounded-2xl shadow-lg flex items-center gap-4 w-full max-w-sm hover:shadow-xl transition-all border border-slate-100 group"
+                        >
+                            <div className="w-12 h-12 bg-slate-100 rounded-xl flex items-center justify-center shrink-0">
+                                <span className="text-2xl">👨‍⚕️</span>
+                            </div>
+                            <div className="flex flex-col items-start">
+                                <span className="text-xs font-medium text-slate-500 uppercase tracking-wider">For Staff</span>
+                                <span className="text-xl font-bold">Doctor / Admin</span>
+                            </div>
+                        </motion.button>
+                    </div>
 
                     </motion.div>
                 </div>
@@ -149,7 +146,7 @@ export const Landing = () => {
                             { num: '02', title: 'Match with a Vaidya', desc: 'We\'ll connect you with a licensed professional best suited to your situation.' },
                             { num: '03', title: 'Start Healing Journey', desc: 'Start your sessions online or in-person, track progress, and grow at your own pace.' },
                         ].map((step, idx) => (
-                            <div key={idx} className="bg-white/80 backdrop-blur-md border border-white/40 p-8 rounded-[2rem] text-text hover:bg-white transition-all cursor-default shadow-lg shadow-slate-200/20">
+                            <div key={idx} className="bg-white p-8 rounded-[2rem] text-text hover:shadow-xl transition-all cursor-default shadow-lg shadow-slate-200/50">
                                 <span className="block text-primary/30 font-display font-bold text-5xl mb-4">{step.num}</span>
                                 <h3 className="font-serif text-2xl mb-2 text-text font-medium">{step.title}</h3>
                                 <p className="text-sm text-text/60 leading-relaxed">{step.desc}</p>
