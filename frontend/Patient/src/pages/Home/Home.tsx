@@ -65,7 +65,10 @@ export const Home = () => {
     const navigate = useNavigate();
     const { currentUser } = useAuth();
     const [activeTherapy, setActiveTherapy] = useState<ActiveTherapy | null>(null);
-    const [introComplete, setIntroComplete] = useState(false);
+    // Check localStorage immediately to prevent animation flash on tab switches
+    const [introComplete, setIntroComplete] = useState(() => {
+        return localStorage.getItem('hasSeenNamasteIntro') === 'true';
+    });
     const [isPrescriptionOpen, setIsPrescriptionOpen] = useState(false);
 
     // Real Data State
