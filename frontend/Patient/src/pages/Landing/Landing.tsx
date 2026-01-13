@@ -99,41 +99,44 @@ export const Landing = () => {
                         </motion.h1>
                     </motion.div>
 
-                        <div className="flex flex-col sm:flex-row gap-6 mt-8">
-                            <motion.button
-                                whileHover={{ scale: 1.05, translateY: -2 }}
-                                whileTap={{ scale: 0.95 }}
-                                onClick={() => navigate('/auth/patient/login')}
-                                className="group relative px-8 py-5 bg-gradient-to-r from-emerald-600 to-teal-600 text-white rounded-2xl font-bold shadow-[0_10px_40px_-10px_rgba(16,185,129,0.4)] overflow-hidden transition-all flex items-center gap-4 min-w-[240px] border border-emerald-400/20"
-                            >
-                                <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/10 to-white/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
-                                <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm group-hover:bg-white/30 transition-colors">
-                                    <span className="text-2xl">👤</span>
-                                </div>
-                                <div className="flex flex-col items-start gap-1">
-                                    <span className="text-xs font-medium text-emerald-100 uppercase tracking-wider">For Patients</span>
-                                    <span className="text-lg leading-none">Login / Signup</span>
-                                </div>
-                                <ArrowRight className="ml-auto opacity-0 group-hover:opacity-100 -translate-x-2 group-hover:translate-x-0 transition-all text-white" size={20} />
-                            </motion.button>
+                    <motion.div
+                        initial={{ opacity: 0, x: 50 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: 0.4, duration: 0.8 }}
+                        className="flex flex-col gap-6 items-center lg:items-end self-start pt-4"
+                    >
+                        <motion.button
+                            whileHover={{ scale: 1.05, translateY: -2 }}
+                            whileTap={{ scale: 0.95 }}
+                            onClick={() => navigate('/auth/patient/login')}
+                            className="group relative px-8 py-5 bg-gradient-to-r from-emerald-600 to-teal-600 text-white rounded-2xl font-bold shadow-[0_10px_40px_-10px_rgba(16,185,129,0.4)] overflow-hidden transition-all flex items-center gap-4 min-w-[280px] border border-emerald-400/20"
+                        >
+                            <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/10 to-white/0 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
+                            <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm group-hover:bg-white/30 transition-colors">
+                                <span className="text-2xl">👤</span>
+                            </div>
+                            <div className="flex flex-col items-start gap-1">
+                                <span className="text-xs font-medium text-emerald-100 uppercase tracking-wider">For Patients</span>
+                                <span className="text-lg leading-none">Login / Signup</span>
+                            </div>
+                            <ArrowRight className="ml-auto opacity-0 group-hover:opacity-100 -translate-x-2 group-hover:translate-x-0 transition-all text-white" size={20} />
+                        </motion.button>
 
-                            <motion.button
-                                whileHover={{ scale: 1.05, translateY: -2 }}
-                                whileTap={{ scale: 0.95 }}
-                                onClick={() => window.location.href = 'http://localhost:5174/login'}
-                                className="group relative px-8 py-5 bg-white text-slate-800 rounded-2xl font-bold shadow-[0_10px_40px_-10px_rgba(0,0,0,0.1)] border border-slate-100 overflow-hidden transition-all flex items-center gap-4 min-w-[240px] hover:border-emerald-500/30 hover:shadow-[0_10px_40px_-10px_rgba(31,77,63,0.15)]"
-                            >
-                                <div className="w-12 h-12 bg-slate-50 rounded-xl flex items-center justify-center group-hover:bg-emerald-50 transition-colors">
-                                    <span className="text-2xl">👨‍⚕️</span>
-                                </div>
-                                <div className="flex flex-col items-start gap-1">
-                                    <span className="text-xs font-medium text-slate-400 group-hover:text-emerald-600 uppercase tracking-wider transition-colors">For Staff</span>
-                                    <span className="text-lg leading-none">Doctor / Admin</span>
-                                </div>
-                                <ArrowRight className="ml-auto opacity-0 group-hover:opacity-100 -translate-x-2 group-hover:translate-x-0 transition-all text-emerald-600" size={20} />
-                            </motion.button>
-                        </div>
-
+                        <motion.button
+                            whileHover={{ scale: 1.05, translateY: -2 }}
+                            whileTap={{ scale: 0.95 }}
+                            onClick={() => window.location.href = 'http://localhost:5174/login'}
+                            className="group relative px-8 py-5 bg-white text-slate-800 rounded-2xl font-bold shadow-[0_10px_40px_-10px_rgba(0,0,0,0.1)] border border-slate-100 overflow-hidden transition-all flex items-center gap-4 min-w-[280px] hover:border-emerald-500/30 hover:shadow-[0_10px_40px_-10px_rgba(31,77,63,0.15)]"
+                        >
+                            <div className="w-12 h-12 bg-slate-50 rounded-xl flex items-center justify-center group-hover:bg-emerald-50 transition-colors">
+                                <span className="text-2xl">👨‍⚕️</span>
+                            </div>
+                            <div className="flex flex-col items-start gap-1">
+                                <span className="text-xs font-medium text-slate-400 group-hover:text-emerald-600 uppercase tracking-wider transition-colors">For Staff</span>
+                                <span className="text-lg leading-none">Doctor / Admin</span>
+                            </div>
+                            <ArrowRight className="ml-auto opacity-0 group-hover:opacity-100 -translate-x-2 group-hover:translate-x-0 transition-all text-emerald-600" size={20} />
+                        </motion.button>
                     </motion.div>
                 </div>
 
