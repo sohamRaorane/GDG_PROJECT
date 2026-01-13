@@ -1,6 +1,9 @@
 import drAnjali from '../assets/doctors/dr_anjali.png';
 import drRajesh from '../assets/doctors/dr_rajesh.png';
 import drPriyanshu from '../assets/doctors/dr_priyanshu.png';
+import drVikram from '../assets/doctors/dr_vikram.png';
+import drSunita from '../assets/doctors/dr_sunita.png';
+import drAryan from '../assets/doctors/dr_aryan.png';
 
 export interface DoctorResource {
     id: string;
@@ -20,7 +23,7 @@ export const DOCTORS: DoctorResource[] = [
         experience: '12 Years',
         image: drAnjali,
         rating: 4.8,
-        clinicIds: ['1', '2'] // Available at AyurSutra and Prakriti
+        clinicIds: ['1', '2', '7'] // Available at AyurSutra, Prakriti, and Ojas
     },
     {
         id: 'dr-verma',
@@ -29,7 +32,7 @@ export const DOCTORS: DoctorResource[] = [
         experience: '20 Years',
         image: drRajesh,
         rating: 4.9,
-        clinicIds: ['1', '3', '5'] // AyurSutra, Dhanvantari, Sushruta
+        clinicIds: ['1', '3', '5', '6'] // AyurSutra, Dhanvantari, Sushruta, NavJivan
     },
     {
         id: 'dr-gupta',
@@ -38,34 +41,34 @@ export const DOCTORS: DoctorResource[] = [
         experience: '8 Years',
         image: drPriyanshu,
         rating: 4.6,
-        clinicIds: ['2', '4'] // Prakriti and VedaLife
+        clinicIds: ['2', '4', '7'] // Prakriti, VedaLife, Ojas
     },
     {
         id: 'dr-iyer',
         name: 'Dr. Vikram Iyer',
         specialization: 'Kayachikitsa (General Medicine)',
         experience: '15 Years',
-        image: 'https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?auto=format&fit=crop&q=80&w=800',
+        image: drVikram,
         rating: 4.7,
-        clinicIds: ['1', '3']
+        clinicIds: ['1', '3', '6']
     },
     {
         id: 'dr-mehta',
         name: 'Dr. Sunita Mehta',
         specialization: 'Stri Roga (Gynecology)',
         experience: '10 Years',
-        image: 'https://images.unsplash.com/photo-1651008376811-b90baee60c1f?auto=format&fit=crop&q=80&w=800',
+        image: drSunita,
         rating: 4.9,
-        clinicIds: ['2', '5']
+        clinicIds: ['2', '5', '7']
     },
     {
         id: 'dr-singh',
         name: 'Dr. Aryan Singh',
         specialization: 'Shalya Tantra (Surgery)',
         experience: '18 Years',
-        image: 'https://images.unsplash.com/photo-1582750433449-648ed127bb54?auto=format&fit=crop&q=80&w=800',
+        image: drAryan,
         rating: 4.8,
-        clinicIds: ['4']
+        clinicIds: ['4', '6']
     },
 ];
 
