@@ -111,7 +111,7 @@ export const Confirmation: React.FC<ConfirmationProps> = ({ bookingData }) => {
             {/* Actions */}
             <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
                 <Button
-                    onClick={() => navigate('/home')}
+                    onClick={() => navigate('/patient/home')}
                     className="w-full sm:w-auto px-10 py-5 rounded-3xl bg-primary text-white shadow-xl shadow-primary/20 hover:bg-primary/90 flex items-center gap-2 font-bold transition-transform hover:-translate-y-1"
                 >
                     <Home size={18} />
@@ -119,7 +119,7 @@ export const Confirmation: React.FC<ConfirmationProps> = ({ bookingData }) => {
                 </Button>
                 <Button
                     variant="outline"
-                    onClick={() => navigate('/services')}
+                    onClick={() => navigate('/patient/services')}
                     className="w-full sm:w-auto px-10 py-5 rounded-3xl border-2 border-secondary/20 text-secondary hover:text-primary hover:bg-secondary/10 font-bold transition-all"
                 >
                     Book Another Session
