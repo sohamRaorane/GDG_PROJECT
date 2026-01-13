@@ -1,0 +1,10 @@
+{
+    "name": "ayursutra",
+    "private": true,
+    "type": "module",
+    "scripts": {
+        "build:patient": "cd frontend/Patient && npm install && npm run build",
+        "build:admin": "cd frontend/Admin && npm install && npm run build",
+        "build": "npm run build:patient && npm run build:admin && node scripts/merge-dist.js"
+    }
+}

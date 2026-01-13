@@ -319,12 +319,12 @@ export const Home = () => {
                                         </>
                                     )}
                                     <div className="flex gap-3 pt-2">
-                                        <Button onClick={() => navigate('/progress')} className="rounded-xl px-6 py-6 shadow-lg shadow-primary/20">
+                                        <Button onClick={() => navigate('/patient/progress')} className="rounded-xl px-6 py-6 shadow-lg shadow-primary/20">
                                             Start Daily Check-in
                                         </Button>
                                         <Button
                                             variant="outline"
-                                            onClick={() => navigate('/guidelines')}
+                                            onClick={() => navigate('/patient/guidelines')}
                                             className="rounded-xl px-6 py-6 border-slate-200 bg-transparent hover:bg-slate-50"
                                         >
                                             View Guidelines

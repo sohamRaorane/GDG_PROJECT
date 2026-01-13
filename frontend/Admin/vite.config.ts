@@ -7,7 +7,9 @@ export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '');
   const projectId = env.VITE_FIREBASE_PROJECT_ID || 'ayursutra-f2435';
 
+
   return {
+    base: "/admin/",
     plugins: [react(), tailwindcss()],
     server: {
       headers: {

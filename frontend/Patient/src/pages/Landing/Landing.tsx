@@ -118,7 +118,7 @@ export const Landing = () => {
                         <motion.button
                             whileHover={{ scale: 1.02 }}
                             whileTap={{ scale: 0.98 }}
-                            onClick={() => window.location.href = 'http://localhost:5174/login'}
+                            onClick={() => window.location.href = '/admin/login'}
                             className="bg-white text-slate-800 p-4 rounded-2xl shadow-lg flex items-center gap-4 w-full max-w-sm hover:shadow-xl transition-all border border-slate-100 group"
                         >
                             <div className="w-12 h-12 bg-slate-100 rounded-xl flex items-center justify-center shrink-0">
