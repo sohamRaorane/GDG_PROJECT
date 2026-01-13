@@ -7,7 +7,7 @@ import tailwindcss from '@tailwindcss/vite'
 // https://vite.dev/config/
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '');
-  const projectId = env.VITE_FIREBASE_PROJECT_ID || 'gdg-project'; // Fallback if not found
+  const projectId = env.VITE_FIREBASE_PROJECT_ID || 'ayursutra-f2435'; // Match .firebaserc default
 
   return {
     plugins: [react(), tailwindcss()],
@@ -18,7 +18,7 @@ export default defineConfig(({ mode }) => {
       },
       proxy: {
         '/api': {
-          target: 'http://127.0.0.1:5001/gdg-project/us-central1/aiProxy',
+          target: `http://127.0.0.1:5001/${projectId}/us-central1/aiProxy`,
           changeOrigin: true,
           rewrite: (path) => path.replace(/^\/api/, ''),
           configure: (proxy, _options) => {

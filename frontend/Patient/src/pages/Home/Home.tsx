@@ -75,11 +75,20 @@ export const Home = () => {
     const [upcomingAppointments, setUpcomingAppointments] = useState<Appointment[]>([]);
 
     useEffect(() => {
-        // Start the transition after 1.5 seconds
-        const timer = setTimeout(() => {
+        // Check if the intro has been shown before
+        const hasSeenIntro = localStorage.getItem('hasSeenNamasteIntro');
+
+        if (hasSeenIntro === 'true') {
+            // Skip the animation if already seen
             setIntroComplete(true);
-        }, 1500);
-        return () => clearTimeout(timer);
+        } else {
+            // Show the animation and mark as seen
+            const timer = setTimeout(() => {
+                setIntroComplete(true);
+                localStorage.setItem('hasSeenNamasteIntro', 'true');
+            }, 1500);
+            return () => clearTimeout(timer);
+        }
     }, []);
 
     useEffect(() => {
