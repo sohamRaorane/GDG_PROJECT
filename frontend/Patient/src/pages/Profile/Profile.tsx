@@ -315,7 +315,7 @@ export const Profile = () => {
 
     const HealingProgressWidget = () => (
         <div
-            onClick={() => navigate('/progress')}
+            onClick={() => navigate('/patient')}
             className="bg-gradient-to-b from-[#2F5E3D] to-[#1A2E25] rounded-[2.5rem] p-6 text-white relative overflow-hidden shadow-2xl group cursor-pointer transition-transform hover:scale-[1.02]"
         >
             <div className="relative z-10 flex flex-col items-center gap-4">
