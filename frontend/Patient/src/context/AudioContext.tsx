@@ -54,14 +54,31 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
             const interval = setInterval(() => {
                 if (vol < volume) {
                     vol += 0.05;
-                    audioRef.current!.volume = Math.min(vol, volume);
+                    if (audioRef.current) audioRef.current.volume = Math.min(vol, volume);
                 } else {
                     clearInterval(interval);
                 }
             }, 200);
-            return () => clearInterval(interval);
+
+            // Handle browser autoplay policy: try to play on any user interaction if blocked
+            const startAudio = () => {
+                if (isPlaying && audioRef.current && audioRef.current.paused) {
+                    audioRef.current.play().catch(() => { });
+                }
+                window.removeEventListener('click', startAudio);
+                window.removeEventListener('keydown', startAudio);
+            };
+
+            window.addEventListener('click', startAudio);
+            window.addEventListener('keydown', startAudio);
+
+            return () => {
+                clearInterval(interval);
+                window.removeEventListener('click', startAudio);
+                window.removeEventListener('keydown', startAudio);
+            };
         }
-    }, []);
+    }, [isPlaying, volume]);
 
     const toggleAudio = () => {
         setIsPlaying(prev => !prev);
